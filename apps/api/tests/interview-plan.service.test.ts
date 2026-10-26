@@ -1,5 +1,5 @@
+import type { InterviewPlan } from "@ai-interview/shared";
 import { assert, describe, it } from "@effect/vitest";
-import type { InterviewPlan } from "@repo/shared";
 import { Effect, Layer } from "effect";
 
 import { Database } from "@/database/client";

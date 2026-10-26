@@ -1,4 +1,4 @@
-import type { Interview } from "@repo/shared";
+import type { Interview } from "@ai-interview/shared";
 
 import type { Interview as DbInterview } from "@/database/schema";
 

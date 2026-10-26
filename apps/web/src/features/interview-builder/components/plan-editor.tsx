@@ -1,8 +1,8 @@
-import { Button } from "@repo/components/button";
-import { Card, CardContent, CardHeader } from "@repo/components/card";
-import { Input } from "@repo/components/input";
-import { Textarea } from "@repo/components/textarea";
-import type { InterviewPlan } from "@repo/shared";
+import type { InterviewPlan } from "@ai-interview/shared";
+import { Button } from "@ai-interview/ui/button";
+import { Card, CardContent, CardHeader } from "@ai-interview/ui/card";
+import { Input } from "@ai-interview/ui/input";
+import { Textarea } from "@ai-interview/ui/textarea";
 import { Minus, Plus, Trash } from "lucide-react";
 
 import { FormField } from "@/components/form-field";

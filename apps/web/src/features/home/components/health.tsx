@@ -1,6 +1,6 @@
-import { Badge } from "@repo/components/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/components/card";
-import { Skeleton } from "@repo/components/skeleton";
+import { Badge } from "@ai-interview/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@ai-interview/ui/card";
+import { Skeleton } from "@ai-interview/ui/skeleton";
 
 import { useHealth } from "../hooks/use-health";
 

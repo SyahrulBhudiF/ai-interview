@@ -1,1 +1,1 @@
-export { cn } from "@repo/components/utils";
+export { cn } from "@ai-interview/ui/utils";

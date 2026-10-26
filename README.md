@@ -25,8 +25,8 @@ apps/
   api/              Elysia API — modules/{greet,health,user}
   web/              TanStack Start web app — routes/ + features/home
 packages/
-  components/       shadcn/ui (@repo/components)
-  shared/           Effect Schema contracts (@repo/shared)
+  components/       shadcn/ui (@ai-interview/ui)
+  shared/           Effect Schema contracts (@ai-interview/shared)
   typescript-config/
 .agents/            CONTEXT.md + reusable skills
 ```

@@ -1,4 +1,4 @@
-import { ApiSuccessSchema, GreetResponseSchema } from "@repo/shared";
+import { ApiSuccessSchema, GreetResponseSchema } from "@ai-interview/shared";
 import { useForm } from "@tanstack/react-form";
 import { Schema } from "effect";
 import { useState } from "react";
@@ -11,7 +11,7 @@ export function useGreetForm() {
   const form = useForm({
     defaultValues: { name: "" },
     onSubmit: async ({ value }) => {
-      const { data, error } = await api.api.greet.post(value);
+      const { data, error } = await api.greet.post(value);
       if (error || !data) {
         setMessage("Request was rejected by the API.");
         return;

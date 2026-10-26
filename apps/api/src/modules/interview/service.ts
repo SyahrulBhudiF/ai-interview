@@ -1,4 +1,4 @@
-import type { CreateInterview, Interview, InterviewBehavior } from "@repo/shared";
+import type { CreateInterview, Interview, InterviewBehavior } from "@ai-interview/shared";
 import { desc, eq } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 

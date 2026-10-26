@@ -14,7 +14,7 @@
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
-    "ui": "@repo/components",
+    "ui": "@ai-interview/ui",
     "lib": "@/lib",
     "hooks": "@/hooks"
   }

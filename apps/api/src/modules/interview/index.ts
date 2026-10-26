@@ -5,7 +5,7 @@ import {
   InterviewBehaviorSchema,
   InterviewPlanSchema,
   InterviewSchema,
-} from "@repo/shared";
+} from "@ai-interview/shared";
 import { Effect, Schema } from "effect";
 import { Elysia } from "elysia";
 

@@ -1,15 +1,15 @@
-import { Button } from "@repo/components/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/components/card";
-import { Checkbox } from "@repo/components/checkbox";
-import { Input } from "@repo/components/input";
+import { Button } from "@ai-interview/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ai-interview/ui/card";
+import { Checkbox } from "@ai-interview/ui/checkbox";
+import { Input } from "@ai-interview/ui/input";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@repo/components/select";
-import { Textarea } from "@repo/components/textarea";
+} from "@ai-interview/ui/select";
+import { Textarea } from "@ai-interview/ui/textarea";
 
 import { FormField } from "@/components/form-field";
 
@@ -17,6 +17,16 @@ import { useCreateInterview } from "../hooks/use-create-interview";
 
 const EXPERIENCE_LEVELS = ["intern", "junior", "mid", "senior", "lead"] as const;
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
+
+function firstErrorMessage(errors: readonly unknown[]): string | undefined {
+  const first = errors[0];
+  if (typeof first === "string") return first;
+  if (first && typeof first === "object" && "message" in first) {
+    const message = (first as { message?: unknown }).message;
+    if (typeof message === "string") return message;
+  }
+  return undefined;
+}
 
 export function CreateInterviewForm() {
   const { form, isSubmitting, error } = useCreateInterview();
@@ -40,7 +50,11 @@ export function CreateInterviewForm() {
             <form.Field
               name="title"
               children={(field) => (
-                <FormField label="Title" htmlFor="title">
+                <FormField
+                  label="Title"
+                  htmlFor="title"
+                  error={firstErrorMessage(field.state.meta.errors)}
+                >
                   <Input
                     id="title"
                     value={field.state.value}
@@ -53,7 +67,11 @@ export function CreateInterviewForm() {
             <form.Field
               name="jobPosition"
               children={(field) => (
-                <FormField label="Job position" htmlFor="jobPosition">
+                <FormField
+                  label="Job position"
+                  htmlFor="jobPosition"
+                  error={firstErrorMessage(field.state.meta.errors)}
+                >
                   <Input
                     id="jobPosition"
                     value={field.state.value}
@@ -110,7 +128,11 @@ export function CreateInterviewForm() {
             <form.Field
               name="language"
               children={(field) => (
-                <FormField label="Language" htmlFor="language">
+                <FormField
+                  label="Language"
+                  htmlFor="language"
+                  error={firstErrorMessage(field.state.meta.errors)}
+                >
                   <Input
                     id="language"
                     value={field.state.value}
@@ -127,7 +149,7 @@ export function CreateInterviewForm() {
               <FormField label="Job description" htmlFor="jobDescription">
                 <Textarea
                   id="jobDescription"
-                  value={field.state.value}
+                  value={field.state.value ?? ""}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Responsibilities, stack, and expectations…"
                 />
@@ -140,7 +162,7 @@ export function CreateInterviewForm() {
               <FormField label="Context" htmlFor="context">
                 <Textarea
                   id="context"
-                  value={field.state.value}
+                  value={field.state.value ?? ""}
                   onChange={(e) => field.handleChange(e.target.value)}
                   placeholder="Anything the interviewer should know…"
                 />
@@ -156,7 +178,7 @@ export function CreateInterviewForm() {
                   <Checkbox
                     id="allow-follow-ups"
                     className="mt-0.5"
-                    checked={field.state.value}
+                    checked={field.state.value ?? false}
                     onCheckedChange={(checked) => field.handleChange(checked === true)}
                   />
                   <span className="space-y-0.5">
@@ -178,7 +200,7 @@ export function CreateInterviewForm() {
                   <Checkbox
                     id="generate-detailed-feedback"
                     className="mt-0.5"
-                    checked={field.state.value}
+                    checked={field.state.value ?? false}
                     onCheckedChange={(checked) => field.handleChange(checked === true)}
                   />
                   <span className="space-y-0.5">
@@ -197,7 +219,7 @@ export function CreateInterviewForm() {
                   <Checkbox
                     id="strict-mode"
                     className="mt-0.5"
-                    checked={field.state.value}
+                    checked={field.state.value ?? false}
                     onCheckedChange={(checked) => field.handleChange(checked === true)}
                   />
                   <span className="space-y-0.5">

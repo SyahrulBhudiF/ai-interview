@@ -12,10 +12,10 @@
   },
   "iconLibrary": "radix",
   "aliases": {
-    "components": "@repo/components",
-    "utils": "@repo/components/utils",
-    "ui": "@repo/components",
-    "lib": "@repo/components",
-    "hooks": "@repo/components"
+    "components": "@ai-interview/ui",
+    "utils": "@ai-interview/ui/utils",
+    "ui": "@ai-interview/ui",
+    "lib": "@ai-interview/ui",
+    "hooks": "@ai-interview/ui"
   }
 }

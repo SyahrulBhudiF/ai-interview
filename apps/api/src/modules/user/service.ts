@@ -1,4 +1,4 @@
-import type { User } from "@repo/shared";
+import type { User } from "@ai-interview/shared";
 import { eq } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 

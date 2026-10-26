@@ -1,7 +1,7 @@
-import { Badge } from "@repo/components/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/components/card";
-import { Skeleton } from "@repo/components/skeleton";
-import type { Interview } from "@repo/shared";
+import type { Interview } from "@ai-interview/shared";
+import { Badge } from "@ai-interview/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@ai-interview/ui/card";
+import { Skeleton } from "@ai-interview/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 
 export function InterviewsList({

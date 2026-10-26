@@ -1,4 +1,4 @@
-import { ApiSuccessSchema, GreetRequestSchema, GreetResponseSchema } from "@repo/shared";
+import { ApiSuccessSchema, GreetRequestSchema, GreetResponseSchema } from "@ai-interview/shared";
 import { Schema } from "effect";
 import { Elysia } from "elysia";
 

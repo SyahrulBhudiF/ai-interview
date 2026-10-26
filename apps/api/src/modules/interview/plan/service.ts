@@ -1,4 +1,4 @@
-import type { InterviewPlan } from "@repo/shared";
+import type { InterviewPlan } from "@ai-interview/shared";
 import { asc, eq, inArray } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 

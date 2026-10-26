@@ -45,12 +45,12 @@ export const QuestionSchema = Schema.Struct({
 });
 
 export const CreateInterviewSchema = Schema.Struct({
-  title: Schema.String,
-  jobPosition: Schema.String,
+  title: Schema.NonEmptyString,
+  jobPosition: Schema.NonEmptyString,
   experienceLevel: ExperienceLevelSchema,
   jobDescription: Schema.optional(Schema.String),
   context: Schema.optional(Schema.String),
-  language: Schema.String,
+  language: Schema.NonEmptyString,
   difficulty: DifficultySchema,
   allowFollowUps: Schema.optional(Schema.Boolean),
   generateDetailedFeedback: Schema.optional(Schema.Boolean),

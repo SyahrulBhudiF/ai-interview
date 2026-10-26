@@ -1,7 +1,7 @@
-import { Button } from "@repo/components/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/components/card";
-import { Input } from "@repo/components/input";
-import { Label } from "@repo/components/label";
+import { Button } from "@ai-interview/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@ai-interview/ui/card";
+import { Input } from "@ai-interview/ui/input";
+import { Label } from "@ai-interview/ui/label";
 
 import { useGreetForm } from "../hooks/use-greet-form";
 

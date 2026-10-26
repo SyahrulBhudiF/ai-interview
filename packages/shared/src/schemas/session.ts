@@ -34,4 +34,31 @@ export const TranscriptEntrySchema = Schema.Struct({
 });
 
 export type Session = Schema.Schema.Type<typeof SessionSchema>;
+export type TranscriptRole = Schema.Schema.Type<typeof TranscriptRoleSchema>;
 export type TranscriptEntry = Schema.Schema.Type<typeof TranscriptEntrySchema>;
+
+/** POST /api/sessions/:id/answer */
+export const AnswerRequestSchema = Schema.Struct({
+  text: Schema.NonEmptyString,
+});
+
+export const SessionStartResponseSchema = Schema.Struct({
+  session: SessionSchema,
+  question: Schema.String,
+});
+
+export const SessionAnswerResponseSchema = Schema.Struct({
+  session: SessionSchema,
+  interviewerMessage: Schema.String,
+  finished: Schema.Boolean,
+});
+
+export const SessionDetailResponseSchema = Schema.Struct({
+  session: SessionSchema,
+  transcript: Schema.Array(TranscriptEntrySchema),
+});
+
+export type AnswerRequest = Schema.Schema.Type<typeof AnswerRequestSchema>;
+export type SessionStartResponse = Schema.Schema.Type<typeof SessionStartResponseSchema>;
+export type SessionAnswerResponse = Schema.Schema.Type<typeof SessionAnswerResponseSchema>;
+export type SessionDetailResponse = Schema.Schema.Type<typeof SessionDetailResponseSchema>;

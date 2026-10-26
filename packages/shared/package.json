@@ -1,5 +1,5 @@
 {
-  "name": "@repo/shared",
+  "name": "@ai-interview/shared",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -15,8 +15,8 @@
     "effect": "^4.0.6"
   },
   "devDependencies": {
+    "@ai-interview/tsconfig": "workspace:*",
     "@effect/vitest": "^4.0.6",
-    "@repo/typescript-config": "workspace:*",
     "typescript": "~6.0.3",
     "vitest": "^5.0.5"
   }

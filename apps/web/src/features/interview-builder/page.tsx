@@ -1,47 +1,15 @@
-import { Badge } from "@repo/components/badge";
-import { Button } from "@repo/components/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/components/card";
-import { Checkbox } from "@repo/components/checkbox";
-import { Skeleton } from "@repo/components/skeleton";
-import type { InterviewBehavior, InterviewPlan } from "@repo/shared";
+import type { InterviewBehavior, InterviewPlan } from "@ai-interview/shared";
+import { Badge } from "@ai-interview/ui/badge";
+import { Button } from "@ai-interview/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ai-interview/ui/card";
+import { Skeleton } from "@ai-interview/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { BehaviorToggle } from "./components/behavior-toggle";
 import { PlanEditor } from "./components/plan-editor";
 import { useInterview } from "./hooks/use-interview";
 import { useInterviewPlan } from "./hooks/use-interview-plan";
-
-function BehaviorToggle({
-  id,
-  checked,
-  label,
-  description,
-  disabled,
-  onToggle,
-}: {
-  id: string;
-  checked: boolean;
-  label: string;
-  description: string;
-  disabled: boolean;
-  onToggle: (checked: boolean) => void;
-}) {
-  return (
-    <label htmlFor={id} className="flex items-start gap-2 text-sm">
-      <Checkbox
-        id={id}
-        className="mt-0.5"
-        checked={checked}
-        disabled={disabled}
-        onCheckedChange={(value) => onToggle(value === true)}
-      />
-      <span className="space-y-0.5">
-        <span className="block font-medium">{label}</span>
-        <span className="text-muted-foreground block">{description}</span>
-      </span>
-    </label>
-  );
-}
 
 export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
   const interview = useInterview(interviewId);

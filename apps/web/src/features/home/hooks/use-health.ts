@@ -1,4 +1,4 @@
-import { ApiSuccessSchema, HealthResponseSchema } from "@repo/shared";
+import { ApiSuccessSchema, HealthResponseSchema } from "@ai-interview/shared";
 import { useQuery } from "@tanstack/react-query";
 import { Schema } from "effect";
 
@@ -8,7 +8,7 @@ export function useHealth() {
   const health = useQuery({
     queryKey: ["health"],
     queryFn: async () => {
-      const { data, error } = await api.api.health.get();
+      const { data, error } = await api.health.get();
       if (error || !data) throw new Error("health check failed");
       return Schema.decodeUnknownSync(ApiSuccessSchema(HealthResponseSchema))(data).data;
     },

@@ -8,5 +8,5 @@ shadcn/ui components (new-york style, Tailwind v4), consumed as TypeScript sourc
 - Class variants via `class-variance-authority` + `cn` from `./utils`.
 - Use `data-slot` attributes and the shadcn Tailwind v4 class strings verbatim.
 - Add components with the shadcn CLI (`components.json` at the repo root of this
-  package) so aliases stay in sync; `ui` alias → `@repo/components`.
+  package) so aliases stay in sync; `ui` alias → `@ai-interview/ui`.
 - No build step — check-types is `tsc --noEmit`; consumers transpile the `.tsx`.

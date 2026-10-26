@@ -1,4 +1,4 @@
-import { ApiSuccessSchema, InterviewPlanSchema } from "@repo/shared";
+import { ApiSuccessSchema, InterviewPlanSchema } from "@ai-interview/shared";
 import { Schema } from "effect";
 import { Elysia } from "elysia";
 

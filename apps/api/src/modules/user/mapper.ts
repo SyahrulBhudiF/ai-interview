@@ -1,4 +1,4 @@
-import type { User } from "@repo/shared";
+import type { User } from "@ai-interview/shared";
 
 import type { User as DbUser } from "@/database/schema";
 

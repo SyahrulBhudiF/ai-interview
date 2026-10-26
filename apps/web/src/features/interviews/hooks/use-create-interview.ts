@@ -1,4 +1,9 @@
-import { ApiSuccessSchema, InterviewSchema, type CreateInterview } from "@repo/shared";
+import {
+  ApiSuccessSchema,
+  CreateInterviewSchema,
+  InterviewSchema,
+  type CreateInterview,
+} from "@ai-interview/shared";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -7,14 +12,14 @@ import { Schema } from "effect";
 import { getApiErrorMessage } from "@/lib/api-error";
 import { api } from "@/lib/eden";
 
-const defaults = {
+const defaults: CreateInterview = {
   title: "",
   jobPosition: "",
-  experienceLevel: "mid" as CreateInterview["experienceLevel"],
-  difficulty: "intermediate" as CreateInterview["difficulty"],
+  experienceLevel: "mid",
+  difficulty: "intermediate",
   language: "en",
-  jobDescription: "",
-  context: "",
+  jobDescription: undefined,
+  context: undefined,
   allowFollowUps: true,
   generateDetailedFeedback: true,
   strictMode: false,
@@ -26,7 +31,7 @@ export function useCreateInterview() {
 
   const mutation = useMutation({
     mutationFn: async (input: CreateInterview) => {
-      const { data, error } = await api.api.interviews.post(input);
+      const { data, error } = await api.interviews.post(input);
       if (error || !data)
         throw new Error(getApiErrorMessage(error, "Failed to create the interview."));
       return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewSchema))(data).data;
@@ -39,6 +44,9 @@ export function useCreateInterview() {
 
   const form = useForm({
     defaultValues: defaults,
+    validators: {
+      onChange: Schema.toStandardSchemaV1(CreateInterviewSchema),
+    },
     onSubmit: async ({ value }) => {
       await mutation.mutateAsync({
         title: value.title,
@@ -46,8 +54,8 @@ export function useCreateInterview() {
         experienceLevel: value.experienceLevel,
         difficulty: value.difficulty,
         language: value.language,
-        jobDescription: value.jobDescription.trim() || undefined,
-        context: value.context.trim() || undefined,
+        jobDescription: value.jobDescription?.trim() || undefined,
+        context: value.context?.trim() || undefined,
         allowFollowUps: value.allowFollowUps,
         generateDetailedFeedback: value.generateDetailedFeedback,
         strictMode: value.strictMode,

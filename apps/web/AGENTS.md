@@ -16,7 +16,7 @@ features/<name>/
 ```
 
 - One feature per route/page. Cross-cutting UI goes in `src/components/` or
-  `@repo/components` (shadcn).
+  `@ai-interview/ui` (shadcn).
 
 ## Data & API
 
@@ -30,5 +30,5 @@ features/<name>/
 
 ## UI
 
-- Import shadcn components from `@repo/components/<name>` (new-york, Tailwind v4).
-- `cn` from `@repo/components/utils`. Theme CSS in `src/styles/globals.css`.
+- Import shadcn components from `@ai-interview/ui/<name>` (new-york, Tailwind v4).
+- `cn` from `@ai-interview/ui/utils`. Theme CSS in `src/styles/globals.css`.

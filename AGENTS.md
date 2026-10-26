@@ -24,8 +24,8 @@ apps/
   api/            Elysia API (Effect v4)
   web/            TanStack Start web app
 packages/
-  components/     shadcn/ui (@repo/components)
-  shared/         Effect Schema contracts (@repo/shared)
+  components/     shadcn/ui (@ai-interview/ui)
+  shared/         Effect Schema contracts (@ai-interview/shared)
   typescript-config/
 .agents/CONTEXT.md  architecture decisions & domain context
 ```

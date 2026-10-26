@@ -3,7 +3,7 @@ import {
   InterviewPlanSchema,
   type InterviewPlan,
   type StageSpec,
-} from "@repo/shared";
+} from "@ai-interview/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Schema } from "effect";
 
@@ -16,7 +16,7 @@ export function useInterviewPlan(interviewId: string) {
   const planQuery = useQuery({
     queryKey: ["interviews", interviewId, "plan"],
     queryFn: async () => {
-      const { data, error } = await api.api.interviews({ id: interviewId }).plan.get();
+      const { data, error } = await api.interviews({ id: interviewId }).plan.get();
       if (error || !data) throw new Error("Failed to load the plan.");
       return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewPlanSchema))(data).data;
     },
@@ -25,7 +25,7 @@ export function useInterviewPlan(interviewId: string) {
 
   const generate = useMutation({
     mutationFn: async (stages: StageSpec[]) => {
-      const { data, error } = await api.api.interviews({ id: interviewId })["generate-plan"].post({
+      const { data, error } = await api.interviews({ id: interviewId })["generate-plan"].post({
         stages,
       });
 
@@ -37,7 +37,7 @@ export function useInterviewPlan(interviewId: string) {
 
   const save = useMutation({
     mutationFn: async (plan: InterviewPlan) => {
-      const { data, error } = await api.api.interviews({ id: interviewId }).plan.put(plan);
+      const { data, error } = await api.interviews({ id: interviewId }).plan.put(plan);
       if (error || !data) throw new Error(getApiErrorMessage(error, "Failed to save the plan."));
       return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewPlanSchema))(data).data;
     },

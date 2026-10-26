@@ -63,3 +63,9 @@ export const GeminiUpstreamError = defineApiError({
   status: 502,
   message: "Gemini request failed",
 });
+
+export const ConflictError = defineApiError({
+  code: "CONFLICT",
+  status: 409,
+  message: "Invalid state",
+});

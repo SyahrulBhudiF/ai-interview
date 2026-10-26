@@ -1,5 +1,5 @@
+import { InterviewPlanSchema, type Interview } from "@ai-interview/shared";
 import { assert, describe, it } from "@effect/vitest";
-import { InterviewPlanSchema, type Interview } from "@repo/shared";
 import { Schema } from "effect";
 
 import { buildPlanPrompt } from "@/modules/gemini/service";

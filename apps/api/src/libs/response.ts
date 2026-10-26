@@ -1,4 +1,4 @@
-import type { ApiErrorResponse, ApiIssue, ApiSuccess } from "@repo/shared";
+import type { ApiErrorResponse, ApiIssue, ApiSuccess } from "@ai-interview/shared";
 
 export function ok<T>(data: T): ApiSuccess<T> {
   return { ok: true, data };

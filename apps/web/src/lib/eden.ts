@@ -7,4 +7,5 @@ const apiUrl =
   import.meta.env.VITE_API_URL ??
   (typeof window === "undefined" ? "http://localhost:3001" : window.location.origin);
 
-export const api = treaty<App>(apiUrl, { parseDate: false });
+// Unwrap the `/api` route group so callers write `api.interviews`, not `api.interviews`.
+export const api = treaty<App>(apiUrl, { parseDate: false }).api;
