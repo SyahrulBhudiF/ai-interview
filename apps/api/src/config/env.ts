@@ -13,6 +13,7 @@ const config = Config.all({
   logLevel: Config.Literals(["debug", "info", "warning", "error", "fatal"], "LOG_LEVEL").pipe(
     Config.withDefault("info"),
   ),
+  geminiApiKey: Config.option(Config.String("GEMINI_API_KEY")),
 });
 
 export const env = Effect.runSync(

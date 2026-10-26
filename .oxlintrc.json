@@ -45,6 +45,7 @@
     ".devenv/**",
     "apps/**/dist/**",
     "apps/**/.output/**",
+    "apps/api/drizzle/**",
     "apps/web/src/routeTree.gen.ts",
     "bun.lock"
   ]

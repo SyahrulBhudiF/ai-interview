@@ -10,7 +10,7 @@
     "build": "bun build src/index.ts --target bun --outdir dist",
     "start": "bun dist/index.js",
     "check-types": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run --passWithNoTests --no-cache --no-fsModuleCache",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
@@ -18,6 +18,8 @@
   "dependencies": {
     "@elysia/openapi": "2.0.0-rc.0",
     "@repo/shared": "workspace:*",
+    "@tanstack/ai": "^1.0.0",
+    "@tanstack/ai-gemini": "^1.0.0",
     "drizzle-orm": "^0.45.4",
     "effect": "^4.0.6",
     "elysia": "2.0.0-rc.0",

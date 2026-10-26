@@ -9,7 +9,7 @@
   },
   "scripts": {
     "check-types": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest run --passWithNoTests --no-cache --no-fsModuleCache"
   },
   "dependencies": {
     "effect": "^4.0.6"
