@@ -1,9 +1,9 @@
 import { assert, describe, it } from "@effect/vitest";
 import { Effect, Exit, Layer } from "effect";
 
-import { Database } from "../src/database/client";
-import { toInterview } from "../src/modules/interview/mapper";
-import { InterviewService } from "../src/modules/interview/service";
+import { Database } from "@/database/client";
+import { toInterview } from "@/modules/interview/mapper";
+import { InterviewService } from "@/modules/interview/service";
 
 describe("toInterview", () => {
   it("maps a database row to the wire type", () => {
@@ -17,6 +17,9 @@ describe("toInterview", () => {
       language: "en",
       difficulty: "intermediate",
       status: "draft",
+      allowFollowUps: true,
+      generateDetailedFeedback: true,
+      strictMode: false,
       createdAt: new Date("2026-01-01T00:00:00.000Z"),
       updatedAt: new Date("2026-01-02T00:00:00.000Z"),
     });
@@ -25,6 +28,7 @@ describe("toInterview", () => {
     assert.strictEqual(interview.updatedAt, "2026-01-02T00:00:00.000Z");
     assert.strictEqual(interview.experienceLevel, "senior");
     assert.strictEqual(interview.jobDescription, undefined);
+    assert.strictEqual(interview.allowFollowUps, true);
   });
 });
 

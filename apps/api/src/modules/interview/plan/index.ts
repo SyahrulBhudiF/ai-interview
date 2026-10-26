@@ -2,8 +2,9 @@ import { ApiSuccessSchema, InterviewPlanSchema } from "@repo/shared";
 import { Schema } from "effect";
 import { Elysia } from "elysia";
 
-import { ok } from "../../../libs/response";
-import { runtime } from "../../../runtime";
+import { ok } from "@/libs/response";
+import { runtime } from "@/runtime";
+
 import { InterviewPlanService } from "./service";
 
 export const plan = new Elysia({ prefix: "/api", tags: ["Interview plan"] })

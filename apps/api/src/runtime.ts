@@ -1,10 +1,10 @@
 import { Layer, ManagedRuntime } from "effect";
 
-import { Database } from "./database/client";
-import { GeminiService } from "./modules/gemini/service";
-import { InterviewPlanService } from "./modules/interview/plan/service";
-import { InterviewService } from "./modules/interview/service";
-import { UserService } from "./modules/user/service";
+import { Database } from "@/database/client";
+import { GeminiService } from "@/modules/gemini/service";
+import { InterviewPlanService } from "@/modules/interview/plan/service";
+import { InterviewService } from "@/modules/interview/service";
+import { UserService } from "@/modules/user/service";
 
 /**
  * Single runtime for the whole API, built from every service layer.

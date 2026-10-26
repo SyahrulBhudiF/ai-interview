@@ -1,5 +1,6 @@
 import { Button } from "@repo/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/components/card";
+import { Checkbox } from "@repo/components/checkbox";
 import { Input } from "@repo/components/input";
 import {
   Select,
@@ -146,6 +147,69 @@ export function CreateInterviewForm() {
               </FormField>
             )}
           />
+          <div className="space-y-3">
+            <p className="text-sm font-medium">Interview behavior</p>
+            <form.Field
+              name="allowFollowUps"
+              children={(field) => (
+                <label htmlFor="allow-follow-ups" className="flex items-start gap-2 text-sm">
+                  <Checkbox
+                    id="allow-follow-ups"
+                    className="mt-0.5"
+                    checked={field.state.value}
+                    onCheckedChange={(checked) => field.handleChange(checked === true)}
+                  />
+                  <span className="space-y-0.5">
+                    <span className="block font-medium">Allow dynamic follow-up questions</span>
+                    <span className="text-muted-foreground block">
+                      The interviewer may ask follow-ups beyond the main questions.
+                    </span>
+                  </span>
+                </label>
+              )}
+            />
+            <form.Field
+              name="generateDetailedFeedback"
+              children={(field) => (
+                <label
+                  htmlFor="generate-detailed-feedback"
+                  className="flex items-start gap-2 text-sm"
+                >
+                  <Checkbox
+                    id="generate-detailed-feedback"
+                    className="mt-0.5"
+                    checked={field.state.value}
+                    onCheckedChange={(checked) => field.handleChange(checked === true)}
+                  />
+                  <span className="space-y-0.5">
+                    <span className="block font-medium">Generate detailed feedback</span>
+                    <span className="text-muted-foreground block">
+                      Produce a full evaluation report after the interview.
+                    </span>
+                  </span>
+                </label>
+              )}
+            />
+            <form.Field
+              name="strictMode"
+              children={(field) => (
+                <label htmlFor="strict-mode" className="flex items-start gap-2 text-sm">
+                  <Checkbox
+                    id="strict-mode"
+                    className="mt-0.5"
+                    checked={field.state.value}
+                    onCheckedChange={(checked) => field.handleChange(checked === true)}
+                  />
+                  <span className="space-y-0.5">
+                    <span className="block font-medium">Strict interviewer mode</span>
+                    <span className="text-muted-foreground block">
+                      Direct, no-hints interviewing that challenges weak answers.
+                    </span>
+                  </span>
+                </label>
+              )}
+            />
+          </div>
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, submitting]) => (

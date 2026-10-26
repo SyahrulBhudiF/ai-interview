@@ -2,7 +2,7 @@ import type { InterviewPlan } from "@repo/shared";
 import { asc, eq, inArray } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
-import { Database } from "../../../database/client";
+import { Database } from "@/database/client";
 import {
   interviews,
   interviewStages,
@@ -10,7 +10,7 @@ import {
   type NewInterviewStage,
   type NewQuestion,
   type Question,
-} from "../../../database/schema";
+} from "@/database/schema";
 
 export class InterviewPlanService extends Context.Service<
   InterviewPlanService,

@@ -2,7 +2,7 @@ import { ApiSuccessSchema, HealthResponseSchema } from "@repo/shared";
 import { Schema } from "effect";
 import { Elysia } from "elysia";
 
-import { ok } from "../../libs/response";
+import { ok } from "@/libs/response";
 
 export function createHealthController() {
   return new Elysia({ prefix: "/api", tags: ["App"] }).get(

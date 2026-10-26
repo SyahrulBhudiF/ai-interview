@@ -1,7 +1,7 @@
 import { Effect, Layer, Logger, ManagedRuntime, Match, Predicate, References } from "effect";
 import { Elysia } from "elysia";
 
-import { env } from "../config/env";
+import { env } from "@/config/env";
 import {
   ApiError,
   GeminiNotConfiguredError,
@@ -10,8 +10,8 @@ import {
   NotFoundError,
   ParseError,
   ValidationError,
-} from "../libs/api-error";
-import { fail } from "../libs/response";
+} from "@/libs/api-error";
+import { fail } from "@/libs/response";
 
 type Level = "info" | "warning" | "error";
 

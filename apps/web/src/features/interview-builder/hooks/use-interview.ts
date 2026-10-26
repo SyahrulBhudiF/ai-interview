@@ -1,11 +1,14 @@
-import { ApiSuccessSchema, InterviewSchema } from "@repo/shared";
-import { useQuery } from "@tanstack/react-query";
+import { ApiSuccessSchema, InterviewSchema, type InterviewBehavior } from "@repo/shared";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Schema } from "effect";
 
+import { getApiErrorMessage } from "@/lib/api-error";
 import { api } from "@/lib/eden";
 
 export function useInterview(interviewId: string) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ["interviews", interviewId],
     queryFn: async () => {
       const { data, error } = await api.api.interviews({ id: interviewId }).get();
@@ -14,4 +17,19 @@ export function useInterview(interviewId: string) {
     },
     enabled: !import.meta.env.SSR,
   });
+
+  const updateBehavior = useMutation({
+    mutationFn: async (behavior: InterviewBehavior) => {
+      const { data, error } = await api.api.interviews({ id: interviewId }).behavior.put(behavior);
+      if (error || !data)
+        throw new Error(getApiErrorMessage(error, "Failed to update the behavior."));
+      return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewSchema))(data).data;
+    },
+    onSuccess: (interview) => {
+      queryClient.setQueryData(["interviews", interviewId], interview);
+      void queryClient.invalidateQueries({ queryKey: ["interviews"] });
+    },
+  });
+
+  return { ...query, updateBehavior };
 }

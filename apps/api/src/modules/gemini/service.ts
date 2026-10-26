@@ -8,7 +8,8 @@ import { chat } from "@tanstack/ai";
 import { createGeminiChat } from "@tanstack/ai-gemini";
 import { Context, Effect, Layer, Option, Schema } from "effect";
 
-import { env } from "../../config/env";
+import { env } from "@/config/env";
+
 import { GeminiApiKeyMissingError, GeminiGenerationError, type GeminiError } from "./error";
 
 /** Default Gemini model for structured plan generation. */
@@ -49,6 +50,20 @@ export function buildPlanPrompt(interview: Interview, stages?: ReadonlyArray<Sta
     lines.push(
       "",
       "Produce 3-6 interview stages. Each stage must include a short name, an objective, 2-5 competencies, and 2-4 main questions.",
+    );
+  }
+
+  if (interview.strictMode) {
+    lines.push(
+      "",
+      "Interviewer style: strict. Be direct, challenge weak or vague answers, and do not give hints or lead the candidate.",
+    );
+  }
+
+  if (interview.allowFollowUps) {
+    lines.push(
+      "",
+      "Dynamic follow-up questions are allowed: write open-ended main questions that naturally invite follow-ups.",
     );
   }
 

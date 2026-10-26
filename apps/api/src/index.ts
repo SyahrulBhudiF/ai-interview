@@ -2,14 +2,14 @@ import { openapi } from "@elysia/openapi";
 import { Schema } from "effect";
 import { Elysia } from "elysia";
 
-import { env } from "./config/env";
-import { ok } from "./libs/response";
-import { greet } from "./modules/greet";
-import { health } from "./modules/health";
-import { interview } from "./modules/interview";
-import { plan } from "./modules/interview/plan";
-import { user } from "./modules/user";
-import { Log, loggerPlugin } from "./plugins/logger";
+import { env } from "@/config/env";
+import { ok } from "@/libs/response";
+import { greet } from "@/modules/greet";
+import { health } from "@/modules/health";
+import { interview } from "@/modules/interview";
+import { plan } from "@/modules/interview/plan";
+import { user } from "@/modules/user";
+import { Log, loggerPlugin } from "@/plugins/logger";
 
 export const app = new Elysia()
   .use(

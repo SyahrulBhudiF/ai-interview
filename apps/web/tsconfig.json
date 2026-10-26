@@ -19,7 +19,7 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*", "../api/src/*"]
     }
   },
   "exclude": ["node_modules", "dist", ".output"]

@@ -2,7 +2,8 @@ import { ApiSuccessSchema, GreetRequestSchema, GreetResponseSchema } from "@repo
 import { Schema } from "effect";
 import { Elysia } from "elysia";
 
-import { ok } from "../../libs/response";
+import { ok } from "@/libs/response";
+
 import * as service from "./service";
 
 export const greet = new Elysia({ prefix: "/api", tags: ["Greet"] }).post(

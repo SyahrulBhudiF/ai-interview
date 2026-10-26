@@ -2,8 +2,9 @@ import type { User } from "@repo/shared";
 import { eq } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
-import { Database } from "../../database/client";
-import { users } from "../../database/schema";
+import { Database } from "@/database/client";
+import { users } from "@/database/schema";
+
 import { UserNotFoundError } from "./error";
 import { toUser } from "./mapper";
 

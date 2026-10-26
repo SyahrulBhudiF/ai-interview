@@ -2,7 +2,7 @@ import { assert, describe, it } from "@effect/vitest";
 import { InterviewPlanSchema, type Interview } from "@repo/shared";
 import { Schema } from "effect";
 
-import { buildPlanPrompt } from "../src/modules/gemini/service";
+import { buildPlanPrompt } from "@/modules/gemini/service";
 
 const interview: Interview = {
   id: "interview-1",
@@ -14,6 +14,9 @@ const interview: Interview = {
   language: "en",
   difficulty: "intermediate",
   status: "draft",
+  allowFollowUps: true,
+  generateDetailedFeedback: true,
+  strictMode: false,
   createdAt: "2026-01-01T00:00:00.000Z",
   updatedAt: "2026-01-01T00:00:00.000Z",
 };

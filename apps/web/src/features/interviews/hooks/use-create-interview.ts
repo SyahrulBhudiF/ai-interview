@@ -15,6 +15,9 @@ const defaults = {
   language: "en",
   jobDescription: "",
   context: "",
+  allowFollowUps: true,
+  generateDetailedFeedback: true,
+  strictMode: false,
 };
 
 export function useCreateInterview() {
@@ -45,6 +48,9 @@ export function useCreateInterview() {
         language: value.language,
         jobDescription: value.jobDescription.trim() || undefined,
         context: value.context.trim() || undefined,
+        allowFollowUps: value.allowFollowUps,
+        generateDetailedFeedback: value.generateDetailedFeedback,
+        strictMode: value.strictMode,
       });
     },
   });

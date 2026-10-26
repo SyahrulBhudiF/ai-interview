@@ -1,9 +1,9 @@
 import { assert, describe, it } from "@effect/vitest";
 import { Effect, Exit, Layer } from "effect";
 
-import { Database } from "../src/database/client";
-import { toUser } from "../src/modules/user/mapper";
-import { UserService } from "../src/modules/user/service";
+import { Database } from "@/database/client";
+import { toUser } from "@/modules/user/mapper";
+import { UserService } from "@/modules/user/service";
 
 describe("toUser", () => {
   it("maps a database row to the wire type", () => {

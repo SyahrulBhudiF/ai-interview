@@ -2,8 +2,8 @@ import { assert, describe, it } from "@effect/vitest";
 import type { InterviewPlan } from "@repo/shared";
 import { Effect, Layer } from "effect";
 
-import { Database } from "../src/database/client";
-import { InterviewPlanService, planToRows } from "../src/modules/interview/plan/service";
+import { Database } from "@/database/client";
+import { InterviewPlanService, planToRows } from "@/modules/interview/plan/service";
 
 describe("planToRows", () => {
   const plan: InterviewPlan = {

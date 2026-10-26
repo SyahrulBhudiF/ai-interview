@@ -1,9 +1,10 @@
-import type { CreateInterview, Interview } from "@repo/shared";
+import type { CreateInterview, Interview, InterviewBehavior } from "@repo/shared";
 import { desc, eq } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
-import { Database } from "../../database/client";
-import { interviews, type NewInterview } from "../../database/schema";
+import { Database } from "@/database/client";
+import { interviews, type NewInterview } from "@/database/schema";
+
 import { InterviewNotFoundError } from "./error";
 import { toInterview } from "./mapper";
 
@@ -13,6 +14,10 @@ export class InterviewService extends Context.Service<
     listInterviews(): Effect.Effect<ReadonlyArray<Interview>>;
     getInterviewById(id: string): Effect.Effect<Interview, InterviewNotFoundError>;
     createInterview(input: CreateInterview): Effect.Effect<Interview>;
+    updateBehavior(
+      id: string,
+      behavior: InterviewBehavior,
+    ): Effect.Effect<Interview, InterviewNotFoundError>;
   }
 >()("ai-interview/interview/InterviewService") {
   static readonly layer = Layer.effect(
@@ -52,6 +57,9 @@ export class InterviewService extends Context.Service<
           context: input.context ?? null,
           language: input.language,
           difficulty: input.difficulty,
+          allowFollowUps: input.allowFollowUps ?? true,
+          generateDetailedFeedback: input.generateDetailedFeedback ?? true,
+          strictMode: input.strictMode ?? false,
         };
 
         const inserted = yield* Effect.promise(() => db.insert(interviews).values(row).returning());
@@ -61,7 +69,34 @@ export class InterviewService extends Context.Service<
         return toInterview(created);
       });
 
-      return InterviewService.of({ listInterviews, getInterviewById, createInterview });
+      const updateBehavior = Effect.fn("InterviewService.updateBehavior")(function* (
+        id: string,
+        behavior: InterviewBehavior,
+      ) {
+        const updated = yield* Effect.promise(() =>
+          db
+            .update(interviews)
+            .set({
+              allowFollowUps: behavior.allowFollowUps,
+              generateDetailedFeedback: behavior.generateDetailedFeedback,
+              strictMode: behavior.strictMode,
+              updatedAt: new Date(),
+            })
+            .where(eq(interviews.id, id))
+            .returning(),
+        );
+
+        const row = updated[0];
+        if (!row) return yield* new InterviewNotFoundError({ id });
+        return toInterview(row);
+      });
+
+      return InterviewService.of({
+        listInterviews,
+        getInterviewById,
+        createInterview,
+        updateBehavior,
+      });
     }),
   );
 }

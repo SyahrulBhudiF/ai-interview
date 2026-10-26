@@ -2,15 +2,17 @@ import {
   ApiSuccessSchema,
   CreateInterviewSchema,
   GeneratePlanRequestSchema,
+  InterviewBehaviorSchema,
   InterviewPlanSchema,
   InterviewSchema,
 } from "@repo/shared";
 import { Effect, Schema } from "effect";
 import { Elysia } from "elysia";
 
-import { ok } from "../../libs/response";
-import { runtime } from "../../runtime";
-import { GeminiService } from "../gemini/service";
+import { ok } from "@/libs/response";
+import { GeminiService } from "@/modules/gemini/service";
+import { runtime } from "@/runtime";
+
 import { InterviewService } from "./service";
 
 export const interview = new Elysia({ prefix: "/api", tags: ["Interview"] })
@@ -56,6 +58,23 @@ export const interview = new Elysia({ prefix: "/api", tags: ["Interview"] })
       ok(
         await runtime.runPromise(
           InterviewService.use((service) => service.getInterviewById(params.id)),
+        ),
+      ),
+  )
+  .put(
+    "/interviews/:id/behavior",
+    {
+      body: Schema.toStandardSchemaV1(InterviewBehaviorSchema),
+      response: { 200: Schema.toStandardSchemaV1(ApiSuccessSchema(InterviewSchema)) },
+      detail: {
+        summary: "Update interview behavior",
+        description: "Updates the follow-up, feedback, and strictness settings for an interview.",
+      },
+    },
+    async ({ params, body }) =>
+      ok(
+        await runtime.runPromise(
+          InterviewService.use((service) => service.updateBehavior(params.id, body)),
         ),
       ),
   )

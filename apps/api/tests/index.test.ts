@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { app } from "../src/index";
+import { app } from "@/index";
 
 function request(path: string, init?: RequestInit) {
   return app.handle(new Request(`http://localhost${path}`, init));

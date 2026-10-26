@@ -1,14 +1,47 @@
 import { Badge } from "@repo/components/badge";
 import { Button } from "@repo/components/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/components/card";
+import { Checkbox } from "@repo/components/checkbox";
 import { Skeleton } from "@repo/components/skeleton";
-import type { InterviewPlan } from "@repo/shared";
+import type { InterviewBehavior, InterviewPlan } from "@repo/shared";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
 import { PlanEditor } from "./components/plan-editor";
 import { useInterview } from "./hooks/use-interview";
 import { useInterviewPlan } from "./hooks/use-interview-plan";
+
+function BehaviorToggle({
+  id,
+  checked,
+  label,
+  description,
+  disabled,
+  onToggle,
+}: {
+  id: string;
+  checked: boolean;
+  label: string;
+  description: string;
+  disabled: boolean;
+  onToggle: (checked: boolean) => void;
+}) {
+  return (
+    <label htmlFor={id} className="flex items-start gap-2 text-sm">
+      <Checkbox
+        id={id}
+        className="mt-0.5"
+        checked={checked}
+        disabled={disabled}
+        onCheckedChange={(value) => onToggle(value === true)}
+      />
+      <span className="space-y-0.5">
+        <span className="block font-medium">{label}</span>
+        <span className="text-muted-foreground block">{description}</span>
+      </span>
+    </label>
+  );
+}
 
 export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
   const interview = useInterview(interviewId);
@@ -25,6 +58,19 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
     }));
 
     generate.mutate(stages, { onSuccess: setDraft });
+  };
+
+  const behavior = interview.data;
+
+  const toggleBehavior = (patch: Partial<InterviewBehavior>) => {
+    if (!behavior) return;
+
+    interview.updateBehavior.mutate({
+      allowFollowUps: behavior.allowFollowUps,
+      generateDetailedFeedback: behavior.generateDetailedFeedback,
+      strictMode: behavior.strictMode,
+      ...patch,
+    });
   };
 
   return (
@@ -99,6 +145,48 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
               <PlanEditor plan={plan} onChange={setDraft} />
             </>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Interview behavior</CardTitle>
+          <CardDescription>How the interviewer runs the session.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {interview.isPending ? (
+            <Skeleton className="h-24 w-full" />
+          ) : behavior ? (
+            <>
+              <BehaviorToggle
+                id="allow-follow-ups"
+                checked={behavior.allowFollowUps}
+                disabled={interview.updateBehavior.isPending}
+                label="Allow dynamic follow-up questions"
+                description="The interviewer may ask follow-ups beyond the main questions."
+                onToggle={(checked) => toggleBehavior({ allowFollowUps: checked })}
+              />
+              <BehaviorToggle
+                id="generate-detailed-feedback"
+                checked={behavior.generateDetailedFeedback}
+                disabled={interview.updateBehavior.isPending}
+                label="Generate detailed feedback"
+                description="Produce a full evaluation report after the interview."
+                onToggle={(checked) => toggleBehavior({ generateDetailedFeedback: checked })}
+              />
+              <BehaviorToggle
+                id="strict-mode"
+                checked={behavior.strictMode}
+                disabled={interview.updateBehavior.isPending}
+                label="Strict interviewer mode"
+                description="Direct, no-hints interviewing that challenges weak answers."
+                onToggle={(checked) => toggleBehavior({ strictMode: checked })}
+              />
+              {interview.updateBehavior.error ? (
+                <p className="text-destructive text-sm">{interview.updateBehavior.error.message}</p>
+              ) : null}
+            </>
+          ) : null}
         </CardContent>
       </Card>
     </main>

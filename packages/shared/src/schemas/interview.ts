@@ -14,6 +14,9 @@ export const InterviewSchema = Schema.Struct({
   language: Schema.String,
   difficulty: DifficultySchema,
   status: InterviewStatusSchema,
+  allowFollowUps: Schema.Boolean,
+  generateDetailedFeedback: Schema.Boolean,
+  strictMode: Schema.Boolean,
   createdAt: Schema.String,
   updatedAt: Schema.String,
 });
@@ -49,6 +52,9 @@ export const CreateInterviewSchema = Schema.Struct({
   context: Schema.optional(Schema.String),
   language: Schema.String,
   difficulty: DifficultySchema,
+  allowFollowUps: Schema.optional(Schema.Boolean),
+  generateDetailedFeedback: Schema.optional(Schema.Boolean),
+  strictMode: Schema.optional(Schema.Boolean),
 });
 
 export const CreateStageSchema = Schema.Struct({
@@ -76,6 +82,13 @@ export const GeneratePlanRequestSchema = Schema.Struct({
   stages: Schema.Array(StageSpecSchema),
 });
 
+/** Interview behavior settings — editable independently from the plan. */
+export const InterviewBehaviorSchema = Schema.Struct({
+  allowFollowUps: Schema.Boolean,
+  generateDetailedFeedback: Schema.Boolean,
+  strictMode: Schema.Boolean,
+});
+
 export type Interview = Schema.Schema.Type<typeof InterviewSchema>;
 export type InterviewStage = Schema.Schema.Type<typeof InterviewStageSchema>;
 export type Question = Schema.Schema.Type<typeof QuestionSchema>;
@@ -84,3 +97,4 @@ export type CreateStage = Schema.Schema.Type<typeof CreateStageSchema>;
 export type CreateQuestion = Schema.Schema.Type<typeof CreateQuestionSchema>;
 export type StageSpec = Schema.Schema.Type<typeof StageSpecSchema>;
 export type GeneratePlanRequest = Schema.Schema.Type<typeof GeneratePlanRequestSchema>;
+export type InterviewBehavior = Schema.Schema.Type<typeof InterviewBehaviorSchema>;
