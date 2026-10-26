@@ -28,6 +28,18 @@ describe("buildPlanPrompt", () => {
     assert.isTrue(prompt.includes("Team building a real-time platform."));
     assert.isTrue(prompt.includes("Respond in en."));
   });
+
+  it("fills a defined stage structure when stages are provided", () => {
+    const prompt = buildPlanPrompt(interview, [
+      { name: "HR Screening", mainQuestionCount: 3 },
+      { name: "System Design", mainQuestionCount: 2 },
+    ]);
+
+    assert.isTrue(prompt.includes("HR Screening"));
+    assert.isTrue(prompt.includes("3 main question(s)"));
+    assert.isTrue(prompt.includes("System Design"));
+    assert.isTrue(prompt.includes("2 main question(s)"));
+  });
 });
 
 describe("InterviewPlanSchema", () => {

@@ -1,4 +1,9 @@
-import { InterviewPlanSchema, type Interview, type InterviewPlan } from "@repo/shared";
+import {
+  InterviewPlanSchema,
+  type Interview,
+  type InterviewPlan,
+  type StageSpec,
+} from "@repo/shared";
 import { chat } from "@tanstack/ai";
 import { createGeminiChat } from "@tanstack/ai-gemini";
 import { Context, Effect, Layer, Option, Schema } from "effect";
@@ -10,7 +15,7 @@ import { GeminiApiKeyMissingError, GeminiGenerationError, type GeminiError } fro
 const MODEL = "gemini-3.8-flash" as const;
 
 /** Builds the prompt that asks Gemini for a structured interview plan. */
-export function buildPlanPrompt(interview: Interview): string {
+export function buildPlanPrompt(interview: Interview, stages?: ReadonlyArray<StageSpec>): string {
   const lines = [
     "You are an expert technical interviewer. Generate a structured interview plan for the following role.",
     "",
@@ -28,9 +33,26 @@ export function buildPlanPrompt(interview: Interview): string {
     lines.push("", "Context:", interview.context);
   }
 
+  if (stages && stages.length > 0) {
+    lines.push(
+      "",
+      "Fill in the following stages (keep them in this exact order). Generate exactly the requested number of main questions for each stage.",
+      "",
+      ...stages.map(
+        (stage, index) =>
+          `${index + 1}. ${stage.name} — ${stage.mainQuestionCount} main question(s)`,
+      ),
+      "",
+      "For each stage, write an objective and 2-5 competencies, then the requested questions.",
+    );
+  } else {
+    lines.push(
+      "",
+      "Produce 3-6 interview stages. Each stage must include a short name, an objective, 2-5 competencies, and 2-4 main questions.",
+    );
+  }
+
   lines.push(
-    "",
-    "Produce 3-6 interview stages. Each stage must include a short name, an objective, 2-5 competencies, and 2-4 main questions.",
     "Each question needs text, 2-4 answer criteria, and a short scoring rubric.",
     `Respond in ${interview.language}.`,
   );
@@ -40,6 +62,7 @@ export function buildPlanPrompt(interview: Interview): string {
 
 const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(function* (
   interview: Interview,
+  stages?: ReadonlyArray<StageSpec>,
 ): Effect.fn.Return<InterviewPlan, GeminiError> {
   const apiKey = env.geminiApiKey;
   if (Option.isNone(apiKey)) {
@@ -50,7 +73,7 @@ const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(f
     try: () =>
       chat({
         adapter: createGeminiChat(MODEL, apiKey.value),
-        messages: [{ role: "user", content: buildPlanPrompt(interview) }],
+        messages: [{ role: "user", content: buildPlanPrompt(interview, stages) }],
         threadId: crypto.randomUUID(),
         outputSchema: Schema.toStandardSchemaV1(InterviewPlanSchema),
       }),
@@ -61,7 +84,10 @@ const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(f
 export class GeminiService extends Context.Service<
   GeminiService,
   {
-    generateInterviewPlan(interview: Interview): Effect.Effect<InterviewPlan, GeminiError>;
+    generateInterviewPlan(
+      interview: Interview,
+      stages?: ReadonlyArray<StageSpec>,
+    ): Effect.Effect<InterviewPlan, GeminiError>;
   }
 >()("ai-interview/gemini/GeminiService") {
   static readonly layer = Layer.succeed(GeminiService, GeminiService.of({ generateInterviewPlan }));

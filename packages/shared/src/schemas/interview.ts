@@ -65,9 +65,22 @@ export const CreateQuestionSchema = Schema.Struct({
   rubric: Schema.optional(Schema.String),
 });
 
+/** A stage the user defines before generation: a name and how many main questions it needs. */
+export const StageSpecSchema = Schema.Struct({
+  name: Schema.String,
+  mainQuestionCount: Schema.Number,
+});
+
+/** Body for generate-plan: the stage structure Gemini should fill with questions. */
+export const GeneratePlanRequestSchema = Schema.Struct({
+  stages: Schema.Array(StageSpecSchema),
+});
+
 export type Interview = Schema.Schema.Type<typeof InterviewSchema>;
 export type InterviewStage = Schema.Schema.Type<typeof InterviewStageSchema>;
 export type Question = Schema.Schema.Type<typeof QuestionSchema>;
 export type CreateInterview = Schema.Schema.Type<typeof CreateInterviewSchema>;
 export type CreateStage = Schema.Schema.Type<typeof CreateStageSchema>;
 export type CreateQuestion = Schema.Schema.Type<typeof CreateQuestionSchema>;
+export type StageSpec = Schema.Schema.Type<typeof StageSpecSchema>;
+export type GeneratePlanRequest = Schema.Schema.Type<typeof GeneratePlanRequestSchema>;

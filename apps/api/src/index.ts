@@ -7,6 +7,7 @@ import { ok } from "./libs/response";
 import { greet } from "./modules/greet";
 import { health } from "./modules/health";
 import { interview } from "./modules/interview";
+import { plan } from "./modules/interview/plan";
 import { user } from "./modules/user";
 import { Log, loggerPlugin } from "./plugins/logger";
 
@@ -30,7 +31,8 @@ export const app = new Elysia()
   .use(health)
   .use(greet)
   .use(user)
-  .use(interview);
+  .use(interview)
+  .use(plan);
 
 if (import.meta.main) {
   app.listen(env.port);

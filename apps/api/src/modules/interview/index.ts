@@ -1,6 +1,7 @@
 import {
   ApiSuccessSchema,
   CreateInterviewSchema,
+  GeneratePlanRequestSchema,
   InterviewPlanSchema,
   InterviewSchema,
 } from "@repo/shared";
@@ -61,20 +62,24 @@ export const interview = new Elysia({ prefix: "/api", tags: ["Interview"] })
   .post(
     "/interviews/:id/generate-plan",
     {
+      body: Schema.toStandardSchemaV1(GeneratePlanRequestSchema),
       response: { 200: Schema.toStandardSchemaV1(ApiSuccessSchema(InterviewPlanSchema)) },
       detail: {
         summary: "Generate an interview plan",
-        description: "Generates a structured stage/question plan with Gemini for the interview.",
+        description:
+          "Generates a structured stage/question plan with Gemini. Pass stages to fill a defined structure, or an empty array to let Gemini design the whole plan.",
       },
     },
-    async ({ params }) => {
+    async ({ params, body }) => {
       const plan = await runtime.runPromise(
         Effect.gen(function* () {
           const found = yield* InterviewService.use((service) =>
             service.getInterviewById(params.id),
           );
 
-          return yield* GeminiService.use((service) => service.generateInterviewPlan(found));
+          return yield* GeminiService.use((service) =>
+            service.generateInterviewPlan(found, body.stages),
+          );
         }),
       );
 
