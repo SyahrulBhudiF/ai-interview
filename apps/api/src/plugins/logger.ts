@@ -4,6 +4,8 @@ import { Elysia } from "elysia";
 import { env } from "../config/env";
 import {
   ApiError,
+  GeminiNotConfiguredError,
+  GeminiUpstreamError,
   InternalError,
   NotFoundError,
   ParseError,
@@ -58,6 +60,9 @@ function resolveErrorDefinition(error: unknown) {
 
   return Match.value(token).pipe(
     Match.when("UserNotFoundError", () => NotFoundError.definition),
+    Match.when("InterviewNotFoundError", () => NotFoundError.definition),
+    Match.when("GeminiApiKeyMissingError", () => GeminiNotConfiguredError.definition),
+    Match.when("GeminiGenerationError", () => GeminiUpstreamError.definition),
     Match.when("validation", () => ValidationError.definition),
     Match.when("not-found", () => NotFoundError.definition),
     Match.when("parse", () => ParseError.definition),

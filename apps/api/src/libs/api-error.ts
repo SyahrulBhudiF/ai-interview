@@ -51,3 +51,15 @@ export const InternalError = defineApiError({
   status: 500,
   message: "Server error",
 });
+
+export const GeminiNotConfiguredError = defineApiError({
+  code: "GEMINI_NOT_CONFIGURED",
+  status: 503,
+  message: "Gemini is not configured",
+});
+
+export const GeminiUpstreamError = defineApiError({
+  code: "GEMINI_ERROR",
+  status: 502,
+  message: "Gemini request failed",
+});

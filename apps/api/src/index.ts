@@ -6,6 +6,7 @@ import { env } from "./config/env";
 import { ok } from "./libs/response";
 import { greet } from "./modules/greet";
 import { health } from "./modules/health";
+import { interview } from "./modules/interview";
 import { user } from "./modules/user";
 import { Log, loggerPlugin } from "./plugins/logger";
 
@@ -28,7 +29,8 @@ export const app = new Elysia()
   .get("/", () => ok({ name: "ai-interview-api" }))
   .use(health)
   .use(greet)
-  .use(user);
+  .use(user)
+  .use(interview);
 
 if (import.meta.main) {
   app.listen(env.port);
