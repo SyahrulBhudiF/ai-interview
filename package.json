@@ -1,0 +1,30 @@
+{
+  "name": "ai-interview",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "check-types": "turbo run check-types",
+    "test": "turbo run test",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint . --fix",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt . --check"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "oxfmt": "0.74.0",
+    "oxlint": "1.89.0",
+    "turbo": "^2.11.10",
+    "typescript": "~6.0.3",
+    "vite-plus": "^1.4.0"
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "packageManager": "bun@1.4.4"
+}

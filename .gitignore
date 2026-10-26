@@ -1,0 +1,28 @@
+# dependencies
+node_modules/
+
+# build outputs
+dist/
+build/
+.output/
+.vinxi/
+
+# turbo
+.turbo/
+
+# tanstack (generated route tree is committed; tmp cache is not)
+.tanstack/
+
+# devenv / direnv
+.direnv/
+.devenv/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# misc
+coverage/
+*.log
+.DS_Store
