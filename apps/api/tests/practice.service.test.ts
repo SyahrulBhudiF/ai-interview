@@ -60,7 +60,9 @@ function practiceLayer() {
       return Effect.succeed(draft);
     },
     duplicateInterview: () => Effect.die("unused"),
+    deleteInterview: () => Effect.die("unused"),
     updateBehavior: () => Effect.die("unused"),
+    updateInterview: () => Effect.die("unused"),
   });
 
   const planService = InterviewPlanService.of({

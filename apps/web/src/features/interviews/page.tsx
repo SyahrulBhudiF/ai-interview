@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
-import { CreateInterviewForm } from "./components/create-interview-form";
+import { InterviewForm } from "./components/interview-form";
 import { InterviewsList } from "./components/interviews-list";
 import { useInterviews } from "./hooks/use-interviews";
 
@@ -20,7 +20,7 @@ export function InterviewsPage() {
           View progress
         </Link>
       </header>
-      <CreateInterviewForm />
+      <InterviewForm />
       <section className="space-y-3">
         <h2 className="text-lg font-medium">All interviews</h2>
         <InterviewsList interviews={interviews.data} isPending={interviews.isPending} />

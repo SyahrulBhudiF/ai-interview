@@ -58,3 +58,75 @@ describe("InterviewService", () => {
     }).pipe(Effect.provide(provide)),
   );
 });
+
+describe("InterviewService update and delete", () => {
+  const row = {
+    id: "interview-1",
+    title: "Updated title",
+    jobPosition: "Backend Engineer",
+    experienceLevel: "senior",
+    jobDescription: null,
+    context: null,
+    language: "en",
+    difficulty: "advanced",
+    status: "draft",
+    model: "gemini-3.8-flash",
+    persona: "professional",
+    allowFollowUps: true,
+    generateDetailedFeedback: true,
+    strictMode: false,
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2026-01-02T00:00:00.000Z"),
+  };
+
+  let updatePayload: Record<string, unknown> | undefined;
+
+  const db = {
+    update: () => ({
+      set: (values: Record<string, unknown>) => {
+        updatePayload = values;
+        return { where: () => ({ returning: () => Promise.resolve([row]) }) };
+      },
+    }),
+    delete: () => ({
+      where: () => ({ returning: () => Promise.resolve([{ id: "interview-1" }]) }),
+    }),
+  } as unknown as Database["Service"]["db"];
+
+  const provide = InterviewService.layer.pipe(
+    Layer.provide(Layer.succeed(Database, Database.of({ db }))),
+  );
+
+  it.effect("updates the editable configuration", () =>
+    Effect.gen(function* () {
+      const interview = yield* InterviewService.use((service) =>
+        service.updateInterview("interview-1", {
+          title: "Updated title",
+          jobPosition: "Backend Engineer",
+          experienceLevel: "senior",
+          language: "en",
+          difficulty: "advanced",
+          model: "gemini-3.8-flash",
+          persona: "professional",
+        }),
+      );
+
+      assert.strictEqual(interview.title, "Updated title");
+      assert.strictEqual(interview.jobDescription, undefined);
+      assert.strictEqual(interview.updatedAt, "2026-01-02T00:00:00.000Z");
+      assert.strictEqual(updatePayload?.jobDescription, null);
+      assert.strictEqual(updatePayload?.context, null);
+      assert.isTrue(updatePayload?.updatedAt instanceof Date);
+    }).pipe(Effect.provide(provide)),
+  );
+
+  it.effect("deletes an interview and returns its id", () =>
+    Effect.gen(function* () {
+      const deleted = yield* InterviewService.use((service) =>
+        service.deleteInterview("interview-1"),
+      );
+
+      assert.deepStrictEqual(deleted, { id: "interview-1" });
+    }).pipe(Effect.provide(provide)),
+  );
+});

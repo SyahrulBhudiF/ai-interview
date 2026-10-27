@@ -127,6 +127,15 @@ Shared schemas: `interview.ts`, `session.ts`, `evaluation.ts`, and `ai.ts`
   the generated interview.
 - Deliverable: a progress → targeted practice loop.
 
+### Phase 9 — Interview management
+
+- `PUT /api/interviews/:id` replaces the editable configuration;
+  `DELETE /api/interviews/:id` removes the interview and cascades its plan,
+  sessions, and evaluations.
+- `features/interview-builder/`: an Interview settings form and a confirmed
+  delete action.
+- Deliverable: complete interview CRUD from the UI.
+
 ## Key decisions & risks
 
 - **Follow-ups are dynamic, main questions are fixed.** The orchestrator passes

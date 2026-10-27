@@ -1,4 +1,4 @@
-import type { CreateInterview, Interview } from "@ai-interview/shared";
+import type { CreateInterview, Interview, UpdateInterview } from "@ai-interview/shared";
 
 import type { Interview as DbInterview, NewInterview } from "@/database/schema";
 
@@ -60,5 +60,21 @@ export function duplicateInterviewRow(source: DbInterview): NewInterview {
     generateDetailedFeedback: source.generateDetailedFeedback,
     strictMode: source.strictMode,
     status: "draft",
+  };
+}
+
+/** Builds the update payload for an interview's editable configuration. */
+export function interviewUpdate(input: UpdateInterview): Partial<NewInterview> {
+  return {
+    title: input.title,
+    jobPosition: input.jobPosition,
+    experienceLevel: input.experienceLevel,
+    jobDescription: input.jobDescription ?? null,
+    context: input.context ?? null,
+    language: input.language,
+    difficulty: input.difficulty,
+    model: input.model,
+    persona: input.persona,
+    updatedAt: new Date(),
   };
 }

@@ -1,10 +1,12 @@
 import {
   ApiSuccessSchema,
   CreateInterviewSchema,
+  DeletedInterviewSchema,
   GeneratePlanRequestSchema,
   InterviewBehaviorSchema,
   InterviewPlanSchema,
   InterviewSchema,
+  UpdateInterviewSchema,
 } from "@ai-interview/shared";
 import { Effect, Schema } from "effect";
 import { Elysia } from "elysia";
@@ -58,6 +60,39 @@ export const interview = new Elysia({ prefix: "/api", tags: ["Interview"] })
       ok(
         await runtime.runPromise(
           InterviewService.use((service) => service.getInterviewById(params.id)),
+        ),
+      ),
+  )
+  .put(
+    "/interviews/:id",
+    {
+      body: Schema.toStandardSchemaV1(UpdateInterviewSchema),
+      response: { 200: Schema.toStandardSchemaV1(ApiSuccessSchema(InterviewSchema)) },
+      detail: {
+        summary: "Update an interview",
+        description: "Replaces the interview's editable configuration.",
+      },
+    },
+    async ({ params, body }) =>
+      ok(
+        await runtime.runPromise(
+          InterviewService.use((service) => service.updateInterview(params.id, body)),
+        ),
+      ),
+  )
+  .delete(
+    "/interviews/:id",
+    {
+      response: { 200: Schema.toStandardSchemaV1(ApiSuccessSchema(DeletedInterviewSchema)) },
+      detail: {
+        summary: "Delete an interview",
+        description: "Deletes the interview and cascades its plan, sessions, and evaluations.",
+      },
+    },
+    async ({ params }) =>
+      ok(
+        await runtime.runPromise(
+          InterviewService.use((service) => service.deleteInterview(params.id)),
         ),
       ),
   )

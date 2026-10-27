@@ -6,8 +6,11 @@ import { Skeleton } from "@ai-interview/ui/skeleton";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 
+import { InterviewForm } from "@/features/interviews/components/interview-form";
+
 import { BehaviorToggle } from "./components/behavior-toggle";
 import { PlanEditor } from "./components/plan-editor";
+import { useDeleteInterview } from "./hooks/use-delete-interview";
 import { useDuplicateInterview } from "./hooks/use-duplicate-interview";
 import { useInterview } from "./hooks/use-interview";
 import { useInterviewPlan } from "./hooks/use-interview-plan";
@@ -19,8 +22,10 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
   const { planQuery, generate, save } = useInterviewPlan(interviewId);
   const startSession = useStartSession(interviewId);
   const duplicate = useDuplicateInterview(interviewId);
+  const deleteInterview = useDeleteInterview(interviewId);
   const sessions = useInterviewSessions(interviewId);
   const [draft, setDraft] = useState<InterviewPlan | null>(null);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const plan = draft ?? planQuery.data ?? { stages: [] };
   const hasStages = plan.stages.length > 0;
@@ -79,6 +84,13 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
                 >
                   {duplicate.isPending ? "Duplicating…" : "Duplicate"}
                 </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setConfirmingDelete(true)}
+                  disabled={deleteInterview.isPending}
+                >
+                  {deleteInterview.isPending ? "Deleting…" : "Delete"}
+                </Button>
                 <Badge variant={interview.data.status === "ready" ? "default" : "secondary"}>
                   {interview.data.status}
                 </Badge>
@@ -86,6 +98,32 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
             </header>
             {startSession.error ? (
               <p className="text-destructive text-sm">{startSession.error.message}</p>
+            ) : null}
+            {confirmingDelete ? (
+              <div className="border-destructive/40 bg-destructive/5 flex flex-wrap items-center gap-3 rounded-md border p-3">
+                <p className="text-sm">
+                  Delete this interview and all of its sessions? This cannot be undone.
+                </p>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => deleteInterview.mutate()}
+                  disabled={deleteInterview.isPending}
+                >
+                  {deleteInterview.isPending ? "Deleting…" : "Confirm delete"}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setConfirmingDelete(false)}
+                  disabled={deleteInterview.isPending}
+                >
+                  Cancel
+                </Button>
+              </div>
+            ) : null}
+            {deleteInterview.error ? (
+              <p className="text-destructive text-sm">{deleteInterview.error.message}</p>
             ) : null}
           </>
         ) : null}
@@ -220,6 +258,8 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
           )}
         </CardContent>
       </Card>
+
+      {interview.data ? <InterviewForm interview={interview.data} /> : null}
     </main>
   );
 }

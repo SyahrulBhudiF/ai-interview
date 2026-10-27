@@ -99,6 +99,21 @@ export const InterviewBehaviorSchema = Schema.Struct({
   strictMode: Schema.Boolean,
 });
 
+/** Body for replacing an interview's editable configuration. */
+export const UpdateInterviewSchema = Schema.Struct({
+  title: Schema.NonEmptyString,
+  jobPosition: Schema.NonEmptyString,
+  experienceLevel: ExperienceLevelSchema,
+  jobDescription: Schema.optional(Schema.String),
+  context: Schema.optional(Schema.String),
+  language: Schema.NonEmptyString,
+  difficulty: DifficultySchema,
+  model: Schema.String,
+  persona: PersonaSchema,
+});
+
+export const DeletedInterviewSchema = Schema.Struct({ id: Schema.String });
+
 export type Interview = Schema.Schema.Type<typeof InterviewSchema>;
 export type Persona = Schema.Schema.Type<typeof PersonaSchema>;
 export type InterviewStage = Schema.Schema.Type<typeof InterviewStageSchema>;
@@ -109,3 +124,5 @@ export type CreateQuestion = Schema.Schema.Type<typeof CreateQuestionSchema>;
 export type StageSpec = Schema.Schema.Type<typeof StageSpecSchema>;
 export type GeneratePlanRequest = Schema.Schema.Type<typeof GeneratePlanRequestSchema>;
 export type InterviewBehavior = Schema.Schema.Type<typeof InterviewBehaviorSchema>;
+export type UpdateInterview = Schema.Schema.Type<typeof UpdateInterviewSchema>;
+export type DeletedInterview = Schema.Schema.Type<typeof DeletedInterviewSchema>;

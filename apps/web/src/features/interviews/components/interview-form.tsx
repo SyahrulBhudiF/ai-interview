@@ -1,3 +1,4 @@
+import type { Interview } from "@ai-interview/shared";
 import { Button } from "@ai-interview/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ai-interview/ui/card";
 import { Checkbox } from "@ai-interview/ui/checkbox";
@@ -13,8 +14,8 @@ import { Textarea } from "@ai-interview/ui/textarea";
 
 import { FormField } from "@/components/form-field";
 
-import { useCreateInterview } from "../hooks/use-create-interview";
 import { useGeminiModels } from "../hooks/use-gemini-models";
+import { useInterviewForm } from "../hooks/use-interview-form";
 
 const EXPERIENCE_LEVELS = ["intern", "junior", "mid", "senior", "lead"] as const;
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
@@ -30,15 +31,28 @@ function firstErrorMessage(errors: readonly unknown[]): string | undefined {
   return undefined;
 }
 
-export function CreateInterviewForm() {
-  const { form, isSubmitting, error } = useCreateInterview();
+export function InterviewForm({ interview }: { interview?: Interview }) {
+  const { form, isSubmitting, isSuccess, error } = useInterviewForm(interview);
   const models = useGeminiModels();
+  const isEdit = interview !== undefined;
+
+  const submitLabel = isSubmitting
+    ? isEdit
+      ? "Saving…"
+      : "Creating…"
+    : isEdit
+      ? "Save changes"
+      : "Create interview";
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>New interview</CardTitle>
-        <CardDescription>Configure the role, then generate a plan in the builder.</CardDescription>
+        <CardTitle>{isEdit ? "Interview settings" : "New interview"}</CardTitle>
+        <CardDescription>
+          {isEdit
+            ? "Update the role and configuration. Behavior toggles live in their own card."
+            : "Configure the role, then generate a plan in the builder."}
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <form
@@ -218,77 +232,82 @@ export function CreateInterviewForm() {
               </FormField>
             )}
           />
-          <div className="space-y-3">
-            <p className="text-sm font-medium">Interview behavior</p>
-            <form.Field
-              name="allowFollowUps"
-              children={(field) => (
-                <label htmlFor="allow-follow-ups" className="flex items-start gap-2 text-sm">
-                  <Checkbox
-                    id="allow-follow-ups"
-                    className="mt-0.5"
-                    checked={field.state.value ?? false}
-                    onCheckedChange={(checked) => field.handleChange(checked === true)}
-                  />
-                  <span className="space-y-0.5">
-                    <span className="block font-medium">Allow dynamic follow-up questions</span>
-                    <span className="text-muted-foreground block">
-                      The interviewer may ask follow-ups beyond the main questions.
+          {!isEdit ? (
+            <div className="space-y-3">
+              <p className="text-sm font-medium">Interview behavior</p>
+              <form.Field
+                name="allowFollowUps"
+                children={(field) => (
+                  <label htmlFor="allow-follow-ups" className="flex items-start gap-2 text-sm">
+                    <Checkbox
+                      id="allow-follow-ups"
+                      className="mt-0.5"
+                      checked={field.state.value ?? false}
+                      onCheckedChange={(checked) => field.handleChange(checked === true)}
+                    />
+                    <span className="space-y-0.5">
+                      <span className="block font-medium">Allow dynamic follow-up questions</span>
+                      <span className="text-muted-foreground block">
+                        The interviewer may ask follow-ups beyond the main questions.
+                      </span>
                     </span>
-                  </span>
-                </label>
-              )}
-            />
-            <form.Field
-              name="generateDetailedFeedback"
-              children={(field) => (
-                <label
-                  htmlFor="generate-detailed-feedback"
-                  className="flex items-start gap-2 text-sm"
-                >
-                  <Checkbox
-                    id="generate-detailed-feedback"
-                    className="mt-0.5"
-                    checked={field.state.value ?? false}
-                    onCheckedChange={(checked) => field.handleChange(checked === true)}
-                  />
-                  <span className="space-y-0.5">
-                    <span className="block font-medium">Generate detailed feedback</span>
-                    <span className="text-muted-foreground block">
-                      Produce a full evaluation report after the interview.
+                  </label>
+                )}
+              />
+              <form.Field
+                name="generateDetailedFeedback"
+                children={(field) => (
+                  <label
+                    htmlFor="generate-detailed-feedback"
+                    className="flex items-start gap-2 text-sm"
+                  >
+                    <Checkbox
+                      id="generate-detailed-feedback"
+                      className="mt-0.5"
+                      checked={field.state.value ?? false}
+                      onCheckedChange={(checked) => field.handleChange(checked === true)}
+                    />
+                    <span className="space-y-0.5">
+                      <span className="block font-medium">Generate detailed feedback</span>
+                      <span className="text-muted-foreground block">
+                        Produce a full evaluation report after the interview.
+                      </span>
                     </span>
-                  </span>
-                </label>
-              )}
-            />
-            <form.Field
-              name="strictMode"
-              children={(field) => (
-                <label htmlFor="strict-mode" className="flex items-start gap-2 text-sm">
-                  <Checkbox
-                    id="strict-mode"
-                    className="mt-0.5"
-                    checked={field.state.value ?? false}
-                    onCheckedChange={(checked) => field.handleChange(checked === true)}
-                  />
-                  <span className="space-y-0.5">
-                    <span className="block font-medium">Strict interviewer mode</span>
-                    <span className="text-muted-foreground block">
-                      Direct, no-hints interviewing that challenges weak answers.
+                  </label>
+                )}
+              />
+              <form.Field
+                name="strictMode"
+                children={(field) => (
+                  <label htmlFor="strict-mode" className="flex items-start gap-2 text-sm">
+                    <Checkbox
+                      id="strict-mode"
+                      className="mt-0.5"
+                      checked={field.state.value ?? false}
+                      onCheckedChange={(checked) => field.handleChange(checked === true)}
+                    />
+                    <span className="space-y-0.5">
+                      <span className="block font-medium">Strict interviewer mode</span>
+                      <span className="text-muted-foreground block">
+                        Direct, no-hints interviewing that challenges weak answers.
+                      </span>
                     </span>
-                  </span>
-                </label>
-              )}
-            />
-          </div>
+                  </label>
+                )}
+              />
+            </div>
+          ) : null}
           <form.Subscribe
             selector={(state) => [state.canSubmit, state.isSubmitting]}
             children={([canSubmit, submitting]) => (
               <Button type="submit" disabled={!canSubmit || submitting || isSubmitting}>
-                {isSubmitting ? "Creating…" : "Create interview"}
+                {submitLabel}
               </Button>
             )}
           />
+          {isEdit && isSuccess && !isSubmitting ? (
+            <p className="text-sm font-medium text-green-600">Saved.</p>
+          ) : null}
           {error ? <p className="text-destructive text-sm">{error.message}</p> : null}
         </form>
       </CardContent>
