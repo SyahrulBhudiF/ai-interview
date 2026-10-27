@@ -111,6 +111,14 @@ Shared schemas: `interview.ts`, `session.ts`, `evaluation.ts`, and `ai.ts`
 - Interview templates; AI interviewer personas (system prompts); practice weak
   questions; resume/JD analysis (later, optional).
 
+### Phase 7 — Progress dashboard
+
+- `GET /api/progress`: summary counts, average score, score history, and
+  competency averages aggregated from evaluated sessions.
+- `features/progress/`: summary cards, score history with results/retry links,
+  and competency averages sorted weakest first.
+- Deliverable: a cross-interview progress view backed by real evaluations.
+
 ## Key decisions & risks
 
 - **Follow-ups are dynamic, main questions are fixed.** The orchestrator passes

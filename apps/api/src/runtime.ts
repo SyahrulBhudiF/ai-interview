@@ -6,6 +6,7 @@ import { GeminiLiveService } from "@/modules/gemini/live";
 import { GeminiService } from "@/modules/gemini/service";
 import { InterviewPlanService } from "@/modules/interview/plan/service";
 import { InterviewService } from "@/modules/interview/service";
+import { ProgressService } from "@/modules/progress/service";
 import { InterviewOrchestratorService } from "@/modules/session/orchestrator/service";
 import { SessionService } from "@/modules/session/service";
 import { TranscriptService } from "@/modules/session/transcript/service";
@@ -16,6 +17,7 @@ const coreLayer = Layer.mergeAll(
   UserService.layer,
   InterviewService.layer,
   InterviewPlanService.layer,
+  ProgressService.layer,
   GeminiLiveService.layer,
   SessionService.layer,
   TranscriptService.layer,
