@@ -10,10 +10,12 @@ import { BehaviorToggle } from "./components/behavior-toggle";
 import { PlanEditor } from "./components/plan-editor";
 import { useInterview } from "./hooks/use-interview";
 import { useInterviewPlan } from "./hooks/use-interview-plan";
+import { useStartSession } from "./hooks/use-start-session";
 
 export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
   const interview = useInterview(interviewId);
   const { planQuery, generate, save } = useInterviewPlan(interviewId);
+  const startSession = useStartSession(interviewId);
   const [draft, setDraft] = useState<InterviewPlan | null>(null);
 
   const plan = draft ?? planQuery.data ?? { stages: [] };
@@ -50,18 +52,31 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
         {interview.isPending ? (
           <Skeleton className="h-8 w-64" />
         ) : interview.data ? (
-          <header className="flex items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold">{interview.data.title}</h1>
-              <p className="text-muted-foreground text-sm">
-                {interview.data.jobPosition} · {interview.data.experienceLevel} ·{" "}
-                {interview.data.difficulty}
-              </p>
-            </div>
-            <Badge variant={interview.data.status === "ready" ? "default" : "secondary"}>
-              {interview.data.status}
-            </Badge>
-          </header>
+          <>
+            <header className="flex items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-semibold">{interview.data.title}</h1>
+                <p className="text-muted-foreground text-sm">
+                  {interview.data.jobPosition} · {interview.data.experienceLevel} ·{" "}
+                  {interview.data.difficulty}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={() => startSession.mutate()}
+                  disabled={interview.data.status !== "ready" || startSession.isPending}
+                >
+                  {startSession.isPending ? "Starting…" : "Start interview"}
+                </Button>
+                <Badge variant={interview.data.status === "ready" ? "default" : "secondary"}>
+                  {interview.data.status}
+                </Badge>
+              </div>
+            </header>
+            {startSession.error ? (
+              <p className="text-destructive text-sm">{startSession.error.message}</p>
+            ) : null}
+          </>
         ) : null}
       </div>
 

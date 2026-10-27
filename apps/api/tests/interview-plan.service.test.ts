@@ -26,14 +26,14 @@ describe("planToRows", () => {
   };
 
   it("maps stages and questions to rows with array order", () => {
-    const { stages, questions } = planToRows("interview-1", plan);
+    const { stages, questions } = planToRows("interview-1", plan, 2);
 
     assert.strictEqual(stages.length, 2);
     assert.strictEqual(questions.length, 3);
 
     assert.strictEqual(stages[0]?.order, 0);
     assert.strictEqual(stages[0]?.mainQuestionCount, 2);
-    assert.strictEqual(stages[0]?.maxFollowUps, 0);
+    assert.strictEqual(stages[0]?.maxFollowUps, 2);
     assert.strictEqual(stages[0]?.objective, "Assess core knowledge");
 
     assert.strictEqual(stages[1]?.order, 1);
@@ -46,6 +46,11 @@ describe("planToRows", () => {
 
     const secondStageQuestions = questions.filter((q) => q.stageId === stages[1]?.id);
     assert.strictEqual(secondStageQuestions.length, 1);
+  });
+
+  it("defaults maxFollowUps to 0 when not provided", () => {
+    const { stages } = planToRows("interview-1", plan);
+    assert.strictEqual(stages[0]?.maxFollowUps, 0);
   });
 });
 

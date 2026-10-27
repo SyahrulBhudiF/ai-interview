@@ -73,7 +73,16 @@ export class InterviewPlanService extends Context.Service<
         interviewId: string,
         plan: InterviewPlan,
       ) {
-        const rows = planToRows(interviewId, plan);
+        const interviewRows = yield* Effect.promise(() =>
+          db
+            .select({ allowFollowUps: interviews.allowFollowUps })
+            .from(interviews)
+            .where(eq(interviews.id, interviewId))
+            .limit(1),
+        );
+
+        const maxFollowUps = interviewRows[0]?.allowFollowUps ? 2 : 0;
+        const rows = planToRows(interviewId, plan, maxFollowUps);
 
         yield* Effect.promise(() =>
           db.transaction(async (tx) => {
@@ -105,6 +114,7 @@ export class InterviewPlanService extends Context.Service<
 export function planToRows(
   interviewId: string,
   plan: InterviewPlan,
+  maxFollowUps = 0,
 ): { stages: NewInterviewStage[]; questions: NewQuestion[] } {
   const stages: NewInterviewStage[] = [];
   const questionRows: NewQuestion[] = [];
@@ -118,7 +128,7 @@ export function planToRows(
       objective: stage.objective ?? null,
       order: stageIndex,
       mainQuestionCount: stage.questions.length,
-      maxFollowUps: 0,
+      maxFollowUps,
       competencies: [...stage.competencies],
     });
 
