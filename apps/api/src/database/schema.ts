@@ -80,6 +80,7 @@ export const evaluations = pgTable("evaluations", {
   id: text("id").primaryKey(),
   sessionId: text("session_id")
     .notNull()
+    .unique()
     .references(() => sessions.id, { onDelete: "cascade" }),
   overallScore: integer("overall_score").notNull(),
   summary: text("summary").notNull(),

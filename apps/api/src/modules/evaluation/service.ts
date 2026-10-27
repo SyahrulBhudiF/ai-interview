@@ -116,6 +116,9 @@ export class EvaluationService extends Context.Service<EvaluationService, IEvalu
 
         yield* Effect.promise(() =>
           db.transaction(async (tx) => {
+            // A session has one evaluation: re-evaluating replaces the report.
+            await tx.delete(evaluations).where(eq(evaluations.sessionId, sessionId));
+
             const [evaluation] = await tx
               .insert(evaluations)
               .values(newEvaluationRow(sessionId, rounded))
