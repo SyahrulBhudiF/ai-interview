@@ -1,4 +1,4 @@
-import type { SessionAnswerResponse, SessionStartResponse } from "@ai-interview/shared";
+import type { Interview, SessionAnswerResponse, SessionStartResponse } from "@ai-interview/shared";
 import { asc, eq, inArray } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
@@ -34,6 +34,12 @@ export class InterviewOrchestratorService extends Context.Service<
     ): Effect.Effect<
       SessionAnswerResponse,
       SessionNotFoundError | InvalidSessionStateError | GeminiError
+    >;
+    getLiveContext(
+      sessionId: string,
+    ): Effect.Effect<
+      { interview: Interview; question: string },
+      SessionNotFoundError | InvalidSessionStateError
     >;
   }
 >()("ai-interview/session/InterviewOrchestratorService") {
@@ -191,7 +197,46 @@ export class InterviewOrchestratorService extends Context.Service<
         return { session: completed, interviewerMessage: closing, finished: true };
       });
 
-      return InterviewOrchestratorService.of({ start, answer });
+      const getLiveContext = Effect.fn("Orchestrator.getLiveContext")(function* (
+        sessionId: string,
+      ): Effect.fn.Return<
+        { interview: Interview; question: string },
+        SessionNotFoundError | InvalidSessionStateError
+      > {
+        const session = yield* sessionService.getSession(sessionId);
+
+        if (
+          session.status !== "in_progress" ||
+          !session.currentStageId ||
+          !session.currentQuestionId
+        ) {
+          return yield* new InvalidSessionStateError({
+            id: sessionId,
+            status: session.status,
+            expected: "in_progress",
+          });
+        }
+
+        const interview = yield* loadInterview(session.interviewId);
+        const plan = yield* loadPlan(session.interviewId);
+        const stage = plan.find((s) => s.id === session.currentStageId);
+
+        const current = stage?.questions.find(
+          (question) => question.id === session.currentQuestionId,
+        );
+
+        if (!current) {
+          return yield* new InvalidSessionStateError({
+            id: sessionId,
+            status: session.status,
+            expected: "in_progress",
+          });
+        }
+
+        return { interview, question: current.text };
+      });
+
+      return InterviewOrchestratorService.of({ start, answer, getLiveContext });
     }),
   );
 }

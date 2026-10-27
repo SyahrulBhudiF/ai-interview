@@ -6,9 +6,9 @@
     ".": "./src/index.ts"
   },
   "scripts": {
-    "dev": "bun --watch src/index.ts",
+    "dev": "bun --env-file=../../.env --watch src/index.ts",
     "build": "bun build src/index.ts --target bun --outdir dist",
-    "start": "bun dist/index.js",
+    "start": "bun --env-file=../../.env dist/index.js",
     "check-types": "tsc --noEmit",
     "test": "vitest run --passWithNoTests --no-cache --no-fsModuleCache",
     "db:generate": "drizzle-kit generate",

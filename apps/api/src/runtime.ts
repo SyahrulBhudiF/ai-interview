@@ -1,6 +1,7 @@
 import { Layer, ManagedRuntime } from "effect";
 
 import { Database } from "@/database/client";
+import { GeminiLiveService } from "@/modules/gemini/live";
 import { GeminiService } from "@/modules/gemini/service";
 import { InterviewPlanService } from "@/modules/interview/plan/service";
 import { InterviewService } from "@/modules/interview/service";
@@ -23,6 +24,7 @@ export const runtime = ManagedRuntime.make(
     UserService.layer,
     InterviewService.layer,
     InterviewPlanService.layer,
+    GeminiLiveService.layer,
     orchestratorLayer,
   ).pipe(Layer.provide(Database.layer)),
 );

@@ -1,6 +1,7 @@
 import {
   AnswerRequestSchema,
   ApiSuccessSchema,
+  RealtimeTokenResponseSchema,
   SessionAnswerResponseSchema,
   SessionDetailResponseSchema,
   SessionSchema,
@@ -10,6 +11,7 @@ import { Effect, Schema } from "effect";
 import { Elysia } from "elysia";
 
 import { ok } from "@/libs/response";
+import { GeminiLiveService } from "@/modules/gemini/live";
 import { runtime } from "@/runtime";
 
 import { InterviewOrchestratorService } from "./orchestrator/service";
@@ -101,4 +103,29 @@ export const session = new Elysia({ prefix: "/api", tags: ["Session"] })
           SessionService.use((service) => service.completeSession(params.id)),
         ),
       ),
+  )
+  .post(
+    "/sessions/:id/realtime-token",
+    {
+      response: { 200: Schema.toStandardSchemaV1(ApiSuccessSchema(RealtimeTokenResponseSchema)) },
+      detail: {
+        summary: "Mint a Gemini Live token",
+        description: "Returns an ephemeral token for a voice-to-voice Gemini Live session.",
+      },
+    },
+    async ({ params }) => {
+      const token = await runtime.runPromise(
+        Effect.gen(function* () {
+          const context = yield* InterviewOrchestratorService.use((service) =>
+            service.getLiveContext(params.id),
+          );
+
+          return yield* GeminiLiveService.use((service) =>
+            service.createRealtimeToken(context.interview, context.question),
+          );
+        }),
+      );
+
+      return ok(token);
+    },
   );

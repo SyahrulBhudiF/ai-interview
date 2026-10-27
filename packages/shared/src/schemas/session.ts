@@ -58,7 +58,18 @@ export const SessionDetailResponseSchema = Schema.Struct({
   transcript: Schema.Array(TranscriptEntrySchema),
 });
 
+/** POST /api/sessions/:id/realtime-token — the ephemeral Gemini Live token. */
+export const RealtimeTokenResponseSchema = Schema.Struct({
+  provider: Schema.String,
+  token: Schema.String,
+  expiresAt: Schema.Number,
+  config: Schema.Struct({
+    model: Schema.optional(Schema.String),
+  }),
+});
+
 export type AnswerRequest = Schema.Schema.Type<typeof AnswerRequestSchema>;
 export type SessionStartResponse = Schema.Schema.Type<typeof SessionStartResponseSchema>;
 export type SessionAnswerResponse = Schema.Schema.Type<typeof SessionAnswerResponseSchema>;
 export type SessionDetailResponse = Schema.Schema.Type<typeof SessionDetailResponseSchema>;
+export type RealtimeTokenResponse = Schema.Schema.Type<typeof RealtimeTokenResponseSchema>;

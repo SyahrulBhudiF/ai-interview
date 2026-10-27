@@ -115,7 +115,8 @@ const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(f
         adapter: createGeminiChat(MODEL, apiKey.value),
         messages: [{ role: "user", content: buildPlanPrompt(interview, stages) }],
         threadId: crypto.randomUUID(),
-        outputSchema: Schema.toStandardSchemaV1(InterviewPlanSchema),
+        outputSchema: Schema.toStandardJSONSchemaV1(InterviewPlanSchema),
+        retry: { maxRetries: 1 },
       }),
     catch: (cause) => new GeminiGenerationError({ message: String(cause) }),
   });
@@ -138,6 +139,7 @@ const generateFollowUp = Effect.fn("GeminiService.generateFollowUp")(function* (
         messages: [{ role: "user", content: buildFollowUpPrompt(interview, question, answer) }],
         threadId: crypto.randomUUID(),
         stream: false,
+        retry: { maxRetries: 1 },
       });
 
       return text;
