@@ -95,16 +95,17 @@ export const session = new Elysia({ prefix: "/api", tags: ["Session"] })
       },
     },
     async ({ params }) => {
-      const detail = await runtime.runPromise(
-        Effect.gen(function* () {
-          const sessionRow = yield* SessionService.use((service) => service.getSession(params.id));
-          const transcript = yield* TranscriptService.use((service) => service.list(params.id));
-
-          return { session: sessionRow, transcript };
-        }),
+      const [sessionRow, transcript] = await runtime.runPromise(
+        Effect.all(
+          [
+            SessionService.use((service) => service.getSession(params.id)),
+            TranscriptService.use((service) => service.list(params.id)),
+          ],
+          { concurrency: "unbounded" },
+        ),
       );
 
-      return ok(detail);
+      return ok({ session: sessionRow, transcript });
     },
   )
   .post(

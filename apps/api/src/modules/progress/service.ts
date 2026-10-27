@@ -20,37 +20,39 @@ export class ProgressService extends Context.Service<ProgressService, IProgressS
       const { db } = yield* Database;
 
       const getProgress = Effect.fn("ProgressService.getProgress")(function* () {
-        const interviewRows = yield* Effect.promise(() =>
-          db.select({ id: interviews.id, title: interviews.title }).from(interviews),
-        );
-
-        const sessionRows = yield* Effect.promise(() =>
-          db
-            .select({
-              id: sessions.id,
-              interviewId: sessions.interviewId,
-              status: sessions.status,
-              createdAt: sessions.createdAt,
-            })
-            .from(sessions)
-            .orderBy(desc(sessions.createdAt)),
-        );
-
-        const evaluationRows = yield* Effect.promise(() =>
-          db
-            .select({
-              sessionId: evaluations.sessionId,
-              overallScore: evaluations.overallScore,
-              createdAt: evaluations.createdAt,
-            })
-            .from(evaluations)
-            .orderBy(desc(evaluations.createdAt)),
-        );
-
-        const scoreRows = yield* Effect.promise(() =>
-          db
-            .select({ category: evaluationScores.category, score: evaluationScores.score })
-            .from(evaluationScores),
+        const [interviewRows, sessionRows, evaluationRows, scoreRows] = yield* Effect.all(
+          [
+            Effect.promise(() =>
+              db.select({ id: interviews.id, title: interviews.title }).from(interviews),
+            ),
+            Effect.promise(() =>
+              db
+                .select({
+                  id: sessions.id,
+                  interviewId: sessions.interviewId,
+                  status: sessions.status,
+                  createdAt: sessions.createdAt,
+                })
+                .from(sessions)
+                .orderBy(desc(sessions.createdAt)),
+            ),
+            Effect.promise(() =>
+              db
+                .select({
+                  sessionId: evaluations.sessionId,
+                  overallScore: evaluations.overallScore,
+                  createdAt: evaluations.createdAt,
+                })
+                .from(evaluations)
+                .orderBy(desc(evaluations.createdAt)),
+            ),
+            Effect.promise(() =>
+              db
+                .select({ category: evaluationScores.category, score: evaluationScores.score })
+                .from(evaluationScores),
+            ),
+          ],
+          { concurrency: "unbounded" },
         );
 
         return toProgress({

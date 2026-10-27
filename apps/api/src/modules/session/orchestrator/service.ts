@@ -141,8 +141,11 @@ export class InterviewOrchestratorService extends Context.Service<
           });
         }
 
-        const interview = yield* loadInterview(session.interviewId);
-        const plan = yield* loadPlan(session.interviewId);
+        const [interview, plan] = yield* Effect.all(
+          [loadInterview(session.interviewId), loadPlan(session.interviewId)],
+          { concurrency: "unbounded" },
+        );
+
         const stage = plan.find((s) => s.id === session.currentStageId);
 
         const current = stage?.questions.find(
@@ -210,8 +213,11 @@ export class InterviewOrchestratorService extends Context.Service<
           });
         }
 
-        const interview = yield* loadInterview(session.interviewId);
-        const plan = yield* loadPlan(session.interviewId);
+        const [interview, plan] = yield* Effect.all(
+          [loadInterview(session.interviewId), loadPlan(session.interviewId)],
+          { concurrency: "unbounded" },
+        );
+
         const stage = plan.find((s) => s.id === session.currentStageId);
 
         const current = stage?.questions.find(

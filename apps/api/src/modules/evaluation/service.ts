@@ -91,9 +91,14 @@ export class EvaluationService extends Context.Service<EvaluationService, IEvalu
           return yield* new SessionNotCompletedError({ sessionId, status: session.status });
         }
 
-        const interview = yield* loadInterview(session.interviewId);
-        const questionList = yield* loadQuestions(session.interviewId);
-        const transcript = yield* transcriptService.list(sessionId);
+        const [interview, questionList, transcript] = yield* Effect.all(
+          [
+            loadInterview(session.interviewId),
+            loadQuestions(session.interviewId),
+            transcriptService.list(sessionId),
+          ],
+          { concurrency: "unbounded" },
+        );
 
         const transcriptText = transcript.map((entry) => `${entry.role}: ${entry.text}`).join("\n");
 
