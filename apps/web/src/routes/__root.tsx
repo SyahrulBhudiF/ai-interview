@@ -30,8 +30,8 @@ function RootDocument() {
       <body className="bg-background text-foreground font-sans antialiased">
         <SiteHeader />
         <Outlet />
-        <Toaster position="top-right" richColors closeButton />
-        <TanStackRouterDevtools position="bottom-right" />
+        <Toaster position="bottom-right" richColors closeButton />
+        <TanStackRouterDevtools position="bottom-left" />
         <Scripts />
       </body>
     </html>
