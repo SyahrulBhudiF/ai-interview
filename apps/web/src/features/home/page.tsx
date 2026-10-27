@@ -54,7 +54,7 @@ export function HomePage() {
           </div>
         </div>
 
-        <div className="bg-card rounded-xl border p-6">
+        <div className="bg-card rounded-2xl p-6 shadow-sm">
           <p className="text-muted-foreground text-xs font-medium tracking-[0.14em] uppercase">
             Your progress
           </p>
@@ -91,7 +91,7 @@ export function HomePage() {
         {interviews.isPending ? (
           <Skeleton className="h-24 w-full" />
         ) : recent.length === 0 ? (
-          <div className="rounded-xl border border-dashed px-6 py-10">
+          <div className="bg-muted/40 rounded-2xl px-8 py-12">
             <p className="font-medium">Nothing here yet</p>
             <p className="text-muted-foreground mt-1 max-w-md text-sm">
               Your first interview takes a minute to set up. Gemini handles the question plan.
@@ -104,7 +104,7 @@ export function HomePage() {
             </Link>
           </div>
         ) : (
-          <div className="divide-border divide-y rounded-xl border">
+          <div className="divide-border/70 bg-card divide-y overflow-hidden rounded-2xl shadow-sm">
             {recent.map((interview) => (
               <Link
                 key={interview.id}
@@ -137,9 +137,9 @@ export function HomePage() {
             Three passes, one loop. Repeat the weak spots.
           </p>
         </div>
-        <div className="grid gap-8 border-t pt-8 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-3">
           {steps.map((step) => (
-            <div key={step.number} className="space-y-3">
+            <div key={step.number} className="bg-card space-y-3 rounded-2xl p-6 shadow-sm">
               <span className="text-primary font-serif text-2xl">{step.number}</span>
               <p className="font-medium">{step.title}</p>
               <p className="text-muted-foreground text-sm leading-relaxed">{step.body}</p>

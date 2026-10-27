@@ -80,11 +80,11 @@ export function PlanEditor({
     <div className="space-y-4">
       {plan.stages.map((stage, stageIndex) => (
         // oxlint-disable-next-line react/no-array-index-key -- stages are reordered only by append/remove and are fully controlled
-        <Card key={stageIndex}>
+        <Card key={stageIndex} className="bg-muted/40 shadow-none">
           <CardHeader>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <span className="bg-secondary flex size-8 shrink-0 items-center justify-center rounded-md text-sm font-medium">
+                <span className="bg-accent text-accent-foreground flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
                   {stageIndex + 1}
                 </span>
                 <Input
@@ -163,7 +163,7 @@ export function PlanEditor({
             <div className="space-y-3">
               {stage.questions.map((question, questionIndex) => (
                 // oxlint-disable-next-line react/no-array-index-key -- questions are fully controlled inputs with no drag reorder
-                <div key={questionIndex} className="space-y-3 rounded-md border p-3">
+                <div key={questionIndex} className="bg-card space-y-3 rounded-2xl p-4">
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium">Question {questionIndex + 1}</p>
                     <Button

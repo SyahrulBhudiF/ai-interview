@@ -137,8 +137,8 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
                     key={message.id}
                     className={
                       message.role === "assistant"
-                        ? "bg-muted rounded-md p-3"
-                        : "rounded-md border p-3"
+                        ? "bg-muted/60 rounded-2xl p-4"
+                        : "bg-accent/40 rounded-2xl p-4"
                     }
                   >
                     <p className="text-muted-foreground text-xs uppercase">{message.role}</p>

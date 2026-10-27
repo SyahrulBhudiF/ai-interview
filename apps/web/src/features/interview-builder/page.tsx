@@ -237,7 +237,7 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
                       key={session.id}
                       to="/sessions/$sessionId/results"
                       params={{ sessionId: session.id }}
-                      className="hover:bg-accent/40 flex items-center justify-between rounded-md border p-3 transition-colors"
+                      className="bg-muted/40 hover:bg-accent/60 flex items-center justify-between rounded-2xl p-3 transition-colors"
                     >
                       <div>
                         <p className="text-sm font-medium">
@@ -265,7 +265,7 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
       </div>
 
       {interview.data ? (
-        <details className="group bg-card rounded-xl border">
+        <details className="group bg-card overflow-hidden rounded-2xl shadow-sm">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-4">
             <span className="text-sm font-medium">Edit interview details</span>
             <span className="text-muted-foreground text-xs group-open:hidden">
@@ -273,7 +273,7 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
             </span>
             <span className="text-muted-foreground hidden text-xs group-open:inline">Hide</span>
           </summary>
-          <div className="border-t p-6">
+          <div className="p-6">
             <InterviewForm interview={interview.data} bare />
           </div>
         </details>

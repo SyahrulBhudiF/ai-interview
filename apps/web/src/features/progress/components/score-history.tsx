@@ -17,7 +17,7 @@ export function ScoreHistory({ scores }: { scores: ReadonlyArray<ProgressScore> 
         ) : (
           <div className="space-y-3">
             {scores.map((score) => (
-              <div key={score.sessionId} className="space-y-2 rounded-md border p-3">
+              <div key={score.sessionId} className="bg-muted/40 space-y-2 rounded-2xl p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium">{score.interviewTitle}</p>

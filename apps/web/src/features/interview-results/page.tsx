@@ -151,7 +151,9 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
               <div
                 key={entry.id}
                 className={
-                  entry.role === "ai" ? "bg-muted rounded-md p-3" : "rounded-md border p-3"
+                  entry.role === "ai"
+                    ? "bg-muted/60 rounded-2xl p-4"
+                    : "bg-accent/40 rounded-2xl p-4"
                 }
               >
                 <p className="text-muted-foreground text-xs uppercase">{entry.role}</p>

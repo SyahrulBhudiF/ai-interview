@@ -27,7 +27,7 @@ export function InterviewsList({
 
   if (error) {
     return (
-      <div className="border-destructive/40 bg-destructive/5 rounded-xl border px-6 py-8">
+      <div className="bg-destructive/10 rounded-2xl px-8 py-10">
         <p className="font-medium">Could not load interviews</p>
         <p className="text-muted-foreground mt-1 text-sm">{error.message}</p>
       </div>
@@ -36,7 +36,7 @@ export function InterviewsList({
 
   if (!interviews || interviews.length === 0) {
     return (
-      <div className="flex flex-col items-start gap-3 rounded-xl border border-dashed px-6 py-10">
+      <div className="bg-muted/40 flex flex-col items-start gap-3 rounded-2xl px-8 py-12">
         <p className="font-medium">No interviews yet</p>
         <p className="text-muted-foreground max-w-md text-sm">
           Create an interview to define the role, generate a plan, and rehearse with the AI
@@ -60,7 +60,7 @@ export function InterviewsList({
           to="/interviews/$interviewId"
           params={{ interviewId: interview.id }}
         >
-          <Card className="hover:border-primary/40 flex h-full flex-col justify-between transition-colors">
+          <Card className="flex h-full flex-col justify-between transition-shadow hover:shadow-md">
             <CardHeader className="space-y-2">
               <div className="flex items-start justify-between gap-3">
                 <CardTitle className="text-base leading-snug">{interview.title}</CardTitle>
