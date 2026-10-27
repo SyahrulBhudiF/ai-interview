@@ -1,4 +1,5 @@
 import { ApiSuccessSchema, InterviewSchema, type InterviewBehavior } from "@ai-interview/shared";
+import { toast } from "@ai-interview/ui/sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Schema } from "effect";
 
@@ -26,8 +27,12 @@ export function useInterview(interviewId: string) {
       return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewSchema))(data).data;
     },
     onSuccess: (interview) => {
+      toast.success("Behavior updated");
       queryClient.setQueryData(["interviews", interviewId], interview);
       void queryClient.invalidateQueries({ queryKey: ["interviews"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 

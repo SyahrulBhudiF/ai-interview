@@ -6,6 +6,7 @@ import {
   type Interview,
   type UpdateInterview,
 } from "@ai-interview/shared";
+import { toast } from "@ai-interview/ui/sonner";
 import { useForm } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -86,6 +87,7 @@ export function useInterviewForm(interview?: Interview) {
       return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewSchema))(data).data;
     },
     onSuccess: (saved) => {
+      toast.success(interview ? "Interview updated" : "Interview created");
       void queryClient.invalidateQueries({ queryKey: ["interviews"] });
 
       if (interview) {

@@ -1,4 +1,5 @@
 import { ApiSuccessSchema, InterviewSchema, type EvaluationCategory } from "@ai-interview/shared";
+import { toast } from "@ai-interview/ui/sonner";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Schema } from "effect";
@@ -18,7 +19,11 @@ export function usePracticeInterview() {
       return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewSchema))(data).data;
     },
     onSuccess: (interview) => {
+      toast.success("Practice interview created");
       void navigate({ to: "/interviews/$interviewId", params: { interviewId: interview.id } });
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 }

@@ -1,4 +1,5 @@
 import { ApiSuccessSchema, SessionSchema } from "@ai-interview/shared";
+import { toast } from "@ai-interview/ui/sonner";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Schema } from "effect";
@@ -31,6 +32,9 @@ export function useStartSession(interviewId: string) {
     },
     onSuccess: (sessionId) => {
       void navigate({ to: "/sessions/$sessionId", params: { sessionId } });
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 }

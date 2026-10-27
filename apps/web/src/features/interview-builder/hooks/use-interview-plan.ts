@@ -4,6 +4,7 @@ import {
   type InterviewPlan,
   type StageSpec,
 } from "@ai-interview/shared";
+import { toast } from "@ai-interview/ui/sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Schema } from "effect";
 
@@ -33,6 +34,12 @@ export function useInterviewPlan(interviewId: string) {
         throw new Error(getApiErrorMessage(error, "Failed to generate the plan."));
       return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewPlanSchema))(data).data;
     },
+    onSuccess: () => {
+      toast.success("Plan generated");
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
   });
 
   const save = useMutation({
@@ -42,8 +49,12 @@ export function useInterviewPlan(interviewId: string) {
       return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewPlanSchema))(data).data;
     },
     onSuccess: () => {
+      toast.success("Plan saved");
       void queryClient.invalidateQueries({ queryKey: ["interviews", interviewId, "plan"] });
       void queryClient.invalidateQueries({ queryKey: ["interviews"] });
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 

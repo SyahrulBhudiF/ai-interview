@@ -41,9 +41,6 @@ export function ProgressPage() {
               pendingCategory={practice.isPending ? practice.variables : undefined}
             />
           </div>
-          {practice.error ? (
-            <p className="text-destructive text-sm">{practice.error.message}</p>
-          ) : null}
         </>
       ) : null}
     </main>

@@ -71,7 +71,7 @@ export const transcriptEntries = pgTable("transcript_entries", {
     .references(() => sessions.id, { onDelete: "cascade" }),
   role: text("role").notNull(),
   text: text("text").notNull(),
-  questionId: text("question_id").references(() => questions.id),
+  questionId: text("question_id").references(() => questions.id, { onDelete: "set null" }),
   order: integer("order").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

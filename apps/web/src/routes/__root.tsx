@@ -1,3 +1,4 @@
+import { Toaster } from "@ai-interview/ui/sonner";
 import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
@@ -29,6 +30,7 @@ function RootDocument() {
       <body className="bg-background text-foreground font-sans antialiased">
         <SiteHeader />
         <Outlet />
+        <Toaster position="top-right" richColors closeButton />
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />
       </body>

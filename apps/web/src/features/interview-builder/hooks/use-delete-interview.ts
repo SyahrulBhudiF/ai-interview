@@ -1,4 +1,5 @@
 import { ApiSuccessSchema, DeletedInterviewSchema } from "@ai-interview/shared";
+import { toast } from "@ai-interview/ui/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Schema } from "effect";
@@ -20,9 +21,13 @@ export function useDeleteInterview(interviewId: string) {
       return Schema.decodeUnknownSync(ApiSuccessSchema(DeletedInterviewSchema))(data).data;
     },
     onSuccess: () => {
+      toast.success("Interview deleted");
       queryClient.removeQueries({ queryKey: ["interviews", interviewId] });
       void queryClient.invalidateQueries({ queryKey: ["interviews"] });
       void navigate({ to: "/interviews" });
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 }

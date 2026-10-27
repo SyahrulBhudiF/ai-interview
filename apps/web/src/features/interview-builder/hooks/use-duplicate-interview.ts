@@ -1,4 +1,5 @@
 import { ApiSuccessSchema, InterviewSchema } from "@ai-interview/shared";
+import { toast } from "@ai-interview/ui/sonner";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Schema } from "effect";
@@ -17,8 +18,12 @@ export function useDuplicateInterview(interviewId: string) {
       return Schema.decodeUnknownSync(ApiSuccessSchema(InterviewSchema))(data).data;
     },
     onSuccess: (interview) => {
+      toast.success("Interview duplicated");
       void queryClient.invalidateQueries({ queryKey: ["interviews"] });
       void navigate({ to: "/interviews/$interviewId", params: { interviewId: interview.id } });
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 }

@@ -137,9 +137,6 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
             >
               {evaluation.evaluate.isPending ? "Evaluating…" : "Evaluate interview"}
             </Button>
-            {evaluation.evaluate.error ? (
-              <p className="text-destructive text-sm">{evaluation.evaluate.error.message}</p>
-            ) : null}
           </CardContent>
         </Card>
       )}

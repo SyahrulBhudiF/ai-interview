@@ -1,4 +1,5 @@
 import { ApiSuccessSchema, EvaluationReportSchema } from "@ai-interview/shared";
+import { toast } from "@ai-interview/ui/sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Schema } from "effect";
 
@@ -31,7 +32,11 @@ export function useEvaluation(sessionId: string) {
       return Schema.decodeUnknownSync(ApiSuccessSchema(EvaluationReportSchema))(data).data;
     },
     onSuccess: (report) => {
+      toast.success("Evaluation ready");
       queryClient.setQueryData(["sessions", sessionId, "evaluation"], report);
+    },
+    onError: (error) => {
+      toast.error(error.message);
     },
   });
 
