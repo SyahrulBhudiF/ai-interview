@@ -27,7 +27,7 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
   const report = evaluation.data;
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-6 p-8">
+    <main className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-10">
       <div className="space-y-3">
         <Link
           to="/sessions/$sessionId"
@@ -37,7 +37,7 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
           ← Session
         </Link>
         <header className="flex items-center justify-between gap-4">
-          <h1 className="text-2xl font-semibold">Interview results</h1>
+          <h1 className="font-serif text-4xl tracking-tight">Interview results</h1>
           {sessionQuery.data ? (
             <Badge
               variant={sessionQuery.data.session.status === "completed" ? "default" : "secondary"}

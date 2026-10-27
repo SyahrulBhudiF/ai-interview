@@ -32,16 +32,20 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
     queryFn: async () => {
       const { data, error } = await api.sessions({ id: sessionId }).get();
       if (error || !data) throw new Error("Failed to load the session.");
-      return Schema.decodeUnknownSync(ApiSuccessSchema(SessionDetailResponseSchema))(data).data
-        .session;
+      return Schema.decodeUnknownSync(ApiSuccessSchema(SessionDetailResponseSchema))(data).data;
     },
     enabled: !import.meta.env.SSR,
   });
 
-  const session = sessionQuery.data;
+  const detail = sessionQuery.data;
+  const session = detail?.session;
+
+  const currentQuestion = [...(detail?.transcript ?? [])]
+    .reverse()
+    .find((entry) => entry.role === "ai")?.text;
 
   return (
-    <main className="mx-auto flex max-w-2xl flex-col gap-6 p-8">
+    <main className="mx-auto flex max-w-4xl flex-col gap-8 px-6 py-10">
       <div className="space-y-3">
         <Link to="/interviews" className="text-muted-foreground hover:text-foreground text-sm">
           ← Interviews
@@ -50,7 +54,7 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
           <Skeleton className="h-8 w-64" />
         ) : session ? (
           <header className="flex items-center justify-between gap-4">
-            <h1 className="text-2xl font-semibold">Live interview</h1>
+            <h1 className="font-serif text-4xl tracking-tight">Live interview</h1>
             <div className="flex items-center gap-2">
               <Link
                 to="/sessions/$sessionId/results"
@@ -66,6 +70,18 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
           </header>
         ) : null}
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Current question</CardTitle>
+          <CardDescription>The interviewer's latest prompt for this session.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-lg leading-relaxed">
+            {currentQuestion ?? "Start the session to get the first question."}
+          </p>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -88,7 +104,12 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
             >
               Connect voice
             </Button>
-            <Button type="button" variant="secondary" onClick={() => void realtime.interrupt()}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void realtime.interrupt()}
+              disabled={realtime.status !== "connected"}
+            >
               Interrupt
             </Button>
             <Button

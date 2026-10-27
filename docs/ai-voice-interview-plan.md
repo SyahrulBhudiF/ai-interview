@@ -136,6 +136,17 @@ Shared schemas: `interview.ts`, `session.ts`, `evaluation.ts`, and `ai.ts`
   delete action.
 - Deliverable: complete interview CRUD from the UI.
 
+### Phase 10 — App shell and dashboard redesign
+
+- Add a persistent header with Interviews/Progress navigation and a New
+  interview action.
+- Replace the scaffold home with an overview: stats, recent interviews, and how
+  it works.
+- Move interview creation to `/interviews/new`; the dashboard becomes a
+  scannable card grid.
+- Rework the builder into a two-column layout with collapsible settings.
+- Refresh the theme: Instrument Sans/Serif, warm neutrals, one deep-rose accent.
+
 ## Key decisions & risks
 
 - **Follow-ups are dynamic, main questions are fixed.** The orchestrator passes

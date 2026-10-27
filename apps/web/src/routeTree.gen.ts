@@ -14,6 +14,7 @@ import { Route as InterviewsRouteImport } from './routes/interviews'
 import { Route as ProgressRouteImport } from './routes/progress'
 import { Route as InterviewsIndexRouteImport } from './routes/interviews.index'
 import { Route as InterviewsInterviewIdRouteImport } from './routes/interviews.$interviewId'
+import { Route as InterviewsNewRouteImport } from './routes/interviews.new'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions.$sessionId'
 import { Route as SessionsSessionIdIndexRouteImport } from './routes/sessions.$sessionId.index'
 import { Route as SessionsSessionIdResultsRouteImport } from './routes/sessions.$sessionId.results'
@@ -43,6 +44,11 @@ const InterviewsInterviewIdRoute = InterviewsInterviewIdRouteImport.update({
   path: '/$interviewId',
   getParentRoute: () => InterviewsRoute,
 } as any)
+const InterviewsNewRoute = InterviewsNewRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => InterviewsRoute,
+} as any)
 const SessionsSessionIdRoute = SessionsSessionIdRouteImport.update({
   id: '/sessions/$sessionId',
   path: '/sessions/$sessionId',
@@ -65,6 +71,7 @@ export interface FileRoutesByFullPath {
   '/interviews': typeof InterviewsRouteWithChildren
   '/progress': typeof ProgressRoute
   '/interviews/$interviewId': typeof InterviewsInterviewIdRoute
+  '/interviews/new': typeof InterviewsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
   '/interviews/': typeof InterviewsIndexRoute
   '/sessions/$sessionId/results': typeof SessionsSessionIdResultsRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/progress': typeof ProgressRoute
   '/interviews/$interviewId': typeof InterviewsInterviewIdRoute
+  '/interviews/new': typeof InterviewsNewRoute
   '/interviews': typeof InterviewsIndexRoute
   '/sessions/$sessionId/results': typeof SessionsSessionIdResultsRoute
   '/sessions/$sessionId': typeof SessionsSessionIdIndexRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/interviews': typeof InterviewsRouteWithChildren
   '/progress': typeof ProgressRoute
   '/interviews/$interviewId': typeof InterviewsInterviewIdRoute
+  '/interviews/new': typeof InterviewsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
   '/interviews/': typeof InterviewsIndexRoute
   '/sessions/$sessionId/results': typeof SessionsSessionIdResultsRoute
@@ -96,6 +105,7 @@ export interface FileRouteTypes {
     | '/interviews'
     | '/progress'
     | '/interviews/$interviewId'
+    | '/interviews/new'
     | '/sessions/$sessionId'
     | '/interviews/'
     | '/sessions/$sessionId/results'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
     | '/'
     | '/progress'
     | '/interviews/$interviewId'
+    | '/interviews/new'
     | '/interviews'
     | '/sessions/$sessionId/results'
     | '/sessions/$sessionId'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/interviews'
     | '/progress'
     | '/interviews/$interviewId'
+    | '/interviews/new'
     | '/sessions/$sessionId'
     | '/interviews/'
     | '/sessions/$sessionId/results'
@@ -164,6 +176,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InterviewsInterviewIdRouteImport
       parentRoute: typeof InterviewsRoute
     }
+    '/interviews/new': {
+      id: '/interviews/new'
+      path: '/new'
+      fullPath: '/interviews/new'
+      preLoaderRoute: typeof InterviewsNewRouteImport
+      parentRoute: typeof InterviewsRoute
+    }
     '/sessions/$sessionId': {
       id: '/sessions/$sessionId'
       path: '/sessions/$sessionId'
@@ -190,11 +209,13 @@ declare module '@tanstack/react-router' {
 
 interface InterviewsRouteChildren {
   InterviewsInterviewIdRoute: typeof InterviewsInterviewIdRoute
+  InterviewsNewRoute: typeof InterviewsNewRoute
   InterviewsIndexRoute: typeof InterviewsIndexRoute
 }
 
 const InterviewsRouteChildren: InterviewsRouteChildren = {
   InterviewsInterviewIdRoute: InterviewsInterviewIdRoute,
+  InterviewsNewRoute: InterviewsNewRoute,
   InterviewsIndexRoute: InterviewsIndexRoute,
 }
 

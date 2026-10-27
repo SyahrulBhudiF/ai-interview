@@ -1,5 +1,4 @@
 import { Skeleton } from "@ai-interview/ui/skeleton";
-import { Link } from "@tanstack/react-router";
 
 import { CompetencyAverages } from "./components/competency-averages";
 import { ProgressSummaryCards } from "./components/progress-summary";
@@ -14,18 +13,14 @@ export function ProgressPage() {
   const practice = usePracticeInterview();
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-6 p-8">
-      <div className="space-y-3">
-        <Link to="/interviews" className="text-muted-foreground hover:text-foreground text-sm">
-          ← Interviews
-        </Link>
-        <header>
-          <h1 className="text-2xl font-semibold">Progress</h1>
-          <p className="text-muted-foreground text-sm">
-            Compare scores across interviews and see which competencies need practice.
-          </p>
-        </header>
-      </div>
+    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10">
+      <header className="space-y-2">
+        <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">Progress</p>
+        <h1 className="font-serif text-4xl tracking-tight">Your progress</h1>
+        <p className="text-muted-foreground max-w-xl text-sm">
+          Compare scores across interviews and see which competencies need practice.
+        </p>
+      </header>
 
       {progress.isPending ? (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">

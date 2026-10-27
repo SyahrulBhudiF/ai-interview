@@ -53,24 +53,29 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
   };
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-6 p-8">
+    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10">
       <div className="space-y-3">
         <Link to="/interviews" className="text-muted-foreground hover:text-foreground text-sm">
           ← Interviews
         </Link>
         {interview.isPending ? (
-          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-10 w-72" />
         ) : interview.data ? (
           <>
-            <header className="flex items-center justify-between gap-4">
-              <div>
-                <h1 className="text-2xl font-semibold">{interview.data.title}</h1>
+            <header className="flex flex-wrap items-start justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="font-serif text-4xl tracking-tight">{interview.data.title}</h1>
+                  <Badge variant={interview.data.status === "ready" ? "default" : "secondary"}>
+                    {interview.data.status}
+                  </Badge>
+                </div>
                 <p className="text-muted-foreground text-sm">
                   {interview.data.jobPosition} · {interview.data.experienceLevel} ·{" "}
                   {interview.data.difficulty} · {interview.data.persona} · {interview.data.model}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button
                   onClick={() => startSession.mutate()}
                   disabled={interview.data.status !== "ready" || startSession.isPending}
@@ -85,15 +90,13 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
                   {duplicate.isPending ? "Duplicating…" : "Duplicate"}
                 </Button>
                 <Button
-                  variant="destructive"
+                  variant="ghost"
+                  className="text-destructive hover:text-destructive"
                   onClick={() => setConfirmingDelete(true)}
                   disabled={deleteInterview.isPending}
                 >
                   {deleteInterview.isPending ? "Deleting…" : "Delete"}
                 </Button>
-                <Badge variant={interview.data.status === "ready" ? "default" : "secondary"}>
-                  {interview.data.status}
-                </Badge>
               </div>
             </header>
             {startSession.error ? (
@@ -129,137 +132,163 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
         ) : null}
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Interview stages</CardTitle>
-          <CardDescription>
-            Define your stages and how many main questions each needs, then generate the questions
-            with Gemini — or generate a whole plan from scratch.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Button type="button" onClick={generatePlan} disabled={generate.isPending}>
-              {generate.isPending
-                ? "Generating…"
-                : hasStages
-                  ? "Generate questions"
-                  : "Generate plan"}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              disabled={save.isPending || !hasStages}
-              onClick={() => save.mutate(plan)}
-            >
-              {save.isPending ? "Saving…" : "Save plan"}
-            </Button>
-          </div>
-
-          {generate.error ? (
-            <p className="text-destructive text-sm">{generate.error.message}</p>
-          ) : null}
-          {save.error ? <p className="text-destructive text-sm">{save.error.message}</p> : null}
-          {save.isSuccess && !save.isPending ? (
-            <p className="text-sm font-medium text-green-600">Plan saved.</p>
-          ) : null}
-
-          {planQuery.isPending ? (
-            <Skeleton className="h-40 w-full" />
-          ) : (
-            <>
-              {!hasStages ? (
-                <p className="text-muted-foreground text-sm">
-                  No stages yet. Add a stage and set its question count, then generate — or let
-                  Gemini design the whole plan.
-                </p>
-              ) : null}
-              <PlanEditor plan={plan} onChange={setDraft} />
-            </>
-          )}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Interview behavior</CardTitle>
-          <CardDescription>How the interviewer runs the session.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {interview.isPending ? (
-            <Skeleton className="h-24 w-full" />
-          ) : behavior ? (
-            <>
-              <BehaviorToggle
-                id="allow-follow-ups"
-                checked={behavior.allowFollowUps}
-                disabled={interview.updateBehavior.isPending}
-                label="Allow dynamic follow-up questions"
-                description="The interviewer may ask follow-ups beyond the main questions."
-                onToggle={(checked) => toggleBehavior({ allowFollowUps: checked })}
-              />
-              <BehaviorToggle
-                id="generate-detailed-feedback"
-                checked={behavior.generateDetailedFeedback}
-                disabled={interview.updateBehavior.isPending}
-                label="Generate detailed feedback"
-                description="Produce a full evaluation report after the interview."
-                onToggle={(checked) => toggleBehavior({ generateDetailedFeedback: checked })}
-              />
-              <BehaviorToggle
-                id="strict-mode"
-                checked={behavior.strictMode}
-                disabled={interview.updateBehavior.isPending}
-                label="Strict interviewer mode"
-                description="Direct, no-hints interviewing that challenges weak answers."
-                onToggle={(checked) => toggleBehavior({ strictMode: checked })}
-              />
-              {interview.updateBehavior.error ? (
-                <p className="text-destructive text-sm">{interview.updateBehavior.error.message}</p>
-              ) : null}
-            </>
-          ) : null}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>History</CardTitle>
-          <CardDescription>Past sessions for this interview, with their scores.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {sessions.isPending ? (
-            <Skeleton className="h-16 w-full" />
-          ) : !sessions.data || sessions.data.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No sessions yet.</p>
-          ) : (
-            <div className="space-y-2">
-              {sessions.data.map(({ session, overallScore }) => (
-                <Link
-                  key={session.id}
-                  to="/sessions/$sessionId/results"
-                  params={{ sessionId: session.id }}
-                  className="hover:bg-accent/40 flex items-center justify-between rounded-md border p-3 transition-colors"
-                >
-                  <div>
-                    <p className="text-sm font-medium">
-                      {new Date(session.createdAt).toLocaleString()}
-                    </p>
-                    <p className="text-muted-foreground text-xs">{session.status}</p>
-                  </div>
-                  {overallScore !== undefined ? (
-                    <span className="text-sm font-semibold tabular-nums">{overallScore}</span>
-                  ) : (
-                    <span className="text-muted-foreground text-xs">—</span>
-                  )}
-                </Link>
-              ))}
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:items-start">
+        <Card>
+          <CardHeader>
+            <CardTitle>Interview stages</CardTitle>
+            <CardDescription>
+              Define your stages and how many main questions each needs, then generate the questions
+              with Gemini — or generate a whole plan from scratch.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button type="button" onClick={generatePlan} disabled={generate.isPending}>
+                {generate.isPending
+                  ? "Generating…"
+                  : hasStages
+                    ? "Generate questions"
+                    : "Generate plan"}
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={save.isPending || !hasStages}
+                onClick={() => save.mutate(plan)}
+              >
+                {save.isPending ? "Saving…" : "Save plan"}
+              </Button>
             </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {interview.data ? <InterviewForm interview={interview.data} /> : null}
+            {generate.error ? (
+              <p className="text-destructive text-sm">{generate.error.message}</p>
+            ) : null}
+            {save.error ? <p className="text-destructive text-sm">{save.error.message}</p> : null}
+            {save.isSuccess && !save.isPending ? (
+              <p className="text-sm font-medium text-green-600">Plan saved.</p>
+            ) : null}
+
+            {planQuery.isPending ? (
+              <Skeleton className="h-40 w-full" />
+            ) : (
+              <>
+                {!hasStages ? (
+                  <p className="text-muted-foreground text-sm">
+                    No stages yet. Add a stage and set its question count, then generate — or let
+                    Gemini design the whole plan.
+                  </p>
+                ) : null}
+                <PlanEditor plan={plan} onChange={setDraft} />
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="space-y-6 lg:sticky lg:top-24">
+          <Card>
+            <CardHeader>
+              <CardTitle>Interview behavior</CardTitle>
+              <CardDescription>How the interviewer runs the session.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {interview.isPending ? (
+                <Skeleton className="h-24 w-full" />
+              ) : behavior ? (
+                <>
+                  <BehaviorToggle
+                    id="allow-follow-ups"
+                    checked={behavior.allowFollowUps}
+                    disabled={interview.updateBehavior.isPending}
+                    label="Allow dynamic follow-up questions"
+                    description="The interviewer may ask follow-ups beyond the main questions."
+                    onToggle={(checked) => toggleBehavior({ allowFollowUps: checked })}
+                  />
+                  <BehaviorToggle
+                    id="generate-detailed-feedback"
+                    checked={behavior.generateDetailedFeedback}
+                    disabled={interview.updateBehavior.isPending}
+                    label="Generate detailed feedback"
+                    description="Produce a full evaluation report after the interview."
+                    onToggle={(checked) => toggleBehavior({ generateDetailedFeedback: checked })}
+                  />
+                  <BehaviorToggle
+                    id="strict-mode"
+                    checked={behavior.strictMode}
+                    disabled={interview.updateBehavior.isPending}
+                    label="Strict interviewer mode"
+                    description="Direct, no-hints interviewing that challenges weak answers."
+                    onToggle={(checked) => toggleBehavior({ strictMode: checked })}
+                  />
+                  {interview.updateBehavior.error ? (
+                    <p className="text-destructive text-sm">
+                      {interview.updateBehavior.error.message}
+                    </p>
+                  ) : null}
+                </>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>History</CardTitle>
+              <CardDescription>
+                Past sessions for this interview, with their scores.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {sessions.isPending ? (
+                <Skeleton className="h-16 w-full" />
+              ) : !sessions.data || sessions.data.length === 0 ? (
+                <p className="text-muted-foreground text-sm">No sessions yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {sessions.data.map(({ session, overallScore }) => (
+                    <Link
+                      key={session.id}
+                      to="/sessions/$sessionId/results"
+                      params={{ sessionId: session.id }}
+                      className="hover:bg-accent/40 flex items-center justify-between rounded-md border p-3 transition-colors"
+                    >
+                      <div>
+                        <p className="text-sm font-medium">
+                          {new Date(session.createdAt).toLocaleString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            hour: "numeric",
+                            minute: "2-digit",
+                          })}
+                        </p>
+                        <p className="text-muted-foreground text-xs">{session.status}</p>
+                      </div>
+                      {overallScore !== undefined ? (
+                        <span className="text-sm font-semibold tabular-nums">{overallScore}</span>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {interview.data ? (
+        <details className="group bg-card rounded-xl border">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-6 py-4">
+            <span className="text-sm font-medium">Edit interview details</span>
+            <span className="text-muted-foreground text-xs group-open:hidden">
+              Role, model, description
+            </span>
+            <span className="text-muted-foreground hidden text-xs group-open:inline">Hide</span>
+          </summary>
+          <div className="border-t p-6">
+            <InterviewForm interview={interview.data} bare />
+          </div>
+        </details>
+      ) : null}
     </main>
   );
 }

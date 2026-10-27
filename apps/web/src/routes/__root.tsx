@@ -2,6 +2,8 @@ import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
+import { SiteHeader } from "@/components/site-header";
+
 import appCss from "@/styles/globals.css?url";
 
 export const Route = createRootRouteWithContext<{
@@ -25,6 +27,7 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body className="bg-background text-foreground font-sans antialiased">
+        <SiteHeader />
         <Outlet />
         <TanStackRouterDevtools position="bottom-right" />
         <Scripts />

@@ -31,7 +31,13 @@ function firstErrorMessage(errors: readonly unknown[]): string | undefined {
   return undefined;
 }
 
-export function InterviewForm({ interview }: { interview?: Interview }) {
+export function InterviewForm({
+  interview,
+  bare = false,
+}: {
+  interview?: Interview;
+  bare?: boolean;
+}) {
   const { form, isSubmitting, isSuccess, error } = useInterviewForm(interview);
   const models = useGeminiModels();
   const isEdit = interview !== undefined;
@@ -45,16 +51,18 @@ export function InterviewForm({ interview }: { interview?: Interview }) {
       : "Create interview";
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{isEdit ? "Interview settings" : "New interview"}</CardTitle>
-        <CardDescription>
-          {isEdit
-            ? "Update the role and configuration. Behavior toggles live in their own card."
-            : "Configure the role, then generate a plan in the builder."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Card className={bare ? "border-0 py-0 shadow-none" : undefined}>
+      {bare ? null : (
+        <CardHeader>
+          <CardTitle>{isEdit ? "Interview settings" : "Interview setup"}</CardTitle>
+          <CardDescription>
+            {isEdit
+              ? "Update the role and configuration. Behavior toggles live in their own card."
+              : "Choose the role, constraints, and interviewer behavior."}
+          </CardDescription>
+        </CardHeader>
+      )}
+      <CardContent className={bare ? "px-0" : undefined}>
         <form
           className="space-y-4"
           onSubmit={(e) => {
@@ -184,27 +192,31 @@ export function InterviewForm({ interview }: { interview?: Interview }) {
           </div>
           <form.Field
             name="model"
-            children={(field) => (
-              <FormField label="Model" htmlFor="model">
-                <Select value={field.state.value ?? ""} onValueChange={field.handleChange}>
-                  <SelectTrigger id="model" className="w-full">
-                    <SelectValue placeholder="Select a model" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {models.data?.map((model) => (
-                      <SelectItem key={model.name} value={model.name}>
-                        {model.displayName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <p className="text-muted-foreground text-xs">
-                  {models.isPending
-                    ? "Loading models…"
-                    : models.data?.find((model) => model.name === field.state.value)?.description}
-                </p>
-              </FormField>
-            )}
+            children={(field) => {
+              const selected = models.data?.find((model) => model.name === field.state.value);
+
+              return (
+                <FormField label="Model" htmlFor="model">
+                  <Select value={field.state.value ?? ""} onValueChange={field.handleChange}>
+                    <SelectTrigger id="model" className="w-full">
+                      <SelectValue placeholder="Select a model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {models.data?.map((model) => (
+                        <SelectItem key={model.name} value={model.name}>
+                          {model.displayName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {models.isPending ? (
+                    <p className="text-muted-foreground text-xs">Loading models…</p>
+                  ) : selected && selected.description !== selected.displayName ? (
+                    <p className="text-muted-foreground text-xs">{selected.description}</p>
+                  ) : null}
+                </FormField>
+              );
+            }}
           />
           <form.Field
             name="jobDescription"
