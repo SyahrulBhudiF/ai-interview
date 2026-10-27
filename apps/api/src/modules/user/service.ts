@@ -8,13 +8,14 @@ import { users } from "@/database/schema";
 import { UserNotFoundError } from "./error";
 import { toUser } from "./mapper";
 
-export class UserService extends Context.Service<
-  UserService,
-  {
-    listUsers(): Effect.Effect<ReadonlyArray<User>>;
-    getUserById(id: string): Effect.Effect<User, UserNotFoundError>;
-  }
->()("ai-interview/user/UserService") {
+export interface IUserService {
+  listUsers(): Effect.Effect<ReadonlyArray<User>>;
+  getUserById(id: string): Effect.Effect<User, UserNotFoundError>;
+}
+
+export class UserService extends Context.Service<UserService, IUserService>()(
+  "ai-interview/user/UserService",
+) {
   static readonly layer = Layer.effect(
     UserService,
     Effect.gen(function* () {

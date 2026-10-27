@@ -8,7 +8,7 @@ import { interviews } from "@/database/schema";
 import { InterviewNotFoundError } from "./error";
 import { duplicateInterviewRow, newInterviewRow, toInterview } from "./mapper";
 
-export interface InterviewServiceShape {
+export interface IInterviewService {
   listInterviews(): Effect.Effect<ReadonlyArray<Interview>>;
   getInterviewById(id: string): Effect.Effect<Interview, InterviewNotFoundError>;
   createInterview(input: CreateInterview): Effect.Effect<Interview>;
@@ -19,7 +19,7 @@ export interface InterviewServiceShape {
   ): Effect.Effect<Interview, InterviewNotFoundError>;
 }
 
-export class InterviewService extends Context.Service<InterviewService, InterviewServiceShape>()(
+export class InterviewService extends Context.Service<InterviewService, IInterviewService>()(
   "ai-interview/interview/InterviewService",
 ) {
   static readonly layer = Layer.effect(

@@ -7,18 +7,19 @@ import { transcriptEntries, type NewTranscriptEntry } from "@/database/schema";
 
 import { toTranscriptEntry } from "../mapper";
 
-export class TranscriptService extends Context.Service<
-  TranscriptService,
-  {
-    append(
-      sessionId: string,
-      role: TranscriptRole,
-      text: string,
-      questionId?: string,
-    ): Effect.Effect<TranscriptEntry>;
-    list(sessionId: string): Effect.Effect<ReadonlyArray<TranscriptEntry>>;
-  }
->()("ai-interview/session/TranscriptService") {
+export interface ITranscriptService {
+  append(
+    sessionId: string,
+    role: TranscriptRole,
+    text: string,
+    questionId?: string,
+  ): Effect.Effect<TranscriptEntry>;
+  list(sessionId: string): Effect.Effect<ReadonlyArray<TranscriptEntry>>;
+}
+
+export class TranscriptService extends Context.Service<TranscriptService, ITranscriptService>()(
+  "ai-interview/session/TranscriptService",
+) {
   static readonly layer = Layer.effect(
     TranscriptService,
     Effect.gen(function* () {

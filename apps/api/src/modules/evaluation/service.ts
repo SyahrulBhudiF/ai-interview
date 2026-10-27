@@ -19,18 +19,16 @@ import { TranscriptService } from "@/modules/session/transcript/service";
 
 import { EvaluationNotFoundError, SessionNotCompletedError } from "./error";
 
-export class EvaluationService extends Context.Service<
-  EvaluationService,
-  {
-    evaluate(
-      sessionId: string,
-    ): Effect.Effect<
-      EvaluationReport,
-      SessionNotFoundError | SessionNotCompletedError | GeminiError
-    >;
-    getEvaluation(sessionId: string): Effect.Effect<EvaluationReport, EvaluationNotFoundError>;
-  }
->()("ai-interview/evaluation/EvaluationService") {
+export interface IEvaluationService {
+  evaluate(
+    sessionId: string,
+  ): Effect.Effect<EvaluationReport, SessionNotFoundError | SessionNotCompletedError | GeminiError>;
+  getEvaluation(sessionId: string): Effect.Effect<EvaluationReport, EvaluationNotFoundError>;
+}
+
+export class EvaluationService extends Context.Service<EvaluationService, IEvaluationService>()(
+  "ai-interview/evaluation/EvaluationService",
+) {
   static readonly layer = Layer.effect(
     EvaluationService,
     Effect.gen(function* () {

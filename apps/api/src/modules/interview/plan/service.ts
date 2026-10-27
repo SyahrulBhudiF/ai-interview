@@ -7,12 +7,14 @@ import { interviews, interviewStages, questions } from "@/database/schema";
 
 import { planToRows, toPlan } from "./mapper";
 
+export interface IInterviewPlanService {
+  getPlan(interviewId: string): Effect.Effect<InterviewPlan>;
+  savePlan(interviewId: string, plan: InterviewPlan): Effect.Effect<InterviewPlan>;
+}
+
 export class InterviewPlanService extends Context.Service<
   InterviewPlanService,
-  {
-    getPlan(interviewId: string): Effect.Effect<InterviewPlan>;
-    savePlan(interviewId: string, plan: InterviewPlan): Effect.Effect<InterviewPlan>;
-  }
+  IInterviewPlanService
 >()("ai-interview/interview/InterviewPlanService") {
   static readonly layer = Layer.effect(
     InterviewPlanService,

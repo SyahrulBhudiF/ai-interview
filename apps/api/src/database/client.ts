@@ -8,12 +8,13 @@ import * as schema from "./schema";
 
 export type Db = PostgresJsDatabase<typeof schema>;
 
-export class Database extends Context.Service<
-  Database,
-  {
-    readonly db: Db;
-  }
->()("ai-interview/database/Database") {
+export interface IDatabase {
+  readonly db: Db;
+}
+
+export class Database extends Context.Service<Database, IDatabase>()(
+  "ai-interview/database/Database",
+) {
   static readonly layer = Layer.effect(
     Database,
     Effect.gen(function* () {

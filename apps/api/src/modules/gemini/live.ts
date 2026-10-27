@@ -69,15 +69,16 @@ const createRealtimeToken = Effect.fn("GeminiLiveService.createRealtimeToken")(f
   });
 });
 
-export class GeminiLiveService extends Context.Service<
-  GeminiLiveService,
-  {
-    createRealtimeToken(
-      interview: Interview,
-      question: string,
-    ): Effect.Effect<RealtimeToken, GeminiError>;
-  }
->()("ai-interview/gemini/GeminiLiveService") {
+export interface IGeminiLiveService {
+  createRealtimeToken(
+    interview: Interview,
+    question: string,
+  ): Effect.Effect<RealtimeToken, GeminiError>;
+}
+
+export class GeminiLiveService extends Context.Service<GeminiLiveService, IGeminiLiveService>()(
+  "ai-interview/gemini/GeminiLiveService",
+) {
   static readonly layer = Layer.succeed(
     GeminiLiveService,
     GeminiLiveService.of({ createRealtimeToken }),

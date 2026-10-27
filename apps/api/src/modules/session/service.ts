@@ -8,25 +8,24 @@ import { evaluations, interviews, sessions, type NewSession } from "@/database/s
 import { InterviewNotReadyError, InvalidSessionStateError, SessionNotFoundError } from "./error";
 import { toSession } from "./mapper";
 
-export class SessionService extends Context.Service<
-  SessionService,
-  {
-    createSession(interviewId: string): Effect.Effect<Session, InterviewNotReadyError>;
-    getSession(id: string): Effect.Effect<Session, SessionNotFoundError>;
-    listByInterview(interviewId: string): Effect.Effect<ReadonlyArray<SessionWithScore>>;
-    startSession(
-      id: string,
-    ): Effect.Effect<Session, SessionNotFoundError | InvalidSessionStateError>;
-    setCurrentQuestion(
-      id: string,
-      stageId: string,
-      questionId: string,
-    ): Effect.Effect<Session, SessionNotFoundError>;
-    completeSession(
-      id: string,
-    ): Effect.Effect<Session, SessionNotFoundError | InvalidSessionStateError>;
-  }
->()("ai-interview/session/SessionService") {
+export interface ISessionService {
+  createSession(interviewId: string): Effect.Effect<Session, InterviewNotReadyError>;
+  getSession(id: string): Effect.Effect<Session, SessionNotFoundError>;
+  listByInterview(interviewId: string): Effect.Effect<ReadonlyArray<SessionWithScore>>;
+  startSession(id: string): Effect.Effect<Session, SessionNotFoundError | InvalidSessionStateError>;
+  setCurrentQuestion(
+    id: string,
+    stageId: string,
+    questionId: string,
+  ): Effect.Effect<Session, SessionNotFoundError>;
+  completeSession(
+    id: string,
+  ): Effect.Effect<Session, SessionNotFoundError | InvalidSessionStateError>;
+}
+
+export class SessionService extends Context.Service<SessionService, ISessionService>()(
+  "ai-interview/session/SessionService",
+) {
   static readonly layer = Layer.effect(
     SessionService,
     Effect.gen(function* () {

@@ -257,26 +257,27 @@ const listModels = Effect.fn("GeminiService.listModels")(function* (): Effect.fn
   });
 });
 
-export class GeminiService extends Context.Service<
-  GeminiService,
-  {
-    generateInterviewPlan(
-      interview: Interview,
-      stages?: ReadonlyArray<StageSpec>,
-    ): Effect.Effect<InterviewPlan, GeminiError>;
-    generateFollowUp(
-      interview: Interview,
-      question: string,
-      answer: string,
-    ): Effect.Effect<string, GeminiError>;
-    generateEvaluation(
-      interview: Interview,
-      questions: ReadonlyArray<string>,
-      transcript: string,
-    ): Effect.Effect<EvaluationReport, GeminiError>;
-    listModels(): Effect.Effect<ReadonlyArray<GeminiModel>, GeminiError>;
-  }
->()("ai-interview/gemini/GeminiService") {
+export interface IGeminiService {
+  generateInterviewPlan(
+    interview: Interview,
+    stages?: ReadonlyArray<StageSpec>,
+  ): Effect.Effect<InterviewPlan, GeminiError>;
+  generateFollowUp(
+    interview: Interview,
+    question: string,
+    answer: string,
+  ): Effect.Effect<string, GeminiError>;
+  generateEvaluation(
+    interview: Interview,
+    questions: ReadonlyArray<string>,
+    transcript: string,
+  ): Effect.Effect<EvaluationReport, GeminiError>;
+  listModels(): Effect.Effect<ReadonlyArray<GeminiModel>, GeminiError>;
+}
+
+export class GeminiService extends Context.Service<GeminiService, IGeminiService>()(
+  "ai-interview/gemini/GeminiService",
+) {
   static readonly layer = Layer.succeed(
     GeminiService,
     GeminiService.of({ generateInterviewPlan, generateFollowUp, generateEvaluation, listModels }),

@@ -19,29 +19,31 @@ import {
 import { SessionService } from "../service";
 import { TranscriptService } from "../transcript/service";
 
+export interface IInterviewOrchestratorService {
+  start(
+    sessionId: string,
+  ): Effect.Effect<
+    SessionStartResponse,
+    SessionNotFoundError | InterviewNotReadyError | InvalidSessionStateError
+  >;
+  answer(
+    sessionId: string,
+    text: string,
+  ): Effect.Effect<
+    SessionAnswerResponse,
+    SessionNotFoundError | InvalidSessionStateError | GeminiError
+  >;
+  getLiveContext(
+    sessionId: string,
+  ): Effect.Effect<
+    { interview: Interview; question: string },
+    SessionNotFoundError | InvalidSessionStateError
+  >;
+}
+
 export class InterviewOrchestratorService extends Context.Service<
   InterviewOrchestratorService,
-  {
-    start(
-      sessionId: string,
-    ): Effect.Effect<
-      SessionStartResponse,
-      SessionNotFoundError | InterviewNotReadyError | InvalidSessionStateError
-    >;
-    answer(
-      sessionId: string,
-      text: string,
-    ): Effect.Effect<
-      SessionAnswerResponse,
-      SessionNotFoundError | InvalidSessionStateError | GeminiError
-    >;
-    getLiveContext(
-      sessionId: string,
-    ): Effect.Effect<
-      { interview: Interview; question: string },
-      SessionNotFoundError | InvalidSessionStateError
-    >;
-  }
+  IInterviewOrchestratorService
 >()("ai-interview/session/InterviewOrchestratorService") {
   static readonly layer = Layer.effect(
     InterviewOrchestratorService,
