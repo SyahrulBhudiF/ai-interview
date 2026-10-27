@@ -3,10 +3,10 @@ import { desc, eq, inArray } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
 import { Database } from "@/database/client";
-import { evaluations, interviews, sessions, type NewSession } from "@/database/schema";
+import { evaluations, interviews, sessions } from "@/database/schema";
 
 import { InterviewNotReadyError, InvalidSessionStateError, SessionNotFoundError } from "./error";
-import { toSession } from "./mapper";
+import { newSessionRow, toSession } from "./mapper";
 
 export interface ISessionService {
   createSession(interviewId: string): Effect.Effect<Session, InterviewNotReadyError>;
@@ -43,9 +43,9 @@ export class SessionService extends Context.Service<SessionService, ISessionServ
           return yield* new InterviewNotReadyError({ interviewId });
         }
 
-        const row: NewSession = { id: crypto.randomUUID(), interviewId, status: "created" };
-
-        const inserted = yield* Effect.promise(() => db.insert(sessions).values(row).returning());
+        const inserted = yield* Effect.promise(() =>
+          db.insert(sessions).values(newSessionRow(interviewId)).returning(),
+        );
 
         const created = inserted[0];
         if (!created) return yield* Effect.die("Expected insert to return a row");

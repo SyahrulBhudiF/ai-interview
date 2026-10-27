@@ -18,6 +18,7 @@ import { SessionService } from "@/modules/session/service";
 import { TranscriptService } from "@/modules/session/transcript/service";
 
 import { EvaluationNotFoundError, SessionNotCompletedError } from "./error";
+import { newEvaluationRow, newEvaluationScoreRows, toEvaluationReport } from "./mapper";
 
 export interface IEvaluationService {
   evaluate(
@@ -112,29 +113,15 @@ export class EvaluationService extends Context.Service<EvaluationService, IEvalu
           db.transaction(async (tx) => {
             const [evaluation] = await tx
               .insert(evaluations)
-              .values({
-                id: crypto.randomUUID(),
-                sessionId,
-                overallScore: rounded.overallScore,
-                summary: rounded.summary,
-                strengths: [...rounded.strengths],
-                improvements: [...rounded.improvements],
-                recommendations: [...rounded.recommendations],
-              })
+              .values(newEvaluationRow(sessionId, rounded))
               .returning();
 
             if (!evaluation) throw new Error("Expected insert to return a row");
 
             if (rounded.scores.length > 0) {
-              await tx.insert(evaluationScores).values(
-                rounded.scores.map((score) => ({
-                  id: crypto.randomUUID(),
-                  evaluationId: evaluation.id,
-                  category: score.category,
-                  score: score.score,
-                  feedback: score.feedback,
-                })),
-              );
+              await tx
+                .insert(evaluationScores)
+                .values(newEvaluationScoreRows(evaluation.id, rounded.scores));
             }
           }),
         );
@@ -165,18 +152,7 @@ export class EvaluationService extends Context.Service<EvaluationService, IEvalu
             .orderBy(asc(evaluationScores.category)),
         );
 
-        return {
-          overallScore: evaluation.overallScore,
-          summary: evaluation.summary,
-          strengths: evaluation.strengths,
-          improvements: evaluation.improvements,
-          recommendations: evaluation.recommendations,
-          scores: scores.map((score) => ({
-            category: score.category as EvaluationReport["scores"][number]["category"],
-            score: score.score,
-            feedback: score.feedback ?? "",
-          })),
-        };
+        return toEvaluationReport(evaluation, scores);
       });
 
       return EvaluationService.of({ evaluate, getEvaluation });

@@ -3,9 +3,9 @@ import { asc, desc, eq } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
 import { Database } from "@/database/client";
-import { transcriptEntries, type NewTranscriptEntry } from "@/database/schema";
+import { transcriptEntries } from "@/database/schema";
 
-import { toTranscriptEntry } from "../mapper";
+import { newTranscriptEntryRow, toTranscriptEntry } from "../mapper";
 
 export interface ITranscriptService {
   append(
@@ -40,14 +40,13 @@ export class TranscriptService extends Context.Service<TranscriptService, ITrans
             .limit(1),
         );
 
-        const row: NewTranscriptEntry = {
-          id: crypto.randomUUID(),
+        const row = newTranscriptEntryRow(
           sessionId,
           role,
           text,
-          questionId: questionId ?? null,
-          order: (existing[0]?.order ?? -1) + 1,
-        };
+          (existing[0]?.order ?? -1) + 1,
+          questionId,
+        );
 
         const inserted = yield* Effect.promise(() =>
           db.insert(transcriptEntries).values(row).returning(),

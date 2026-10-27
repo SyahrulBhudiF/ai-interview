@@ -9,6 +9,7 @@ import { GeminiService } from "@/modules/gemini/service";
 import { toInterview } from "@/modules/interview/mapper";
 
 import { InterviewNotReadyError, InvalidSessionStateError, SessionNotFoundError } from "../error";
+import { toStageNodes } from "../mapper";
 import {
   firstQuestion,
   followUpAllowed,
@@ -79,17 +80,7 @@ export class InterviewOrchestratorService extends Context.Service<
             .orderBy(asc(questions.order)),
         );
 
-        return stageRows.map((stage) => ({
-          id: stage.id,
-          maxFollowUps: stage.maxFollowUps,
-          questions: questionRows
-            .filter((question) => question.stageId === stage.id)
-            .map((question) => ({
-              id: question.id,
-              stageId: question.stageId,
-              text: question.text,
-            })),
-        }));
+        return toStageNodes(stageRows, questionRows);
       });
 
       const loadInterview = Effect.fn("Orchestrator.loadInterview")(function* (
