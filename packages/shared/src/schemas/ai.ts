@@ -22,35 +22,20 @@ export const InterviewPlanSchema = Schema.Struct({
   stages: Schema.Array(GeneratedStageSchema),
 });
 
-export const StageScoreSchema = Schema.Struct({
-  stageId: Schema.String,
-  score: Schema.Number,
-  feedback: Schema.String,
-});
-
 export const CompetencyScoreSchema = Schema.Struct({
   category: EvaluationCategorySchema,
   score: Schema.Number,
   feedback: Schema.String,
 });
 
-export const QuestionFeedbackSchema = Schema.Struct({
-  questionId: Schema.String,
-  score: Schema.Number,
-  feedback: Schema.String,
-  improvedAnswer: Schema.optional(Schema.String),
-});
-
-/** Output of the interview evaluator. */
+/** Output of the interview evaluator — rubric scores per competency. */
 export const EvaluationReportSchema = Schema.Struct({
   overallScore: Schema.Number,
   summary: Schema.String,
   strengths: Schema.Array(Schema.String),
   improvements: Schema.Array(Schema.String),
   recommendations: Schema.Array(Schema.String),
-  stageScores: Schema.Array(StageScoreSchema),
-  competencyScores: Schema.Array(CompetencyScoreSchema),
-  questionFeedback: Schema.Array(QuestionFeedbackSchema),
+  scores: Schema.Array(CompetencyScoreSchema),
 });
 
 export type InterviewPlan = Schema.Schema.Type<typeof InterviewPlanSchema>;

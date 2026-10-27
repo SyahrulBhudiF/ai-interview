@@ -112,4 +112,6 @@ export type NewSession = typeof sessions.$inferInsert;
 export type TranscriptEntry = typeof transcriptEntries.$inferSelect;
 export type NewTranscriptEntry = typeof transcriptEntries.$inferInsert;
 export type Evaluation = typeof evaluations.$inferSelect;
+export type NewEvaluation = typeof evaluations.$inferInsert;
 export type EvaluationScore = typeof evaluationScores.$inferSelect;
+export type NewEvaluationScore = typeof evaluationScores.$inferInsert;

@@ -2,7 +2,7 @@ import { InterviewPlanSchema, type Interview } from "@ai-interview/shared";
 import { assert, describe, it } from "@effect/vitest";
 import { Schema } from "effect";
 
-import { buildPlanPrompt } from "@/modules/gemini/service";
+import { buildEvaluationPrompt, buildPlanPrompt } from "@/modules/gemini/service";
 
 const interview: Interview = {
   id: "interview-1",
@@ -42,6 +42,21 @@ describe("buildPlanPrompt", () => {
     assert.isTrue(prompt.includes("3 main question(s)"));
     assert.isTrue(prompt.includes("System Design"));
     assert.isTrue(prompt.includes("2 main question(s)"));
+  });
+});
+
+describe("buildEvaluationPrompt", () => {
+  it("includes the questions, transcript, and rubric instructions", () => {
+    const prompt = buildEvaluationPrompt(
+      interview,
+      ["Explain a hash map.", "Design a URL shortener."],
+      "candidate: some answer",
+    );
+
+    assert.isTrue(prompt.includes("Explain a hash map."));
+    assert.isTrue(prompt.includes("Design a URL shortener."));
+    assert.isTrue(prompt.includes("candidate: some answer"));
+    assert.isTrue(prompt.includes("rubric score"));
   });
 });
 

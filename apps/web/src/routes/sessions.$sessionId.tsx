@@ -1,12 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-
-import { InterviewLivePage } from "@/features/interview-live/page";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/sessions/$sessionId")({
-  component: SessionLiveRoute,
+  component: () => <Outlet />,
 });
-
-function SessionLiveRoute() {
-  const { sessionId } = Route.useParams();
-  return <InterviewLivePage key={sessionId} sessionId={sessionId} />;
-}

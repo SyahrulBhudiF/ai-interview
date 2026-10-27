@@ -14,6 +14,8 @@ import { Route as InterviewsRouteImport } from './routes/interviews'
 import { Route as InterviewsIndexRouteImport } from './routes/interviews.index'
 import { Route as InterviewsInterviewIdRouteImport } from './routes/interviews.$interviewId'
 import { Route as SessionsSessionIdRouteImport } from './routes/sessions.$sessionId'
+import { Route as SessionsSessionIdIndexRouteImport } from './routes/sessions.$sessionId.index'
+import { Route as SessionsSessionIdResultsRouteImport } from './routes/sessions.$sessionId.results'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,27 +42,43 @@ const SessionsSessionIdRoute = SessionsSessionIdRouteImport.update({
   path: '/sessions/$sessionId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SessionsSessionIdIndexRoute = SessionsSessionIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => SessionsSessionIdRoute,
+} as any)
+const SessionsSessionIdResultsRoute =
+  SessionsSessionIdResultsRouteImport.update({
+    id: '/results',
+    path: '/results',
+    getParentRoute: () => SessionsSessionIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/interviews': typeof InterviewsRouteWithChildren
   '/interviews/$interviewId': typeof InterviewsInterviewIdRoute
-  '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
   '/interviews/': typeof InterviewsIndexRoute
+  '/sessions/$sessionId/results': typeof SessionsSessionIdResultsRoute
+  '/sessions/$sessionId/': typeof SessionsSessionIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/interviews/$interviewId': typeof InterviewsInterviewIdRoute
-  '/sessions/$sessionId': typeof SessionsSessionIdRoute
   '/interviews': typeof InterviewsIndexRoute
+  '/sessions/$sessionId/results': typeof SessionsSessionIdResultsRoute
+  '/sessions/$sessionId': typeof SessionsSessionIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/interviews': typeof InterviewsRouteWithChildren
   '/interviews/$interviewId': typeof InterviewsInterviewIdRoute
-  '/sessions/$sessionId': typeof SessionsSessionIdRoute
+  '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
   '/interviews/': typeof InterviewsIndexRoute
+  '/sessions/$sessionId/results': typeof SessionsSessionIdResultsRoute
+  '/sessions/$sessionId/': typeof SessionsSessionIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -70,8 +88,15 @@ export interface FileRouteTypes {
     | '/interviews/$interviewId'
     | '/sessions/$sessionId'
     | '/interviews/'
+    | '/sessions/$sessionId/results'
+    | '/sessions/$sessionId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/interviews/$interviewId' | '/sessions/$sessionId' | '/interviews'
+  to:
+    | '/'
+    | '/interviews/$interviewId'
+    | '/interviews'
+    | '/sessions/$sessionId/results'
+    | '/sessions/$sessionId'
   id:
     | '__root__'
     | '/'
@@ -79,12 +104,14 @@ export interface FileRouteTypes {
     | '/interviews/$interviewId'
     | '/sessions/$sessionId'
     | '/interviews/'
+    | '/sessions/$sessionId/results'
+    | '/sessions/$sessionId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InterviewsRoute: typeof InterviewsRouteWithChildren
-  SessionsSessionIdRoute: typeof SessionsSessionIdRoute
+  SessionsSessionIdRoute: typeof SessionsSessionIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -124,6 +151,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SessionsSessionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sessions/$sessionId/': {
+      id: '/sessions/$sessionId/'
+      path: '/'
+      fullPath: '/sessions/$sessionId/'
+      preLoaderRoute: typeof SessionsSessionIdIndexRouteImport
+      parentRoute: typeof SessionsSessionIdRoute
+    }
+    '/sessions/$sessionId/results': {
+      id: '/sessions/$sessionId/results'
+      path: '/results'
+      fullPath: '/sessions/$sessionId/results'
+      preLoaderRoute: typeof SessionsSessionIdResultsRouteImport
+      parentRoute: typeof SessionsSessionIdRoute
+    }
   }
 }
 
@@ -141,10 +182,23 @@ const InterviewsRouteWithChildren = InterviewsRoute._addFileChildren(
   InterviewsRouteChildren,
 )
 
+interface SessionsSessionIdRouteChildren {
+  SessionsSessionIdResultsRoute: typeof SessionsSessionIdResultsRoute
+  SessionsSessionIdIndexRoute: typeof SessionsSessionIdIndexRoute
+}
+
+const SessionsSessionIdRouteChildren: SessionsSessionIdRouteChildren = {
+  SessionsSessionIdResultsRoute: SessionsSessionIdResultsRoute,
+  SessionsSessionIdIndexRoute: SessionsSessionIdIndexRoute,
+}
+
+const SessionsSessionIdRouteWithChildren =
+  SessionsSessionIdRoute._addFileChildren(SessionsSessionIdRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InterviewsRoute: InterviewsRouteWithChildren,
-  SessionsSessionIdRoute: SessionsSessionIdRoute,
+  SessionsSessionIdRoute: SessionsSessionIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

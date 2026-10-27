@@ -51,9 +51,18 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
         ) : session ? (
           <header className="flex items-center justify-between gap-4">
             <h1 className="text-2xl font-semibold">Live interview</h1>
-            <Badge variant={session.status === "completed" ? "secondary" : "default"}>
-              {session.status}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/sessions/$sessionId/results"
+                params={{ sessionId }}
+                className="text-muted-foreground hover:text-foreground text-sm underline underline-offset-4"
+              >
+                View results
+              </Link>
+              <Badge variant={session.status === "completed" ? "secondary" : "default"}>
+                {session.status}
+              </Badge>
+            </div>
           </header>
         ) : null}
       </div>

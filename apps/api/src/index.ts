@@ -4,6 +4,7 @@ import { Elysia } from "elysia";
 
 import { env } from "@/config/env";
 import { ok } from "@/libs/response";
+import { evaluation } from "@/modules/evaluation";
 import { greet } from "@/modules/greet";
 import { health } from "@/modules/health";
 import { interview } from "@/modules/interview";
@@ -34,10 +35,12 @@ export const app = new Elysia()
   .use(user)
   .use(interview)
   .use(plan)
-  .use(session);
+  .use(session)
+  .use(evaluation);
 
 if (import.meta.main) {
-  app.listen(env.port);
+  // Long Gemini calls (plan generation, evaluation) can exceed Bun's 10s idle timeout.
+  app.listen({ port: env.port, idleTimeout: 120 });
   Log.info("API ready at {url}", { url: `http://localhost:${env.port}` });
 }
 

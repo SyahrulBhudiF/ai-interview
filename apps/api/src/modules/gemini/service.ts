@@ -1,5 +1,7 @@
 import {
+  EvaluationReportSchema,
   InterviewPlanSchema,
+  type EvaluationReport,
   type Interview,
   type InterviewPlan,
   type StageSpec,
@@ -100,6 +102,33 @@ export function buildFollowUpPrompt(
   return lines.join("\n");
 }
 
+/** Builds the prompt that asks Gemini to evaluate a completed interview. */
+export function buildEvaluationPrompt(
+  interview: Interview,
+  questions: ReadonlyArray<string>,
+  transcript: string,
+): string {
+  const lines = [
+    "You are an expert technical interviewer evaluating a completed mock interview.",
+    "",
+    `Role: ${interview.jobPosition}`,
+    `Experience level: ${interview.experienceLevel}`,
+    `Difficulty: ${interview.difficulty}`,
+    "",
+    "Interview questions asked:",
+    ...questions.map((question, index) => `${index + 1}. ${question}`),
+    "",
+    "Transcript:",
+    transcript,
+    "",
+    "Evaluate the candidate's performance. Produce an overall score (1-100), a concise summary, key strengths, areas to improve, and learning recommendations.",
+    "Also give a rubric score (1-5) with feedback for each competency category, referencing specific answers from the transcript.",
+    `Respond in ${interview.language}.`,
+  ];
+
+  return lines.join("\n");
+}
+
 const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(function* (
   interview: Interview,
   stages?: ReadonlyArray<StageSpec>,
@@ -148,6 +177,31 @@ const generateFollowUp = Effect.fn("GeminiService.generateFollowUp")(function* (
   });
 });
 
+const generateEvaluation = Effect.fn("GeminiService.generateEvaluation")(function* (
+  interview: Interview,
+  questions: ReadonlyArray<string>,
+  transcript: string,
+): Effect.fn.Return<EvaluationReport, GeminiError> {
+  const apiKey = env.geminiApiKey;
+  if (Option.isNone(apiKey)) {
+    return yield* new GeminiApiKeyMissingError();
+  }
+
+  return yield* Effect.tryPromise({
+    try: () =>
+      chat({
+        adapter: createGeminiChat(MODEL, apiKey.value),
+        messages: [
+          { role: "user", content: buildEvaluationPrompt(interview, questions, transcript) },
+        ],
+        threadId: crypto.randomUUID(),
+        outputSchema: Schema.toStandardJSONSchemaV1(EvaluationReportSchema),
+        retry: { maxRetries: 1 },
+      }),
+    catch: (cause) => new GeminiGenerationError({ message: String(cause) }),
+  });
+});
+
 export class GeminiService extends Context.Service<
   GeminiService,
   {
@@ -160,10 +214,15 @@ export class GeminiService extends Context.Service<
       question: string,
       answer: string,
     ): Effect.Effect<string, GeminiError>;
+    generateEvaluation(
+      interview: Interview,
+      questions: ReadonlyArray<string>,
+      transcript: string,
+    ): Effect.Effect<EvaluationReport, GeminiError>;
   }
 >()("ai-interview/gemini/GeminiService") {
   static readonly layer = Layer.succeed(
     GeminiService,
-    GeminiService.of({ generateInterviewPlan, generateFollowUp }),
+    GeminiService.of({ generateInterviewPlan, generateFollowUp, generateEvaluation }),
   );
 }
