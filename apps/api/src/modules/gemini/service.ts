@@ -2,20 +2,18 @@ import {
   EvaluationReportSchema,
   InterviewPlanSchema,
   type EvaluationReport,
+  type GeminiModel,
   type Interview,
   type InterviewPlan,
   type StageSpec,
 } from "@ai-interview/shared";
 import { chat } from "@tanstack/ai";
-import { createGeminiChat } from "@tanstack/ai-gemini";
+import { createGeminiChat, type GeminiTextModel } from "@tanstack/ai-gemini";
 import { Context, Effect, Layer, Option, Schema } from "effect";
 
 import { env } from "@/config/env";
 
 import { GeminiApiKeyMissingError, GeminiGenerationError, type GeminiError } from "./error";
-
-/** Default Gemini model for structured plan generation. */
-const MODEL = "gemini-3.8-flash" as const;
 
 /** Builds the prompt that asks Gemini for a structured interview plan. */
 export function buildPlanPrompt(interview: Interview, stages?: ReadonlyArray<StageSpec>): string {
@@ -141,7 +139,7 @@ const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(f
   return yield* Effect.tryPromise({
     try: () =>
       chat({
-        adapter: createGeminiChat(MODEL, apiKey.value),
+        adapter: createGeminiChat(interview.model as GeminiTextModel, apiKey.value),
         messages: [{ role: "user", content: buildPlanPrompt(interview, stages) }],
         threadId: crypto.randomUUID(),
         outputSchema: Schema.toStandardJSONSchemaV1(InterviewPlanSchema),
@@ -164,7 +162,7 @@ const generateFollowUp = Effect.fn("GeminiService.generateFollowUp")(function* (
   return yield* Effect.tryPromise({
     try: async () => {
       const { text } = await chat({
-        adapter: createGeminiChat(MODEL, apiKey.value),
+        adapter: createGeminiChat(interview.model as GeminiTextModel, apiKey.value),
         messages: [{ role: "user", content: buildFollowUpPrompt(interview, question, answer) }],
         threadId: crypto.randomUUID(),
         stream: false,
@@ -190,7 +188,7 @@ const generateEvaluation = Effect.fn("GeminiService.generateEvaluation")(functio
   return yield* Effect.tryPromise({
     try: () =>
       chat({
-        adapter: createGeminiChat(MODEL, apiKey.value),
+        adapter: createGeminiChat(interview.model as GeminiTextModel, apiKey.value),
         messages: [
           { role: "user", content: buildEvaluationPrompt(interview, questions, transcript) },
         ],
@@ -198,6 +196,46 @@ const generateEvaluation = Effect.fn("GeminiService.generateEvaluation")(functio
         outputSchema: Schema.toStandardJSONSchemaV1(EvaluationReportSchema),
         retry: { maxRetries: 1 },
       }),
+    catch: (cause) => new GeminiGenerationError({ message: String(cause) }),
+  });
+});
+
+const listModels = Effect.fn("GeminiService.listModels")(function* (): Effect.fn.Return<
+  ReadonlyArray<GeminiModel>,
+  GeminiError
+> {
+  const apiKey = env.geminiApiKey;
+  if (Option.isNone(apiKey)) {
+    return yield* new GeminiApiKeyMissingError();
+  }
+
+  return yield* Effect.tryPromise({
+    try: async () => {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey.value}`,
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to list models: ${response.status}`);
+      }
+
+      const body = (await response.json()) as {
+        models?: Array<{
+          name: string;
+          displayName: string;
+          description: string;
+          supportedGenerationMethods?: string[];
+        }>;
+      };
+
+      return (body.models ?? [])
+        .filter((model) => model.supportedGenerationMethods?.includes("generateContent"))
+        .map((model) => ({
+          name: model.name.replace(/^models\//, ""),
+          displayName: model.displayName,
+          description: model.description,
+        }));
+    },
     catch: (cause) => new GeminiGenerationError({ message: String(cause) }),
   });
 });
@@ -219,10 +257,11 @@ export class GeminiService extends Context.Service<
       questions: ReadonlyArray<string>,
       transcript: string,
     ): Effect.Effect<EvaluationReport, GeminiError>;
+    listModels(): Effect.Effect<ReadonlyArray<GeminiModel>, GeminiError>;
   }
 >()("ai-interview/gemini/GeminiService") {
   static readonly layer = Layer.succeed(
     GeminiService,
-    GeminiService.of({ generateInterviewPlan, generateFollowUp, generateEvaluation }),
+    GeminiService.of({ generateInterviewPlan, generateFollowUp, generateEvaluation, listModels }),
   );
 }

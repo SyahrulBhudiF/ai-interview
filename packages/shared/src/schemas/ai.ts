@@ -40,3 +40,12 @@ export const EvaluationReportSchema = Schema.Struct({
 
 export type InterviewPlan = Schema.Schema.Type<typeof InterviewPlanSchema>;
 export type EvaluationReport = Schema.Schema.Type<typeof EvaluationReportSchema>;
+
+/** A Gemini model surfaced in the picker, as returned by the models list API. */
+export const GeminiModelSchema = Schema.Struct({
+  name: Schema.String,
+  displayName: Schema.String,
+  description: Schema.String,
+});
+
+export type GeminiModel = Schema.Schema.Type<typeof GeminiModelSchema>;

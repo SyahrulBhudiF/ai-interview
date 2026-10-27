@@ -1,0 +1,1 @@
+ALTER TABLE "interviews" ADD COLUMN "model" text DEFAULT 'gemini-3.8-flash' NOT NULL;

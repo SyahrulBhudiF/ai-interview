@@ -58,7 +58,7 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
                 <h1 className="text-2xl font-semibold">{interview.data.title}</h1>
                 <p className="text-muted-foreground text-sm">
                   {interview.data.jobPosition} · {interview.data.experienceLevel} ·{" "}
-                  {interview.data.difficulty}
+                  {interview.data.difficulty} · {interview.data.model}
                 </p>
               </div>
               <div className="flex items-center gap-2">

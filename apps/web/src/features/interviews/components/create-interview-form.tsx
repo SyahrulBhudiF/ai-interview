@@ -14,6 +14,7 @@ import { Textarea } from "@ai-interview/ui/textarea";
 import { FormField } from "@/components/form-field";
 
 import { useCreateInterview } from "../hooks/use-create-interview";
+import { useGeminiModels } from "../hooks/use-gemini-models";
 
 const EXPERIENCE_LEVELS = ["intern", "junior", "mid", "senior", "lead"] as const;
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
@@ -30,6 +31,7 @@ function firstErrorMessage(errors: readonly unknown[]): string | undefined {
 
 export function CreateInterviewForm() {
   const { form, isSubmitting, error } = useCreateInterview();
+  const models = useGeminiModels();
 
   return (
     <Card>
@@ -143,6 +145,30 @@ export function CreateInterviewForm() {
               )}
             />
           </div>
+          <form.Field
+            name="model"
+            children={(field) => (
+              <FormField label="Model" htmlFor="model">
+                <Select value={field.state.value ?? ""} onValueChange={field.handleChange}>
+                  <SelectTrigger id="model" className="w-full">
+                    <SelectValue placeholder="Select a model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {models.data?.map((model) => (
+                      <SelectItem key={model.name} value={model.name}>
+                        {model.displayName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-muted-foreground text-xs">
+                  {models.isPending
+                    ? "Loading models…"
+                    : models.data?.find((model) => model.name === field.state.value)?.description}
+                </p>
+              </FormField>
+            )}
+          />
           <form.Field
             name="jobDescription"
             children={(field) => (

@@ -17,6 +17,7 @@ export const interviews = pgTable("interviews", {
   language: text("language").notNull().default("en"),
   difficulty: text("difficulty").notNull().default("intermediate"),
   status: text("status").notNull().default("draft"),
+  model: text("model").notNull().default("gemini-3.8-flash"),
   allowFollowUps: boolean("allow_follow_ups").notNull().default(true),
   generateDetailedFeedback: boolean("generate_detailed_feedback").notNull().default(true),
   strictMode: boolean("strict_mode").notNull().default(false),

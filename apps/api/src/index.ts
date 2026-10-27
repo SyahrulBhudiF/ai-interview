@@ -5,6 +5,7 @@ import { Elysia } from "elysia";
 import { env } from "@/config/env";
 import { ok } from "@/libs/response";
 import { evaluation } from "@/modules/evaluation";
+import { gemini } from "@/modules/gemini";
 import { greet } from "@/modules/greet";
 import { health } from "@/modules/health";
 import { interview } from "@/modules/interview";
@@ -36,7 +37,8 @@ export const app = new Elysia()
   .use(interview)
   .use(plan)
   .use(session)
-  .use(evaluation);
+  .use(evaluation)
+  .use(gemini);
 
 if (import.meta.main) {
   // Long Gemini calls (plan generation, evaluation) can exceed Bun's 10s idle timeout.

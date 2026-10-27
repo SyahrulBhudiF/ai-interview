@@ -14,6 +14,7 @@ export function toInterview(row: DbInterview): Interview {
     language: row.language,
     difficulty: row.difficulty as Interview["difficulty"],
     status: row.status as Interview["status"],
+    model: row.model,
     allowFollowUps: row.allowFollowUps,
     generateDetailedFeedback: row.generateDetailedFeedback,
     strictMode: row.strictMode,

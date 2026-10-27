@@ -57,6 +57,7 @@ export class InterviewService extends Context.Service<
           context: input.context ?? null,
           language: input.language,
           difficulty: input.difficulty,
+          model: input.model ?? "gemini-3.8-flash",
           allowFollowUps: input.allowFollowUps ?? true,
           generateDetailedFeedback: input.generateDetailedFeedback ?? true,
           strictMode: input.strictMode ?? false,

@@ -14,6 +14,7 @@ const interview: Interview = {
   language: "en",
   difficulty: "intermediate",
   status: "draft",
+  model: "gemini-3.8-flash",
   allowFollowUps: true,
   generateDetailedFeedback: true,
   strictMode: false,
