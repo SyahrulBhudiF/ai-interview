@@ -1,6 +1,6 @@
-import type { Interview } from "@ai-interview/shared";
+import type { CreateInterview, Interview } from "@ai-interview/shared";
 
-import type { Interview as DbInterview } from "@/database/schema";
+import type { Interview as DbInterview, NewInterview } from "@/database/schema";
 
 /** Maps a database row ($inferSelect) to the shared wire type. */
 export function toInterview(row: DbInterview): Interview {
@@ -21,5 +21,44 @@ export function toInterview(row: DbInterview): Interview {
     strictMode: row.strictMode,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+/** Builds an insert row from a create request, applying defaults. */
+export function newInterviewRow(input: CreateInterview): NewInterview {
+  return {
+    id: crypto.randomUUID(),
+    title: input.title,
+    jobPosition: input.jobPosition,
+    experienceLevel: input.experienceLevel,
+    jobDescription: input.jobDescription ?? null,
+    context: input.context ?? null,
+    language: input.language,
+    difficulty: input.difficulty,
+    model: input.model ?? "gemini-3.8-flash",
+    persona: input.persona ?? "professional",
+    allowFollowUps: input.allowFollowUps ?? true,
+    generateDetailedFeedback: input.generateDetailedFeedback ?? true,
+    strictMode: input.strictMode ?? false,
+  };
+}
+
+/** Builds a draft insert row that copies an existing interview's configuration. */
+export function duplicateInterviewRow(source: DbInterview): NewInterview {
+  return {
+    id: crypto.randomUUID(),
+    title: `${source.title} (copy)`,
+    jobPosition: source.jobPosition,
+    experienceLevel: source.experienceLevel,
+    jobDescription: source.jobDescription,
+    context: source.context,
+    language: source.language,
+    difficulty: source.difficulty,
+    model: source.model,
+    persona: source.persona,
+    allowFollowUps: source.allowFollowUps,
+    generateDetailedFeedback: source.generateDetailedFeedback,
+    strictMode: source.strictMode,
+    status: "draft",
   };
 }

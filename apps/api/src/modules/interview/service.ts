@@ -3,24 +3,25 @@ import { desc, eq } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
 import { Database } from "@/database/client";
-import { interviews, type NewInterview } from "@/database/schema";
+import { interviews } from "@/database/schema";
 
 import { InterviewNotFoundError } from "./error";
-import { toInterview } from "./mapper";
+import { duplicateInterviewRow, newInterviewRow, toInterview } from "./mapper";
 
-export class InterviewService extends Context.Service<
-  InterviewService,
-  {
-    listInterviews(): Effect.Effect<ReadonlyArray<Interview>>;
-    getInterviewById(id: string): Effect.Effect<Interview, InterviewNotFoundError>;
-    createInterview(input: CreateInterview): Effect.Effect<Interview>;
-    duplicateInterview(id: string): Effect.Effect<Interview, InterviewNotFoundError>;
-    updateBehavior(
-      id: string,
-      behavior: InterviewBehavior,
-    ): Effect.Effect<Interview, InterviewNotFoundError>;
-  }
->()("ai-interview/interview/InterviewService") {
+export interface InterviewServiceShape {
+  listInterviews(): Effect.Effect<ReadonlyArray<Interview>>;
+  getInterviewById(id: string): Effect.Effect<Interview, InterviewNotFoundError>;
+  createInterview(input: CreateInterview): Effect.Effect<Interview>;
+  duplicateInterview(id: string): Effect.Effect<Interview, InterviewNotFoundError>;
+  updateBehavior(
+    id: string,
+    behavior: InterviewBehavior,
+  ): Effect.Effect<Interview, InterviewNotFoundError>;
+}
+
+export class InterviewService extends Context.Service<InterviewService, InterviewServiceShape>()(
+  "ai-interview/interview/InterviewService",
+) {
   static readonly layer = Layer.effect(
     InterviewService,
     Effect.gen(function* () {
@@ -49,23 +50,9 @@ export class InterviewService extends Context.Service<
       const createInterview = Effect.fn("InterviewService.createInterview")(function* (
         input: CreateInterview,
       ) {
-        const row: NewInterview = {
-          id: crypto.randomUUID(),
-          title: input.title,
-          jobPosition: input.jobPosition,
-          experienceLevel: input.experienceLevel,
-          jobDescription: input.jobDescription ?? null,
-          context: input.context ?? null,
-          language: input.language,
-          difficulty: input.difficulty,
-          model: input.model ?? "gemini-3.8-flash",
-          persona: input.persona ?? "professional",
-          allowFollowUps: input.allowFollowUps ?? true,
-          generateDetailedFeedback: input.generateDetailedFeedback ?? true,
-          strictMode: input.strictMode ?? false,
-        };
-
-        const inserted = yield* Effect.promise(() => db.insert(interviews).values(row).returning());
+        const inserted = yield* Effect.promise(() =>
+          db.insert(interviews).values(newInterviewRow(input)).returning(),
+        );
 
         const created = inserted[0];
         if (!created) return yield* Effect.die("Expected insert to return a row");
@@ -104,24 +91,9 @@ export class InterviewService extends Context.Service<
         const source = rows[0];
         if (!source) return yield* new InterviewNotFoundError({ id });
 
-        const row: NewInterview = {
-          id: crypto.randomUUID(),
-          title: `${source.title} (copy)`,
-          jobPosition: source.jobPosition,
-          experienceLevel: source.experienceLevel,
-          jobDescription: source.jobDescription,
-          context: source.context,
-          language: source.language,
-          difficulty: source.difficulty,
-          model: source.model,
-          persona: source.persona,
-          allowFollowUps: source.allowFollowUps,
-          generateDetailedFeedback: source.generateDetailedFeedback,
-          strictMode: source.strictMode,
-          status: "draft",
-        };
-
-        const inserted = yield* Effect.promise(() => db.insert(interviews).values(row).returning());
+        const inserted = yield* Effect.promise(() =>
+          db.insert(interviews).values(duplicateInterviewRow(source)).returning(),
+        );
 
         const created = inserted[0];
         if (!created) return yield* Effect.die("Expected insert to return a row");

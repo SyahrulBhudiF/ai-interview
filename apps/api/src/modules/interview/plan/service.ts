@@ -3,14 +3,9 @@ import { asc, eq, inArray } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
 import { Database } from "@/database/client";
-import {
-  interviews,
-  interviewStages,
-  questions,
-  type NewInterviewStage,
-  type NewQuestion,
-  type Question,
-} from "@/database/schema";
+import { interviews, interviewStages, questions } from "@/database/schema";
+
+import { planToRows, toPlan } from "./mapper";
 
 export class InterviewPlanService extends Context.Service<
   InterviewPlanService,
@@ -48,25 +43,7 @@ export class InterviewPlanService extends Context.Service<
             .orderBy(asc(questions.order)),
         );
 
-        const questionsByStage = new Map<string, Question[]>();
-        for (const question of questionRows) {
-          const list = questionsByStage.get(question.stageId) ?? [];
-          list.push(question);
-          questionsByStage.set(question.stageId, list);
-        }
-
-        return {
-          stages: stages.map((stage) => ({
-            name: stage.name,
-            objective: stage.objective ?? undefined,
-            competencies: stage.competencies,
-            questions: (questionsByStage.get(stage.id) ?? []).map((question) => ({
-              text: question.text,
-              answerCriteria: question.answerCriteria ?? undefined,
-              rubric: question.rubric ?? undefined,
-            })),
-          })),
-        };
+        return toPlan(stages, questionRows);
       });
 
       const savePlan = Effect.fn("InterviewPlanService.savePlan")(function* (
@@ -108,42 +85,4 @@ export class InterviewPlanService extends Context.Service<
       return InterviewPlanService.of({ getPlan, savePlan });
     }),
   );
-}
-
-/** Maps a generated `InterviewPlan` to insert rows. Orders follow array positions. */
-export function planToRows(
-  interviewId: string,
-  plan: InterviewPlan,
-  maxFollowUps = 0,
-): { stages: NewInterviewStage[]; questions: NewQuestion[] } {
-  const stages: NewInterviewStage[] = [];
-  const questionRows: NewQuestion[] = [];
-
-  plan.stages.forEach((stage, stageIndex) => {
-    const stageId = crypto.randomUUID();
-    stages.push({
-      id: stageId,
-      interviewId,
-      name: stage.name,
-      objective: stage.objective ?? null,
-      order: stageIndex,
-      mainQuestionCount: stage.questions.length,
-      maxFollowUps,
-      competencies: [...stage.competencies],
-    });
-
-    stage.questions.forEach((question, questionIndex) => {
-      questionRows.push({
-        id: crypto.randomUUID(),
-        stageId,
-        text: question.text,
-        order: questionIndex,
-        kind: "main",
-        answerCriteria: question.answerCriteria ? [...question.answerCriteria] : null,
-        rubric: question.rubric ?? null,
-      });
-    });
-  });
-
-  return { stages, questions: questionRows };
 }

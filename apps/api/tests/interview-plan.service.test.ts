@@ -3,7 +3,8 @@ import { assert, describe, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 
 import { Database } from "@/database/client";
-import { InterviewPlanService, planToRows } from "@/modules/interview/plan/service";
+import { planToRows } from "@/modules/interview/plan/mapper";
+import { InterviewPlanService } from "@/modules/interview/plan/service";
 
 describe("planToRows", () => {
   const plan: InterviewPlan = {
