@@ -1,47 +1,93 @@
 # ai-interview
 
-Monorepo for the AI Interview product. Turborepo + Bun workspaces.
+A mock-interview app. Configure a role, let Gemini write the question plan, rehearse
+a session, and get the transcript scored against a rubric.
+
+## How it works
+
+1. **Build the brief.** Set the role, level, difficulty, language, persona, and
+   model. Toggle follow-ups, detailed feedback, and strict mode.
+2. **Generate the plan.** Gemini returns stages with questions, answer criteria,
+   and rubrics. Edit anything, then save.
+3. **Rehearse.** Starting a session asks the first question. Every answer is
+   recorded; the orchestrator adds a follow-up when the stage allows one, then
+   moves to the next question and closes the session when the plan runs out.
+4. **Read the debrief.** Evaluating a completed session scores each rubric
+   category and writes a summary, strengths, improvements, and recommendations.
+5. **Track progress.** Scores and competency averages feed the Progress page,
+   which can create a practice interview for the weakest competency.
+
+The live room is text-first. A Gemini Live voice channel sits in an experimental
+side panel; it is not written to the saved transcript.
 
 ## Stack
 
-| Concern     | Choice                                          |
-| ----------- | ----------------------------------------------- |
-| Monorepo    | Turborepo + Bun workspaces                      |
-| Web         | TanStack Start + TanStack Query + TanStack Form |
-| API         | Elysia 2 (Kiana, `2.0.0-rc.0`) + Effect v4      |
-| API client  | Eden Treaty (`@elysia/eden`), fully typed       |
-| Schemas     | Effect Schema (`Schema.*`) in `packages/shared` |
-| UI          | shadcn/ui (new-york) in `packages/components`   |
-| ORM         | Drizzle + PostgreSQL                            |
-| Logging     | Effect `Logger` (structured, `ManagedRuntime`)  |
-| Docs        | Scalar (OpenAPI) at `/openapi`                  |
-| Lint/format | oxlint + oxfmt (+ Vite+ `vp`)                   |
-| Local dev   | devenv (Nix) + direnv                           |
+| Concern     | Choice                                           |
+| ----------- | ------------------------------------------------ |
+| Monorepo    | Turborepo + Bun workspaces                       |
+| Web         | TanStack Start + TanStack Query + TanStack Form  |
+| API         | Elysia 2 (`2.0.0-rc.0`) + Effect v4              |
+| API client  | Eden Treaty (`@elysia/eden`)                     |
+| Contracts   | Effect Schema in `packages/shared`               |
+| UI          | shadcn/ui (new-york) in `packages/components`    |
+| ORM         | Drizzle + PostgreSQL 16                          |
+| AI          | TanStack AI with Gemini (text, structured, live) |
+| API docs    | OpenAPI + Scalar at `/openapi`                   |
+| Lint/format | oxlint + oxfmt                                   |
+| Local dev   | devenv (Nix) + direnv                            |
 
 ## Layout
 
 ```text
 apps/
-  api/              Elysia API — modules/{greet,health,user}
-  web/              TanStack Start web app — routes/ + features/home
+  api/
+    src/modules/     interview, interview/plan, session, evaluation,
+                     gemini, progress, practice, health
+    drizzle/         SQL migrations
+  web/
+    src/routes/      route definitions only
+    src/features/    home, interviews, interview-new, interview-builder,
+                     interview-live, interview-results, progress
 packages/
-  components/       shadcn/ui (@ai-interview/ui)
-  shared/           Effect Schema contracts (@ai-interview/shared)
+  components/        shadcn/ui (@ai-interview/ui)
+  shared/            Effect Schema contracts (@ai-interview/shared)
   typescript-config/
-.agents/            CONTEXT.md + reusable skills
+.agents/             CONTEXT.md and reusable skills
 ```
+
+`modules/greet` and `modules/user` are starter scaffolding and are not used by the
+web app.
 
 ## Getting started
 
 ```bash
-devenv up              # starts Postgres and drops you in the dev shell
-bun install            # installs dependencies (bun.lock)
-bun run dev            # runs web + api in parallel (Turbo)
+cp .env.example .env          # add GEMINI_API_KEY
+devenv up                     # Postgres 16 and the dev shell
+bun install
+bun run --filter api db:migrate
+bun run dev                   # web + api in parallel
 ```
 
-- Web: http://localhost:3000 (proxies `/api` → http://localhost:3001)
+- Web: http://localhost:3000 (proxies `/api` to the API)
 - API: http://localhost:3001
-- API docs (Scalar): http://localhost:3001/openapi
+- API docs: http://localhost:3001/openapi
+
+The Gemini key stays server-side. The web never sees it, including when it asks
+for a realtime token.
+
+## API
+
+All routes live under `/api` and return the `{ ok, data }` envelope.
+
+| Area        | Routes                                                               |
+| ----------- | -------------------------------------------------------------------- |
+| Interviews  | `GET/POST /interviews`, `GET/PUT/DELETE /interviews/:id`             |
+| Settings    | `PUT /interviews/:id/behavior`, `POST /interviews/:id/duplicate`     |
+| Plan        | `GET/PUT /interviews/:id/plan`, `POST /interviews/:id/generate-plan` |
+| Sessions    | `GET/POST /interviews/:id/sessions`, `GET /sessions/:id`             |
+| Session run | `POST /sessions/:id/start`, `/answer`, `/end`, `/realtime-token`     |
+| Evaluation  | `POST /sessions/:id/evaluate`, `GET /sessions/:id/evaluation`        |
+| Other       | `GET /progress`, `POST /practice`, `GET /models`, `GET /health`      |
 
 ## Scripts
 
@@ -49,18 +95,14 @@ bun run dev            # runs web + api in parallel (Turbo)
 bun run dev              # run everything
 bun run dev --filter web
 bun run dev --filter api
-bun run build            # build all
-bun run check-types      # tsc across the monorepo
-bun run test             # vitest across the monorepo
-bun run lint             # oxlint
-bun run lint:fix         # oxlint --fix
-bun run fmt              # oxfmt
-bun run fmt:check        # oxfmt --check
+bun run build
+bun run check-types
+bun run test
+bun run lint
+bun run lint:fix
+bun run fmt
+bun run fmt:check
 
-# one-batch verification
-.agents/skills/verifying-ai-interview/scripts/checks.sh
-
-# inside apps/api
 bun run --filter api db:generate
 bun run --filter api db:migrate
 bun run --filter api db:studio
@@ -68,22 +110,33 @@ bun run --filter api db:studio
 
 ## Conventions
 
-- **Response envelope**: every API response is `{ ok: true, data }` on success or
-  `{ ok: false, error: { code, message, issues? }, requestId }` on failure.
-- **Effect where it earns its keep**: pure logic is a plain function; use
-  `Context.Service` + `Layer` + `ManagedRuntime` only for real effects (async,
-  typed errors, resources, dependencies).
-- **`yield*` inside Effect, `await` only at the boundary** (Elysia handler).
-- **API modules** (`apps/api/src/modules/<name>/`): `index.ts` (thin controller),
-  `service.ts`, `error.ts` (`Schema.TaggedError`), `mapper.ts` (row → wire type).
-- **Web features** (`apps/web/src/features/<name>/`): `routes/` holds only route
-  definitions; pages live in `page.tsx` with `components/` + `hooks/`.
-- **Schemas are the contract**: `packages/shared` Effect Schemas drive Elysia
-  validation, Eden types, frontend decoding, and OpenAPI — one source of truth.
-- Wire timestamps are ISO strings, never `Date`.
+- **One envelope.** Success is `{ ok: true, data }`; failure is
+  `{ ok: false, error: { code, message, issues? }, requestId }`.
+- **Effect where it earns its keep.** Pure logic stays a plain function. Use
+  `Context.Service` + `Layer` + `ManagedRuntime` only for real effects: async work,
+  typed errors, resources, dependencies.
+- **`yield*` inside Effect, `await` only at the boundary** (an Elysia handler or
+  `runtime.runPromise`).
+- **API modules** are `index.ts` (thin controller), `service.ts`, `error.ts`
+  (`Schema.TaggedError`), `mapper.ts` (row to wire type). Add each module's layer
+  to `src/runtime.ts`.
+- **Web features** are `page.tsx` with `components/` and `hooks/`; `routes/` only
+  defines the route.
+- **Schemas are the contract.** `packages/shared` drives Elysia validation, Eden
+  types, frontend decoding, and OpenAPI. Wire timestamps are ISO strings.
+
+## Verification
+
+```bash
+.agents/skills/verifying-ai-interview/scripts/checks.sh
+```
+
+Runs typecheck, tests, lint, format check, and build in one batch. For UI changes,
+render the affected pages and inspect them; the skill covers the workflow.
 
 ## Agent guidance
 
-Every package has its own `AGENTS.md`; `.agents/CONTEXT.md` records the
-architecture decisions; `.agents/skills/` ships reusable skills
-(`building-api-modules`, `building-web-features`, `verifying-ai-interview`).
+`AGENTS.md` at the root and in each package describes the module layout and rules.
+`.agents/CONTEXT.md` records the architecture decisions, and `.agents/skills/`
+holds the reusable skills (`building-api-modules`, `building-web-features`,
+`verifying-ai-interview`).
