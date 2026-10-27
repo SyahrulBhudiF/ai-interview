@@ -5,6 +5,7 @@ import {
   type GeminiModel,
   type Interview,
   type InterviewPlan,
+  type Persona,
   type StageSpec,
 } from "@ai-interview/shared";
 import { chat } from "@tanstack/ai";
@@ -14,6 +15,20 @@ import { Context, Effect, Layer, Option, Schema } from "effect";
 import { env } from "@/config/env";
 
 import { GeminiApiKeyMissingError, GeminiGenerationError, type GeminiError } from "./error";
+
+/** Interviewer persona → system-prompt style line. */
+export function personaSystemPrompt(persona: Persona): string {
+  switch (persona) {
+    case "friendly":
+      return "Interviewer style: warm and encouraging, but still thorough.";
+    case "socratic":
+      return "Interviewer style: Socratic — ask probing follow-up 'why' questions to uncover depth.";
+    case "fast_paced":
+      return "Interviewer style: fast-paced — keep questions concise and move quickly.";
+    case "professional":
+      return "Interviewer style: professional and balanced.";
+  }
+}
 
 /** Builds the prompt that asks Gemini for a structured interview plan. */
 export function buildPlanPrompt(interview: Interview, stages?: ReadonlyArray<StageSpec>): string {
@@ -66,6 +81,8 @@ export function buildPlanPrompt(interview: Interview, stages?: ReadonlyArray<Sta
       "Dynamic follow-up questions are allowed: write open-ended main questions that naturally invite follow-ups.",
     );
   }
+
+  lines.push("", personaSystemPrompt(interview.persona));
 
   lines.push(
     "Each question needs text, 2-4 answer criteria, and a short scoring rubric.",

@@ -1,9 +1,9 @@
-import type { Session } from "@ai-interview/shared";
-import { eq } from "drizzle-orm";
+import type { Session, SessionWithScore } from "@ai-interview/shared";
+import { desc, eq, inArray } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
 import { Database } from "@/database/client";
-import { interviews, sessions, type NewSession } from "@/database/schema";
+import { evaluations, interviews, sessions, type NewSession } from "@/database/schema";
 
 import { InterviewNotReadyError, InvalidSessionStateError, SessionNotFoundError } from "./error";
 import { toSession } from "./mapper";
@@ -13,6 +13,7 @@ export class SessionService extends Context.Service<
   {
     createSession(interviewId: string): Effect.Effect<Session, InterviewNotReadyError>;
     getSession(id: string): Effect.Effect<Session, SessionNotFoundError>;
+    listByInterview(interviewId: string): Effect.Effect<ReadonlyArray<SessionWithScore>>;
     startSession(
       id: string,
     ): Effect.Effect<Session, SessionNotFoundError | InvalidSessionStateError>;
@@ -60,6 +61,39 @@ export class SessionService extends Context.Service<
         const row = rows[0];
         if (!row) return yield* new SessionNotFoundError({ id });
         return toSession(row);
+      });
+
+      const listByInterview = Effect.fn("SessionService.listByInterview")(function* (
+        interviewId: string,
+      ) {
+        const sessionRows = yield* Effect.promise(() =>
+          db
+            .select()
+            .from(sessions)
+            .where(eq(sessions.interviewId, interviewId))
+            .orderBy(desc(sessions.createdAt)),
+        );
+
+        if (sessionRows.length === 0) return [];
+
+        const evaluationRows = yield* Effect.promise(() =>
+          db
+            .select({ sessionId: evaluations.sessionId, overallScore: evaluations.overallScore })
+            .from(evaluations)
+            .where(
+              inArray(
+                evaluations.sessionId,
+                sessionRows.map((session) => session.id),
+              ),
+            ),
+        );
+
+        const scoreBySession = new Map(evaluationRows.map((e) => [e.sessionId, e.overallScore]));
+
+        return sessionRows.map((session) => ({
+          session: toSession(session),
+          overallScore: scoreBySession.get(session.id),
+        }));
       });
 
       const startSession = Effect.fn("SessionService.startSession")(function* (id: string) {
@@ -139,6 +173,7 @@ export class SessionService extends Context.Service<
       return SessionService.of({
         createSession,
         getSession,
+        listByInterview,
         startSession,
         setCurrentQuestion,
         completeSession,

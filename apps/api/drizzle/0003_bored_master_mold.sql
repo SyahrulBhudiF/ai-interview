@@ -1,0 +1,1 @@
+ALTER TABLE "interviews" ADD COLUMN "persona" text DEFAULT 'professional' NOT NULL;

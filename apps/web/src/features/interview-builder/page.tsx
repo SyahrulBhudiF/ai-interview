@@ -8,14 +8,18 @@ import { useState } from "react";
 
 import { BehaviorToggle } from "./components/behavior-toggle";
 import { PlanEditor } from "./components/plan-editor";
+import { useDuplicateInterview } from "./hooks/use-duplicate-interview";
 import { useInterview } from "./hooks/use-interview";
 import { useInterviewPlan } from "./hooks/use-interview-plan";
+import { useInterviewSessions } from "./hooks/use-interview-sessions";
 import { useStartSession } from "./hooks/use-start-session";
 
 export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
   const interview = useInterview(interviewId);
   const { planQuery, generate, save } = useInterviewPlan(interviewId);
   const startSession = useStartSession(interviewId);
+  const duplicate = useDuplicateInterview(interviewId);
+  const sessions = useInterviewSessions(interviewId);
   const [draft, setDraft] = useState<InterviewPlan | null>(null);
 
   const plan = draft ?? planQuery.data ?? { stages: [] };
@@ -58,7 +62,7 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
                 <h1 className="text-2xl font-semibold">{interview.data.title}</h1>
                 <p className="text-muted-foreground text-sm">
                   {interview.data.jobPosition} · {interview.data.experienceLevel} ·{" "}
-                  {interview.data.difficulty} · {interview.data.model}
+                  {interview.data.difficulty} · {interview.data.persona} · {interview.data.model}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -67,6 +71,13 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
                   disabled={interview.data.status !== "ready" || startSession.isPending}
                 >
                   {startSession.isPending ? "Starting…" : "Start interview"}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => duplicate.mutate()}
+                  disabled={duplicate.isPending}
+                >
+                  {duplicate.isPending ? "Duplicating…" : "Duplicate"}
                 </Button>
                 <Badge variant={interview.data.status === "ready" ? "default" : "secondary"}>
                   {interview.data.status}
@@ -170,6 +181,43 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
               ) : null}
             </>
           ) : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>History</CardTitle>
+          <CardDescription>Past sessions for this interview, with their scores.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {sessions.isPending ? (
+            <Skeleton className="h-16 w-full" />
+          ) : !sessions.data || sessions.data.length === 0 ? (
+            <p className="text-muted-foreground text-sm">No sessions yet.</p>
+          ) : (
+            <div className="space-y-2">
+              {sessions.data.map(({ session, overallScore }) => (
+                <Link
+                  key={session.id}
+                  to="/sessions/$sessionId/results"
+                  params={{ sessionId: session.id }}
+                  className="hover:bg-accent/40 flex items-center justify-between rounded-md border p-3 transition-colors"
+                >
+                  <div>
+                    <p className="text-sm font-medium">
+                      {new Date(session.createdAt).toLocaleString()}
+                    </p>
+                    <p className="text-muted-foreground text-xs">{session.status}</p>
+                  </div>
+                  {overallScore !== undefined ? (
+                    <span className="text-sm font-semibold tabular-nums">{overallScore}</span>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">—</span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </main>

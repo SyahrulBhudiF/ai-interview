@@ -6,6 +6,7 @@ import { Context, Effect, Layer, Option } from "effect";
 import { env } from "@/config/env";
 
 import { GeminiApiKeyMissingError, GeminiGenerationError, type GeminiError } from "./error";
+import { personaSystemPrompt } from "./service";
 
 /** Default low-latency Gemini Live voice model. */
 const MODEL = "gemini-3.8-live" as const;
@@ -33,6 +34,7 @@ export function buildInterviewerInstructions(interview: Interview, question: str
   }
 
   lines.push(
+    personaSystemPrompt(interview.persona),
     `Speak in ${interview.language}.`,
     "Keep responses conversational and concise for voice.",
   );

@@ -18,6 +18,7 @@ describe("toInterview", () => {
       difficulty: "intermediate",
       status: "draft",
       model: "gemini-3.8-flash",
+      persona: "professional",
       allowFollowUps: true,
       generateDetailedFeedback: true,
       strictMode: false,

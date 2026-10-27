@@ -6,6 +6,7 @@ import {
   SessionDetailResponseSchema,
   SessionSchema,
   SessionStartResponseSchema,
+  SessionWithScoreSchema,
 } from "@ai-interview/shared";
 import { Effect, Schema } from "effect";
 import { Elysia } from "elysia";
@@ -19,6 +20,24 @@ import { SessionService } from "./service";
 import { TranscriptService } from "./transcript/service";
 
 export const session = new Elysia({ prefix: "/api", tags: ["Session"] })
+  .get(
+    "/interviews/:id/sessions",
+    {
+      response: {
+        200: Schema.toStandardSchemaV1(ApiSuccessSchema(Schema.Array(SessionWithScoreSchema))),
+      },
+      detail: {
+        summary: "List an interview's sessions",
+        description: "Returns the interview's sessions, newest first, with their overall scores.",
+      },
+    },
+    async ({ params }) =>
+      ok(
+        await runtime.runPromise(
+          SessionService.use((service) => service.listByInterview(params.id)),
+        ),
+      ),
+  )
   .post(
     "/interviews/:id/sessions",
     {

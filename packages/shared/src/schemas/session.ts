@@ -68,8 +68,15 @@ export const RealtimeTokenResponseSchema = Schema.Struct({
   }),
 });
 
+/** A session in history, with its overall score when evaluated. */
+export const SessionWithScoreSchema = Schema.Struct({
+  session: SessionSchema,
+  overallScore: Schema.optional(Schema.Number),
+});
+
 export type AnswerRequest = Schema.Schema.Type<typeof AnswerRequestSchema>;
 export type SessionStartResponse = Schema.Schema.Type<typeof SessionStartResponseSchema>;
 export type SessionAnswerResponse = Schema.Schema.Type<typeof SessionAnswerResponseSchema>;
 export type SessionDetailResponse = Schema.Schema.Type<typeof SessionDetailResponseSchema>;
 export type RealtimeTokenResponse = Schema.Schema.Type<typeof RealtimeTokenResponseSchema>;
+export type SessionWithScore = Schema.Schema.Type<typeof SessionWithScoreSchema>;

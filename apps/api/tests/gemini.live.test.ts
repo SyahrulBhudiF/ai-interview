@@ -14,6 +14,7 @@ const interview: Interview = {
   difficulty: "intermediate",
   status: "ready",
   model: "gemini-3.8-flash",
+  persona: "professional",
   allowFollowUps: true,
   generateDetailedFeedback: true,
   strictMode: false,

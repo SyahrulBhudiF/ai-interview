@@ -2,7 +2,11 @@ import { InterviewPlanSchema, type Interview } from "@ai-interview/shared";
 import { assert, describe, it } from "@effect/vitest";
 import { Schema } from "effect";
 
-import { buildEvaluationPrompt, buildPlanPrompt } from "@/modules/gemini/service";
+import {
+  buildEvaluationPrompt,
+  buildPlanPrompt,
+  personaSystemPrompt,
+} from "@/modules/gemini/service";
 
 const interview: Interview = {
   id: "interview-1",
@@ -15,6 +19,7 @@ const interview: Interview = {
   difficulty: "intermediate",
   status: "draft",
   model: "gemini-3.8-flash",
+  persona: "professional",
   allowFollowUps: true,
   generateDetailedFeedback: true,
   strictMode: false,
@@ -58,6 +63,14 @@ describe("buildEvaluationPrompt", () => {
     assert.isTrue(prompt.includes("Design a URL shortener."));
     assert.isTrue(prompt.includes("candidate: some answer"));
     assert.isTrue(prompt.includes("rubric score"));
+  });
+});
+
+describe("personaSystemPrompt", () => {
+  it("returns a distinct style line per persona", () => {
+    assert.isTrue(personaSystemPrompt("friendly").includes("warm"));
+    assert.isTrue(personaSystemPrompt("socratic").includes("why"));
+    assert.isTrue(personaSystemPrompt("fast_paced").includes("fast-paced"));
   });
 });
 

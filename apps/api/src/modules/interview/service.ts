@@ -14,6 +14,7 @@ export class InterviewService extends Context.Service<
     listInterviews(): Effect.Effect<ReadonlyArray<Interview>>;
     getInterviewById(id: string): Effect.Effect<Interview, InterviewNotFoundError>;
     createInterview(input: CreateInterview): Effect.Effect<Interview>;
+    duplicateInterview(id: string): Effect.Effect<Interview, InterviewNotFoundError>;
     updateBehavior(
       id: string,
       behavior: InterviewBehavior,
@@ -58,6 +59,7 @@ export class InterviewService extends Context.Service<
           language: input.language,
           difficulty: input.difficulty,
           model: input.model ?? "gemini-3.8-flash",
+          persona: input.persona ?? "professional",
           allowFollowUps: input.allowFollowUps ?? true,
           generateDetailedFeedback: input.generateDetailedFeedback ?? true,
           strictMode: input.strictMode ?? false,
@@ -92,10 +94,45 @@ export class InterviewService extends Context.Service<
         return toInterview(row);
       });
 
+      const duplicateInterview = Effect.fn("InterviewService.duplicateInterview")(function* (
+        id: string,
+      ) {
+        const rows = yield* Effect.promise(() =>
+          db.select().from(interviews).where(eq(interviews.id, id)).limit(1),
+        );
+
+        const source = rows[0];
+        if (!source) return yield* new InterviewNotFoundError({ id });
+
+        const row: NewInterview = {
+          id: crypto.randomUUID(),
+          title: `${source.title} (copy)`,
+          jobPosition: source.jobPosition,
+          experienceLevel: source.experienceLevel,
+          jobDescription: source.jobDescription,
+          context: source.context,
+          language: source.language,
+          difficulty: source.difficulty,
+          model: source.model,
+          persona: source.persona,
+          allowFollowUps: source.allowFollowUps,
+          generateDetailedFeedback: source.generateDetailedFeedback,
+          strictMode: source.strictMode,
+          status: "draft",
+        };
+
+        const inserted = yield* Effect.promise(() => db.insert(interviews).values(row).returning());
+
+        const created = inserted[0];
+        if (!created) return yield* Effect.die("Expected insert to return a row");
+        return toInterview(created);
+      });
+
       return InterviewService.of({
         listInterviews,
         getInterviewById,
         createInterview,
+        duplicateInterview,
         updateBehavior,
       });
     }),

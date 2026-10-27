@@ -3,6 +3,12 @@ import { Schema } from "effect";
 export const ExperienceLevelSchema = Schema.Literals(["intern", "junior", "mid", "senior", "lead"]);
 export const DifficultySchema = Schema.Literals(["beginner", "intermediate", "advanced"]);
 export const InterviewStatusSchema = Schema.Literals(["draft", "ready"]);
+export const PersonaSchema = Schema.Literals([
+  "professional",
+  "friendly",
+  "socratic",
+  "fast_paced",
+]);
 
 export const InterviewSchema = Schema.Struct({
   id: Schema.String,
@@ -15,6 +21,7 @@ export const InterviewSchema = Schema.Struct({
   difficulty: DifficultySchema,
   status: InterviewStatusSchema,
   model: Schema.String,
+  persona: PersonaSchema,
   allowFollowUps: Schema.Boolean,
   generateDetailedFeedback: Schema.Boolean,
   strictMode: Schema.Boolean,
@@ -54,6 +61,7 @@ export const CreateInterviewSchema = Schema.Struct({
   language: Schema.NonEmptyString,
   difficulty: DifficultySchema,
   model: Schema.optional(Schema.String),
+  persona: Schema.optional(PersonaSchema),
   allowFollowUps: Schema.optional(Schema.Boolean),
   generateDetailedFeedback: Schema.optional(Schema.Boolean),
   strictMode: Schema.optional(Schema.Boolean),
@@ -92,6 +100,7 @@ export const InterviewBehaviorSchema = Schema.Struct({
 });
 
 export type Interview = Schema.Schema.Type<typeof InterviewSchema>;
+export type Persona = Schema.Schema.Type<typeof PersonaSchema>;
 export type InterviewStage = Schema.Schema.Type<typeof InterviewStageSchema>;
 export type Question = Schema.Schema.Type<typeof QuestionSchema>;
 export type CreateInterview = Schema.Schema.Type<typeof CreateInterviewSchema>;

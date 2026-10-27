@@ -15,6 +15,7 @@ export function toInterview(row: DbInterview): Interview {
     difficulty: row.difficulty as Interview["difficulty"],
     status: row.status as Interview["status"],
     model: row.model,
+    persona: row.persona as Interview["persona"],
     allowFollowUps: row.allowFollowUps,
     generateDetailedFeedback: row.generateDetailedFeedback,
     strictMode: row.strictMode,

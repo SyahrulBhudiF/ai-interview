@@ -79,6 +79,22 @@ export const interview = new Elysia({ prefix: "/api", tags: ["Interview"] })
       ),
   )
   .post(
+    "/interviews/:id/duplicate",
+    {
+      response: { 200: Schema.toStandardSchemaV1(ApiSuccessSchema(InterviewSchema)) },
+      detail: {
+        summary: "Duplicate an interview",
+        description: "Copies the interview's configuration into a new draft (a template).",
+      },
+    },
+    async ({ params }) =>
+      ok(
+        await runtime.runPromise(
+          InterviewService.use((service) => service.duplicateInterview(params.id)),
+        ),
+      ),
+  )
+  .post(
     "/interviews/:id/generate-plan",
     {
       body: Schema.toStandardSchemaV1(GeneratePlanRequestSchema),

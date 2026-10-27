@@ -18,6 +18,7 @@ import { useGeminiModels } from "../hooks/use-gemini-models";
 
 const EXPERIENCE_LEVELS = ["intern", "junior", "mid", "senior", "lead"] as const;
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
+const PERSONAS = ["professional", "friendly", "socratic", "fast_paced"] as const;
 
 function firstErrorMessage(errors: readonly unknown[]): string | undefined {
   const first = errors[0];
@@ -141,6 +142,28 @@ export function CreateInterviewForm() {
                     onChange={(e) => field.handleChange(e.target.value)}
                     placeholder="en"
                   />
+                </FormField>
+              )}
+            />
+            <form.Field
+              name="persona"
+              children={(field) => (
+                <FormField label="Interviewer persona" htmlFor="persona">
+                  <Select
+                    value={field.state.value ?? ""}
+                    onValueChange={(value) => field.handleChange(value as typeof field.state.value)}
+                  >
+                    <SelectTrigger id="persona" className="w-full">
+                      <SelectValue placeholder="Select persona" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PERSONAS.map((persona) => (
+                        <SelectItem key={persona} value={persona}>
+                          {persona.replaceAll("_", " ")}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </FormField>
               )}
             />
