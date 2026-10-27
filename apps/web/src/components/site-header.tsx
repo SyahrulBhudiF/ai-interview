@@ -1,32 +1,35 @@
 import { Button } from "@ai-interview/ui/button";
 import { cn } from "@ai-interview/ui/utils";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Plus } from "lucide-react";
+import { Mic, Plus, TrendingUp } from "lucide-react";
 
 const links = [
-  { to: "/interviews", label: "Interviews" },
-  { to: "/progress", label: "Progress" },
+  { to: "/interviews", label: "Interviews", icon: Mic },
+  { to: "/progress", label: "Progress", icon: TrendingUp },
 ] as const;
 
 function NavLinks({ pathname }: { pathname: string }) {
   return (
-    <nav aria-label="Main" className="bg-muted/70 flex items-center gap-0.5 rounded-full p-1">
+    <nav aria-label="Main" className="flex items-center gap-1">
       {links.map((link) => {
         const active = pathname === link.to || pathname.startsWith(`${link.to}/`);
+        const Icon = link.icon;
 
         return (
           <Link
             key={link.to}
             to={link.to}
             aria-current={active ? "page" : undefined}
+            aria-label={link.label}
             className={cn(
-              "focus-visible:ring-ring/50 rounded-full px-2.5 py-1.5 text-[13px] font-medium transition-colors outline-none focus-visible:ring-[3px] sm:px-3 sm:text-sm",
+              "focus-visible:ring-ring/50 flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition-colors outline-none focus-visible:ring-[3px] sm:px-4",
               active
-                ? "bg-card text-foreground ring-border shadow-xs ring-1"
-                : "text-muted-foreground hover:text-foreground",
+                ? "bg-accent text-accent-foreground"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground",
             )}
           >
-            {link.label}
+            <Icon aria-hidden className="size-4 shrink-0" />
+            <span className="hidden min-[360px]:inline">{link.label}</span>
           </Link>
         );
       })}
@@ -43,23 +46,21 @@ export function SiteHeader() {
         aria-hidden
         className="bg-background pointer-events-none absolute inset-x-0 top-0 -z-10 h-3 sm:h-4"
       />
-      <div className="border-border/70 bg-card mx-auto flex h-12 w-fit max-w-full items-center gap-2 rounded-full border pr-1.5 pl-2 shadow-lg">
-        <div className="flex min-w-0 items-center gap-2.5">
-          <Link
-            to="/"
-            className="focus-visible:ring-ring/50 flex items-center gap-2 rounded-full py-1 pr-1 outline-none focus-visible:ring-[3px]"
-          >
-            <span className="bg-primary text-primary-foreground grid size-8 shrink-0 place-items-center rounded-full font-serif text-lg leading-none">
-              A
-            </span>
-            <span className="hidden font-serif text-lg leading-none tracking-tight sm:inline">
-              AI Interview
-            </span>
-          </Link>
-          <NavLinks pathname={pathname} />
-        </div>
+      <div className="bg-card mx-auto flex h-14 w-fit max-w-full items-center gap-2 rounded-full pr-1.5 pl-2 shadow-lg">
+        <Link
+          to="/"
+          className="focus-visible:ring-ring/50 flex items-center gap-2.5 rounded-full py-1 pr-2 pl-0.5 outline-none focus-visible:ring-[3px]"
+        >
+          <span className="bg-primary text-primary-foreground grid size-9 shrink-0 place-items-center rounded-full font-serif text-lg leading-none">
+            A
+          </span>
+          <span className="hidden font-serif text-lg leading-none tracking-tight sm:inline">
+            AI Interview
+          </span>
+        </Link>
+        <NavLinks pathname={pathname} />
         {pathname === "/interviews/new" ? null : (
-          <Button asChild size="sm" className="rounded-full">
+          <Button asChild className="rounded-full">
             <Link to="/interviews/new" aria-label="New interview">
               <Plus aria-hidden />
               <span className="hidden sm:inline">New interview</span>
