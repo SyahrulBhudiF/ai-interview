@@ -4,12 +4,14 @@ import { Link } from "@tanstack/react-router";
 import { CompetencyAverages } from "./components/competency-averages";
 import { ProgressSummaryCards } from "./components/progress-summary";
 import { ScoreHistory } from "./components/score-history";
+import { usePracticeInterview } from "./hooks/use-practice";
 import { useProgress } from "./hooks/use-progress";
 
 const summaryPlaceholders = ["interviews", "sessions", "completed", "evaluated", "average"];
 
 export function ProgressPage() {
   const progress = useProgress();
+  const practice = usePracticeInterview();
 
   return (
     <main className="mx-auto flex max-w-4xl flex-col gap-6 p-8">
@@ -38,8 +40,15 @@ export function ProgressPage() {
           <ProgressSummaryCards summary={progress.data.summary} />
           <div className="grid gap-6 lg:grid-cols-2">
             <ScoreHistory scores={progress.data.scoreHistory} />
-            <CompetencyAverages averages={progress.data.competencyAverages} />
+            <CompetencyAverages
+              averages={progress.data.competencyAverages}
+              onPractice={(category) => practice.mutate(category)}
+              pendingCategory={practice.isPending ? practice.variables : undefined}
+            />
           </div>
+          {practice.error ? (
+            <p className="text-destructive text-sm">{practice.error.message}</p>
+          ) : null}
         </>
       ) : null}
     </main>

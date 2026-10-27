@@ -10,6 +10,7 @@ import { greet } from "@/modules/greet";
 import { health } from "@/modules/health";
 import { interview } from "@/modules/interview";
 import { plan } from "@/modules/interview/plan";
+import { practice } from "@/modules/practice";
 import { progress } from "@/modules/progress";
 import { session } from "@/modules/session";
 import { user } from "@/modules/user";
@@ -37,6 +38,7 @@ export const app = new Elysia()
   .use(user)
   .use(interview)
   .use(plan)
+  .use(practice)
   .use(progress)
   .use(session)
   .use(evaluation)

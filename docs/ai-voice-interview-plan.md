@@ -119,6 +119,14 @@ Shared schemas: `interview.ts`, `session.ts`, `evaluation.ts`, and `ai.ts`
   and competency averages sorted weakest first.
 - Deliverable: a cross-interview progress view backed by real evaluations.
 
+### Phase 8 — Practice weak questions
+
+- `POST /api/practice`: creates a ready practice interview whose generated plan
+  weights questions toward the requested weak competency.
+- `features/progress/`: each competency average has a Practice action that opens
+  the generated interview.
+- Deliverable: a progress → targeted practice loop.
+
 ## Key decisions & risks
 
 - **Follow-ups are dynamic, main questions are fixed.** The orchestrator passes

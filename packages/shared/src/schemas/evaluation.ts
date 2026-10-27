@@ -29,5 +29,6 @@ export const EvaluationSchema = Schema.Struct({
   createdAt: Schema.String,
 });
 
+export type EvaluationCategory = Schema.Schema.Type<typeof EvaluationCategorySchema>;
 export type Evaluation = Schema.Schema.Type<typeof EvaluationSchema>;
 export type EvaluationScore = Schema.Schema.Type<typeof EvaluationScoreSchema>;

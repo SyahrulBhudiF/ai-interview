@@ -49,6 +49,17 @@ describe("buildPlanPrompt", () => {
     assert.isTrue(prompt.includes("System Design"));
     assert.isTrue(prompt.includes("2 main question(s)"));
   });
+
+  it("weights the plan toward a focus competency when provided", () => {
+    const prompt = buildPlanPrompt(
+      interview,
+      [{ name: "Communication practice", mainQuestionCount: 3 }],
+      "communication",
+    );
+
+    assert.isTrue(prompt.includes("weakest competency: communication"));
+    assert.isTrue(prompt.includes("Communication practice"));
+  });
 });
 
 describe("buildEvaluationPrompt", () => {

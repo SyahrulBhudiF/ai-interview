@@ -1,8 +1,17 @@
 import type { CompetencyAverage } from "@ai-interview/shared";
 import { Badge } from "@ai-interview/ui/badge";
+import { Button } from "@ai-interview/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ai-interview/ui/card";
 
-export function CompetencyAverages({ averages }: { averages: ReadonlyArray<CompetencyAverage> }) {
+export function CompetencyAverages({
+  averages,
+  onPractice,
+  pendingCategory,
+}: {
+  averages: ReadonlyArray<CompetencyAverage>;
+  onPractice: (category: CompetencyAverage["category"]) => void;
+  pendingCategory?: CompetencyAverage["category"];
+}) {
   return (
     <Card>
       <CardHeader>
@@ -18,7 +27,7 @@ export function CompetencyAverages({ averages }: { averages: ReadonlyArray<Compe
           <div className="space-y-3">
             {averages.map((entry, index) => (
               <div key={entry.category} className="space-y-1">
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="text-sm font-medium capitalize">
                     {entry.category.replaceAll("_", " ")}
                   </p>
@@ -27,6 +36,15 @@ export function CompetencyAverages({ averages }: { averages: ReadonlyArray<Compe
                       <Badge variant="secondary">Focus</Badge>
                     ) : null}
                     <span className="text-sm tabular-nums">{entry.average}/5</span>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={pendingCategory !== undefined}
+                      onClick={() => onPractice(entry.category)}
+                    >
+                      {pendingCategory === entry.category ? "Preparing…" : "Practice"}
+                    </Button>
                   </div>
                 </div>
                 <div className="bg-muted h-2 overflow-hidden rounded-full" aria-hidden>

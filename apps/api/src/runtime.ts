@@ -6,6 +6,7 @@ import { GeminiLiveService } from "@/modules/gemini/live";
 import { GeminiService } from "@/modules/gemini/service";
 import { InterviewPlanService } from "@/modules/interview/plan/service";
 import { InterviewService } from "@/modules/interview/service";
+import { PracticeService } from "@/modules/practice/service";
 import { ProgressService } from "@/modules/progress/service";
 import { InterviewOrchestratorService } from "@/modules/session/orchestrator/service";
 import { SessionService } from "@/modules/session/service";
@@ -25,7 +26,11 @@ const coreLayer = Layer.mergeAll(
 );
 
 /** Services that depend on the core services above. */
-const dependentLayer = Layer.mergeAll(InterviewOrchestratorService.layer, EvaluationService.layer);
+const dependentLayer = Layer.mergeAll(
+  InterviewOrchestratorService.layer,
+  EvaluationService.layer,
+  PracticeService.layer,
+);
 
 /**
  * Single runtime for the whole API, built from every service layer.

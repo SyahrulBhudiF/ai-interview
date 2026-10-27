@@ -1,6 +1,7 @@
 import {
   EvaluationReportSchema,
   InterviewPlanSchema,
+  type EvaluationCategory,
   type EvaluationReport,
   type GeminiModel,
   type Interview,
@@ -31,7 +32,11 @@ export function personaSystemPrompt(persona: Persona): string {
 }
 
 /** Builds the prompt that asks Gemini for a structured interview plan. */
-export function buildPlanPrompt(interview: Interview, stages?: ReadonlyArray<StageSpec>): string {
+export function buildPlanPrompt(
+  interview: Interview,
+  stages?: ReadonlyArray<StageSpec>,
+  focus?: EvaluationCategory,
+): string {
   const lines = [
     "You are an expert technical interviewer. Generate a structured interview plan for the following role.",
     "",
@@ -65,6 +70,13 @@ export function buildPlanPrompt(interview: Interview, stages?: ReadonlyArray<Sta
     lines.push(
       "",
       "Produce 3-6 interview stages. Each stage must include a short name, an objective, 2-5 competencies, and 2-4 main questions.",
+    );
+  }
+
+  if (focus) {
+    lines.push(
+      "",
+      `This is focused practice on the candidate's weakest competency: ${focus.replaceAll("_", " ")}. Weight the questions toward it and probe it from multiple angles.`,
     );
   }
 
@@ -147,6 +159,7 @@ export function buildEvaluationPrompt(
 const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(function* (
   interview: Interview,
   stages?: ReadonlyArray<StageSpec>,
+  focus?: EvaluationCategory,
 ): Effect.fn.Return<InterviewPlan, GeminiError> {
   const apiKey = env.geminiApiKey;
   if (Option.isNone(apiKey)) {
@@ -157,7 +170,7 @@ const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(f
     try: () =>
       chat({
         adapter: createGeminiChat(interview.model as GeminiTextModel, apiKey.value),
-        messages: [{ role: "user", content: buildPlanPrompt(interview, stages) }],
+        messages: [{ role: "user", content: buildPlanPrompt(interview, stages, focus) }],
         threadId: crypto.randomUUID(),
         outputSchema: Schema.toStandardJSONSchemaV1(InterviewPlanSchema),
         retry: { maxRetries: 1 },
@@ -261,6 +274,7 @@ export interface IGeminiService {
   generateInterviewPlan(
     interview: Interview,
     stages?: ReadonlyArray<StageSpec>,
+    focus?: EvaluationCategory,
   ): Effect.Effect<InterviewPlan, GeminiError>;
   generateFollowUp(
     interview: Interview,
