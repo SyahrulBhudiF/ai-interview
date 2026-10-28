@@ -34,19 +34,8 @@ export const HealthResponseSchema = Schema.Struct({
   uptime: Schema.Number,
 });
 
-/** POST /api/greet */
-export const GreetRequestSchema = Schema.Struct({
-  name: Schema.NonEmptyString,
-});
-
-export const GreetResponseSchema = Schema.Struct({
-  message: Schema.String,
-});
-
 export type ApiSuccess<T> = { readonly ok: true; readonly data: T };
 export type ApiIssue = Schema.Schema.Type<typeof ApiIssueSchema>;
 export type ApiError = Schema.Schema.Type<typeof ApiErrorSchema>;
 export type ApiErrorResponse = Schema.Schema.Type<typeof ApiErrorResponseSchema>;
 export type HealthResponse = Schema.Schema.Type<typeof HealthResponseSchema>;
-export type GreetRequest = Schema.Schema.Type<typeof GreetRequestSchema>;
-export type GreetResponse = Schema.Schema.Type<typeof GreetResponseSchema>;

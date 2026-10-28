@@ -1,13 +1,6 @@
 import type { CvHighlight, EvaluationPoint, EvaluationReport } from "@ai-interview/shared";
 import { boolean, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-export const users = pgTable("users", {
-  id: text("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  name: text("name"),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
-
 export const interviews = pgTable("interviews", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
@@ -117,8 +110,6 @@ export const cvReviews = pgTable("cv_reviews", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
 export type Interview = typeof interviews.$inferSelect;
 export type NewInterview = typeof interviews.$inferInsert;
 export type InterviewStage = typeof interviewStages.$inferSelect;

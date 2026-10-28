@@ -22,10 +22,10 @@ modules/<name>/
 
 ## Effect rules
 
-- **Pure logic → plain function** (see `modules/greet/service.ts`). Do NOT wrap
+- **Pure logic → plain function** (see `modules/session/progression.ts`). Do NOT wrap
   pure functions in `Context.Service`/`Layer`/`ManagedRuntime`.
 - **Effect service** only for real effects: `Context.Service` + `Layer` +
-  `Schema.TaggedError` (see `modules/user/service.ts` + `error.ts`).
+  `Schema.TaggedError` (see `modules/interview/service.ts` + `error.ts`).
 - `Layer.succeed` for stateless services, `Layer.effect` for stateful/dependent
   ones, `Effect.acquireRelease` for resources (see `database/client.ts`).
 - Inside Effect use `yield*` (never `await`); at the controller boundary run once

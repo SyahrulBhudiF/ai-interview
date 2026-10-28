@@ -5,6 +5,8 @@ write the question plan, rehearse a session, and get the transcript scored again
 a rubric. Or skip the interview and review a CV against the role you are applying
 for.
 
+![CV review with highlighted evidence](assets/cv-review.png)
+
 ## Features
 
 - **Interview builder.** Pick the role, level, difficulty, language, persona, and
@@ -78,9 +80,6 @@ packages/
   typescript-config/
 .agents/             CONTEXT.md and reusable skills
 ```
-
-`modules/greet` and `modules/user` are starter scaffolding and are not used by the
-web app.
 
 ## Getting started
 
@@ -166,3 +165,7 @@ render the affected pages and inspect them; the skill covers the workflow.
 `.agents/CONTEXT.md` records the architecture decisions, and `.agents/skills/`
 holds the reusable skills (`building-api-modules`, `building-web-features`,
 `verifying-ai-interview`).
+
+## License
+
+[MIT](LICENSE) © Syahrul Bhudi Ferdiansyah

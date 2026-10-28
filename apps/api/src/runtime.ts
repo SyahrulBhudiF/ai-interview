@@ -13,11 +13,9 @@ import { ProgressService } from "@/modules/progress/service";
 import { InterviewOrchestratorService } from "@/modules/session/orchestrator/service";
 import { SessionService } from "@/modules/session/service";
 import { TranscriptService } from "@/modules/session/transcript/service";
-import { UserService } from "@/modules/user/service";
 
 /** Services with no cross-service dependencies. */
 const coreLayer = Layer.mergeAll(
-  UserService.layer,
   InterviewService.layer,
   InterviewPlanService.layer,
   ProgressService.layer,

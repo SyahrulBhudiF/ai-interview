@@ -20,18 +20,19 @@ modules/<name>/
 ├── mapper.ts    database row → shared wire type
 ```
 
-Reference implementations: `modules/greet` (pure logic, plain function) and
-`modules/user` (real dependency + typed error, full Effect service).
+Reference implementations: `modules/session/progression.ts` (pure logic, plain
+function) and `modules/interview` (real dependency + typed error, full Effect
+service).
 
 ## Steps for a new module
 
 1. Add the request/response schemas to `packages/shared/src/schemas/` as Effect
    `Schema.Struct` (wire timestamps are ISO strings). Re-export from the index.
 2. Write `service.ts`:
-   - **Pure logic** → a plain function (`modules/greet/service.ts`). Do NOT wrap it
-     in `Context.Service`/`Layer`/`ManagedRuntime`.
+   - **Pure logic** → a plain function (`modules/session/progression.ts`). Do NOT
+     wrap it in `Context.Service`/`Layer`/`ManagedRuntime`.
    - **Real effect** (async, typed error, resource, dependency) → `Context.Service`
-     - `Layer` + `Schema.TaggedError` (`modules/user/service.ts` + `error.ts`).
+     - `Layer` + `Schema.TaggedError` (`modules/interview/service.ts` + `error.ts`).
 3. Write `error.ts` for domain failures with `Schema.TaggedError`.
 4. Write `mapper.ts` mapping the Drizzle `$inferSelect` row to the shared wire type.
 5. Write `index.ts`: a thin Elysia controller. Return `ok(...)`, declare `response`

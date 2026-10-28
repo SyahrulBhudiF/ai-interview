@@ -1,7 +1,8 @@
 import { assert, describe, it } from "@effect/vitest";
 import { Effect, Exit, Schema } from "effect";
 
-import { ApiSuccessSchema, GreetRequestSchema, HealthResponseSchema } from "./api";
+import { ApiSuccessSchema, HealthResponseSchema } from "./api";
+import { CreateCvReviewSchema } from "./cv-review";
 
 describe("shared API schemas", () => {
   it.effect("decodes a success envelope", () =>
@@ -20,9 +21,15 @@ describe("shared API schemas", () => {
     }),
   );
 
-  it.effect("rejects an empty greet name", () =>
+  it.effect("rejects an empty job position", () =>
     Effect.sync(() => {
-      const result = Schema.decodeUnknownExit(GreetRequestSchema)({ name: "" });
+      const result = Schema.decodeUnknownExit(CreateCvReviewSchema)({
+        jobPosition: "",
+        experienceLevel: "mid",
+        cvText: "Some CV text",
+        language: "en",
+      });
+
       assert.isTrue(Exit.isFailure(result));
     }),
   );

@@ -21,8 +21,8 @@ features/<name>/
 └── hooks/         data/form logic (TanStack Query/Form, Eden calls)
 ```
 
-Reference: `features/home/` (page + `components/health.tsx`,
-`components/greet-form.tsx`, `hooks/use-health.ts`, `hooks/use-greet-form.ts`).
+Reference: `features/interviews/` (page + `components/interview-form.tsx`,
+`hooks/use-interviews.ts`).
 
 ## Steps for a new feature/page
 

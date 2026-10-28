@@ -26,7 +26,7 @@ features/<name>/
   (`Schema.decodeUnknownSync(ApiSuccessSchema(...))(data).data`) — one schema,
   same as the API.
 - TanStack Query owns the cache; `src/lib/query-client.ts` is the singleton factory.
-- Forms use `@tanstack/react-form` (see `features/home/hooks/use-greet-form.ts`).
+- Forms use `@tanstack/react-form` (see `features/interviews/hooks/use-interview-form.ts`).
 
 ## UI
 
