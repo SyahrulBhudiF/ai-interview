@@ -103,9 +103,22 @@ function getValidationIssues(error: unknown) {
   );
 }
 
+/** A log-safe summary of a failure: its tag plus a capped message, never the raw upstream object. */
+function summarizeError(error: unknown): Record<string, unknown> {
+  const tag = Predicate.isObject(error) ? (error as { _tag?: unknown })._tag : undefined;
+  const message = error instanceof Error ? error.message : Predicate.isString(error) ? error : "";
+
+  return {
+    tag: Predicate.isString(tag) ? tag : undefined,
+    name: error instanceof Error ? error.name : undefined,
+    message: message.slice(0, 300),
+  };
+}
+
 export const loggerPlugin = new Elysia({ name: "logger" })
   .onRequest(({ request, set }) => {
-    const requestId = request.headers.get("x-request-id") ?? crypto.randomUUID();
+    // Always server-generated: a caller-supplied id would let a client forge log lines.
+    const requestId = crypto.randomUUID();
     set.headers["x-request-id"] = requestId;
     requestState.set(request, { requestId, startTime: performance.now() });
   })
@@ -131,8 +144,7 @@ export const loggerPlugin = new Elysia({ name: "logger" })
 
     const definition = resolveErrorDefinition(error);
 
-    const requestId =
-      state?.requestId ?? request.headers.get("x-request-id") ?? crypto.randomUUID();
+    const requestId = state?.requestId ?? crypto.randomUUID();
 
     set.headers["x-request-id"] = requestId;
     set.status = definition.status;
@@ -140,7 +152,11 @@ export const loggerPlugin = new Elysia({ name: "logger" })
     const path = new URL(request.url).pathname;
 
     const errorDetail =
-      definition.status >= 500 ? error : error instanceof Error ? error.message : String(error);
+      definition.status >= 500
+        ? summarizeError(error)
+        : error instanceof Error
+          ? error.message
+          : String(error);
 
     const level = Match.value(definition.status).pipe(
       Match.when(

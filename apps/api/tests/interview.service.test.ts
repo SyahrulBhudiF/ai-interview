@@ -132,3 +132,47 @@ describe("InterviewService update and delete", () => {
     }).pipe(Effect.provide(provide)),
   );
 });
+
+describe("InterviewService list", () => {
+  const row = {
+    id: "interview-1",
+    title: "Senior Backend Engineer",
+    jobPosition: "Backend Engineer",
+    experienceLevel: "senior",
+    jobDescription: "A job description",
+    context: "Some context",
+    cvText: "The candidate's CV",
+    language: "en",
+    difficulty: "intermediate",
+    status: "draft",
+    model: "gemini-3.8-flash",
+    persona: "professional",
+    allowFollowUps: true,
+    generateDetailedFeedback: true,
+    strictMode: false,
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    updatedAt: new Date("2026-01-02T00:00:00.000Z"),
+  };
+
+  const db = {
+    select: () => ({
+      from: () => ({ orderBy: () => Promise.resolve([row]) }),
+    }),
+  } as unknown as Database["Service"]["db"];
+
+  const provide = InterviewService.layer.pipe(
+    Layer.provide(Layer.succeed(Database, Database.of({ db }))),
+  );
+
+  it.effect("lists summaries without the candidate's free text", () =>
+    Effect.gen(function* () {
+      const [summary] = yield* InterviewService.use((service) => service.listInterviews());
+
+      assert.strictEqual(summary?.title, "Senior Backend Engineer");
+      assert.strictEqual(summary?.createdAt, "2026-01-01T00:00:00.000Z");
+      assert.notProperty(summary, "cvText");
+      assert.notProperty(summary, "jobDescription");
+      assert.notProperty(summary, "context");
+    }).pipe(Effect.provide(provide)),
+  );
+});

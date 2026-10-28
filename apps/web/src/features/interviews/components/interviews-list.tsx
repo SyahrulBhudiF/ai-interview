@@ -1,4 +1,4 @@
-import type { Interview } from "@ai-interview/shared";
+import type { InterviewSummary } from "@ai-interview/shared";
 import { Badge } from "@ai-interview/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@ai-interview/ui/card";
 import { Skeleton } from "@ai-interview/ui/skeleton";
@@ -11,7 +11,7 @@ export function InterviewsList({
   isPending,
   error,
 }: {
-  interviews: readonly Interview[] | undefined;
+  interviews: readonly InterviewSummary[] | undefined;
   isPending: boolean;
   error?: Error | null;
 }) {

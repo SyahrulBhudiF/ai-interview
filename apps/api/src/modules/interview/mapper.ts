@@ -1,4 +1,9 @@
-import type { CreateInterview, Interview, UpdateInterview } from "@ai-interview/shared";
+import type {
+  CreateInterview,
+  Interview,
+  InterviewSummary,
+  UpdateInterview,
+} from "@ai-interview/shared";
 
 import type { Interview as DbInterview, NewInterview } from "@/database/schema";
 
@@ -20,6 +25,34 @@ export function toInterview(row: DbInterview): Interview {
     allowFollowUps: row.allowFollowUps,
     generateDetailedFeedback: row.generateDetailedFeedback,
     strictMode: row.strictMode,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+/** Maps a database row to the list row, which omits the candidate's free text. */
+export function toInterviewSummary(
+  row: Pick<
+    DbInterview,
+    | "id"
+    | "title"
+    | "jobPosition"
+    | "experienceLevel"
+    | "difficulty"
+    | "status"
+    | "model"
+    | "createdAt"
+    | "updatedAt"
+  >,
+): InterviewSummary {
+  return {
+    id: row.id,
+    title: row.title,
+    jobPosition: row.jobPosition,
+    experienceLevel: row.experienceLevel as InterviewSummary["experienceLevel"],
+    difficulty: row.difficulty as InterviewSummary["difficulty"],
+    status: row.status as InterviewSummary["status"],
+    model: row.model,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

@@ -2,6 +2,7 @@ import type {
   CreateInterview,
   Interview,
   InterviewBehavior,
+  InterviewSummary,
   UpdateInterview,
 } from "@ai-interview/shared";
 import { desc, eq } from "drizzle-orm";
@@ -11,10 +12,16 @@ import { Database } from "@/database/client";
 import { interviews } from "@/database/schema";
 
 import { InterviewNotFoundError } from "./error";
-import { duplicateInterviewRow, interviewUpdate, newInterviewRow, toInterview } from "./mapper";
+import {
+  duplicateInterviewRow,
+  interviewUpdate,
+  newInterviewRow,
+  toInterview,
+  toInterviewSummary,
+} from "./mapper";
 
 export interface IInterviewService {
-  listInterviews(): Effect.Effect<ReadonlyArray<Interview>>;
+  listInterviews(): Effect.Effect<ReadonlyArray<InterviewSummary>>;
   getInterviewById(id: string): Effect.Effect<Interview, InterviewNotFoundError>;
   createInterview(input: CreateInterview): Effect.Effect<Interview>;
   updateInterview(
@@ -38,11 +45,25 @@ export class InterviewService extends Context.Service<InterviewService, IIntervi
       const { db } = yield* Database;
 
       const listInterviews = Effect.fn("InterviewService.listInterviews")(function* () {
+        // The list never reads the candidate's free text; it stays on the detail endpoint.
         const rows = yield* Effect.promise(() =>
-          db.select().from(interviews).orderBy(desc(interviews.createdAt)),
+          db
+            .select({
+              id: interviews.id,
+              title: interviews.title,
+              jobPosition: interviews.jobPosition,
+              experienceLevel: interviews.experienceLevel,
+              difficulty: interviews.difficulty,
+              status: interviews.status,
+              model: interviews.model,
+              createdAt: interviews.createdAt,
+              updatedAt: interviews.updatedAt,
+            })
+            .from(interviews)
+            .orderBy(desc(interviews.createdAt)),
         );
 
-        return rows.map(toInterview);
+        return rows.map(toInterviewSummary);
       });
 
       const getInterviewById = Effect.fn("InterviewService.getInterviewById")(function* (

@@ -6,6 +6,7 @@ import {
   InterviewBehaviorSchema,
   InterviewPlanSchema,
   InterviewSchema,
+  InterviewSummarySchema,
   UpdateInterviewSchema,
 } from "@ai-interview/shared";
 import { Effect, Schema } from "effect";
@@ -22,11 +23,11 @@ export const interview = new Elysia({ prefix: "/api", tags: ["Interview"] })
     "/interviews",
     {
       response: {
-        200: Schema.toStandardSchemaV1(ApiSuccessSchema(Schema.Array(InterviewSchema))),
+        200: Schema.toStandardSchemaV1(ApiSuccessSchema(Schema.Array(InterviewSummarySchema))),
       },
       detail: {
         summary: "List interviews",
-        description: "Returns all interviews, newest first.",
+        description: "Returns all interviews, newest first, without their CV or free-text fields.",
       },
     },
     async () =>

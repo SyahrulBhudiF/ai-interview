@@ -69,3 +69,9 @@ export const ConflictError = defineApiError({
   status: 409,
   message: "Invalid state",
 });
+
+export const RateLimitedError = defineApiError({
+  code: "RATE_LIMITED",
+  status: 429,
+  message: "Too many requests",
+});

@@ -5,8 +5,14 @@ import { Context, Effect, Layer, Option } from "effect";
 
 import { env } from "@/config/env";
 
-import { GeminiApiKeyMissingError, GeminiGenerationError, type GeminiError } from "./error";
-import { personaSystemPrompt } from "./service";
+import { GeminiApiKeyMissingError, type GeminiError } from "./error";
+import {
+  geminiRequest,
+  inlineLabel,
+  personaSystemPrompt,
+  UNTRUSTED_DATA_RULE,
+  wrapCandidateData,
+} from "./service";
 
 /** Default low-latency Gemini Live voice model. */
 const MODEL = "gemini-3.8-live" as const;
@@ -15,16 +21,21 @@ const MODEL = "gemini-3.8-live" as const;
 export function buildInterviewerInstructions(interview: Interview, question: string): string {
   const lines = [
     "You are conducting a live voice interview for a mock-interview platform.",
-    `Role: ${interview.jobPosition}`,
+    UNTRUSTED_DATA_RULE,
+    `Role: ${inlineLabel(interview.jobPosition)}`,
     `Experience level: ${interview.experienceLevel}`,
     `Difficulty: ${interview.difficulty}`,
     "",
-    `Current question: ${question}`,
+    `Current question: ${inlineLabel(question)}`,
     "Ask the question conversationally, then listen to the candidate's answer.",
   ];
 
   if (interview.cvText) {
-    lines.push("", "Candidate CV (context for follow-ups):", interview.cvText);
+    lines.push(
+      "",
+      "Candidate CV (context for follow-ups):",
+      wrapCandidateData("candidate_cv", interview.cvText),
+    );
   }
 
   if (interview.allowFollowUps) {
@@ -55,22 +66,20 @@ const createRealtimeToken = Effect.fn("GeminiLiveService.createRealtimeToken")(f
     return yield* new GeminiApiKeyMissingError();
   }
 
-  return yield* Effect.tryPromise({
-    try: () =>
-      realtimeToken({
-        adapter: geminiRealtimeToken({
-          liveConnectConstraints: {
-            model: MODEL,
-            config: {
-              systemInstruction: {
-                parts: [{ text: buildInterviewerInstructions(interview, question) }],
-              },
+  return yield* geminiRequest(() =>
+    realtimeToken({
+      adapter: geminiRealtimeToken({
+        liveConnectConstraints: {
+          model: MODEL,
+          config: {
+            systemInstruction: {
+              parts: [{ text: buildInterviewerInstructions(interview, question) }],
             },
           },
-        }),
+        },
       }),
-    catch: (cause) => new GeminiGenerationError({ message: String(cause) }),
-  });
+    }),
+  );
 });
 
 export interface IGeminiLiveService {
