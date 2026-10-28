@@ -85,6 +85,13 @@ describe("buildEvaluationPrompt", () => {
     assert.isTrue(prompt.includes("candidate: some answer"));
     assert.isTrue(prompt.includes("rubric score"));
   });
+
+  it("asks for a point and a reason for each strength and improvement", () => {
+    const prompt = buildEvaluationPrompt(interview, ["Explain a hash map."], "candidate: answer");
+
+    assert.isTrue(prompt.includes("point: a short label"));
+    assert.isTrue(prompt.includes("reason: one or two sentences"));
+  });
 });
 
 describe("personaSystemPrompt", () => {

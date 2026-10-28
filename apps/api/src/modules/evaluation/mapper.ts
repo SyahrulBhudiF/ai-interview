@@ -1,4 +1,4 @@
-import type { EvaluationReport } from "@ai-interview/shared";
+import type { EvaluationPoint, EvaluationReport } from "@ai-interview/shared";
 
 import type {
   Evaluation as DbEvaluation,
@@ -6,6 +6,11 @@ import type {
   NewEvaluation,
   NewEvaluationScore,
 } from "@/database/schema";
+
+/** Older rows stored plain strings; keep them readable as points. */
+function toPoints(value: ReadonlyArray<EvaluationPoint | string>): EvaluationPoint[] {
+  return value.map((item) => (typeof item === "string" ? { point: item, reason: item } : item));
+}
 
 /** Maps an evaluation row and its score rows to the shared wire type. */
 export function toEvaluationReport(
@@ -15,8 +20,8 @@ export function toEvaluationReport(
   return {
     overallScore: evaluation.overallScore,
     summary: evaluation.summary,
-    strengths: evaluation.strengths,
-    improvements: evaluation.improvements,
+    strengths: toPoints(evaluation.strengths),
+    improvements: toPoints(evaluation.improvements),
     recommendations: evaluation.recommendations,
     scores: scores.map((score) => ({
       category: score.category as EvaluationReport["scores"][number]["category"],

@@ -159,6 +159,9 @@ export function buildEvaluationPrompt(
     transcript,
     "",
     "Evaluate the candidate's performance. Produce an overall score (1-100), a concise summary, key strengths, areas to improve, and learning recommendations.",
+    "For every strength and every area to improve, return:",
+    "- point: a short label, at most eight words",
+    "- reason: one or two sentences explaining why, citing what the candidate said",
     "Also give a rubric score (1-5) with feedback for each competency category, referencing specific answers from the transcript.",
     `Respond in ${interview.language}.`,
   ];

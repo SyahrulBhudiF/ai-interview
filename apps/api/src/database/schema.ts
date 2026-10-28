@@ -1,3 +1,4 @@
+import type { EvaluationPoint } from "@ai-interview/shared";
 import { boolean, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -85,8 +86,8 @@ export const evaluations = pgTable("evaluations", {
     .references(() => sessions.id, { onDelete: "cascade" }),
   overallScore: integer("overall_score").notNull(),
   summary: text("summary").notNull(),
-  strengths: jsonb("strengths").$type<string[]>().notNull().default([]),
-  improvements: jsonb("improvements").$type<string[]>().notNull().default([]),
+  strengths: jsonb("strengths").$type<EvaluationPoint[]>().notNull().default([]),
+  improvements: jsonb("improvements").$type<EvaluationPoint[]>().notNull().default([]),
   recommendations: jsonb("recommendations").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });

@@ -25,8 +25,9 @@ import { Link } from "@tanstack/react-router";
 import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 
+import { CvPanel } from "@/components/cv-panel";
+
 import { AnswerComposer } from "./components/answer-composer";
-import { CvPanel } from "./components/cv-panel";
 import { TranscriptList } from "./components/transcript-list";
 import { VoiceMode } from "./components/voice-mode";
 import { useInterviewContext, useSessionDetail } from "./hooks/use-session";
