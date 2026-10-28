@@ -13,6 +13,7 @@ describe("toEvaluationReport", () => {
         summary: "Solid answers.",
         strengths: ["Quantified impact"] as unknown as EvaluationPoint[],
         improvements: ["Deeper trade-offs"] as unknown as EvaluationPoint[],
+        cvHighlights: [],
         recommendations: ["Practice system design"],
         createdAt: new Date("2026-01-01T00:00:00.000Z"),
       },
@@ -25,5 +26,6 @@ describe("toEvaluationReport", () => {
     assert.deepStrictEqual(report.improvements, [
       { point: "Deeper trade-offs", reason: "Deeper trade-offs" },
     ]);
+    assert.deepStrictEqual(report.cvHighlights, []);
   });
 });

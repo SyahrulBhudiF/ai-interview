@@ -10,6 +10,7 @@ import {
   interviewStages,
   questions,
 } from "@/database/schema";
+import { normalizeCvHighlights } from "@/libs/cv-highlights";
 import type { GeminiError } from "@/modules/gemini/error";
 import { GeminiService } from "@/modules/gemini/service";
 import { toInterview } from "@/modules/interview/mapper";
@@ -112,6 +113,7 @@ export class EvaluationService extends Context.Service<EvaluationService, IEvalu
           ...report,
           overallScore: Math.round(report.overallScore),
           scores: report.scores.map((score) => ({ ...score, score: Math.round(score.score) })),
+          cvHighlights: normalizeCvHighlights(report.cvHighlights),
         };
 
         yield* Effect.promise(() =>

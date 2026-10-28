@@ -3,6 +3,7 @@ import { assert, describe, it } from "@effect/vitest";
 import { Schema } from "effect";
 
 import {
+  buildCvReviewPrompt,
   buildEvaluationPrompt,
   buildPlanPrompt,
   personaSystemPrompt,
@@ -91,6 +92,61 @@ describe("buildEvaluationPrompt", () => {
 
     assert.isTrue(prompt.includes("point: a short label"));
     assert.isTrue(prompt.includes("reason: one or two sentences"));
+  });
+
+  it("asks for CV highlights when the interview has a CV", () => {
+    const prompt = buildEvaluationPrompt(
+      { ...interview, cvText: "Go, TypeScript, PostgreSQL" },
+      ["Explain a hash map."],
+      "candidate: answer",
+    );
+
+    assert.isTrue(prompt.includes("Candidate CV:"));
+    assert.isTrue(prompt.includes("copied verbatim"));
+    assert.isTrue(prompt.includes('"strong"'));
+    assert.isTrue(prompt.includes('"weak"'));
+  });
+
+  it("asks for an empty highlight list when there is no CV", () => {
+    const prompt = buildEvaluationPrompt(interview, ["Explain a hash map."], "candidate: answer");
+
+    assert.isTrue(prompt.includes("return an empty cvHighlights array"));
+  });
+});
+
+describe("buildCvReviewPrompt", () => {
+  const input = {
+    jobPosition: "Senior Backend Engineer",
+    experienceLevel: "senior" as const,
+    jobDescription: "Design event-driven payment systems.",
+    cvText: "Jane Doe\nLed the migration to Kafka.",
+    language: "en",
+    model: "gemini-3.8-flash",
+  };
+
+  it("includes the role, level, job description, CV, and language", () => {
+    const prompt = buildCvReviewPrompt(input);
+
+    assert.isTrue(prompt.includes("Senior Backend Engineer"));
+    assert.isTrue(prompt.includes("senior"));
+    assert.isTrue(prompt.includes("Design event-driven payment systems."));
+    assert.isTrue(prompt.includes("Led the migration to Kafka."));
+    assert.isTrue(prompt.includes("Respond in en."));
+  });
+
+  it("asks for verbatim highlights and the CV-specific rubric", () => {
+    const prompt = buildCvReviewPrompt(input);
+
+    assert.isTrue(prompt.includes("3-6 excerpts copied verbatim"));
+    assert.isTrue(prompt.includes("technical_knowledge, relevance, depth, role_specific"));
+    assert.isTrue(prompt.includes('"strong"'));
+    assert.isTrue(prompt.includes('"weak"'));
+  });
+
+  it("omits the job description when it is not provided", () => {
+    const prompt = buildCvReviewPrompt({ ...input, jobDescription: undefined });
+
+    assert.isFalse(prompt.includes("Job description:"));
   });
 });
 

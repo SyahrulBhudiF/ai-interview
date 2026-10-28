@@ -1,0 +1,1 @@
+ALTER TABLE "evaluations" ADD COLUMN "cv_highlights" jsonb DEFAULT '[]'::jsonb NOT NULL;

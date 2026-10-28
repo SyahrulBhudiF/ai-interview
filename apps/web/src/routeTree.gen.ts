@@ -10,8 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CvReviewsRouteImport } from './routes/cv-reviews'
 import { Route as InterviewsRouteImport } from './routes/interviews'
 import { Route as ProgressRouteImport } from './routes/progress'
+import { Route as CvReviewsIndexRouteImport } from './routes/cv-reviews.index'
+import { Route as CvReviewsReviewIdRouteImport } from './routes/cv-reviews.$reviewId'
 import { Route as InterviewsIndexRouteImport } from './routes/interviews.index'
 import { Route as InterviewsInterviewIdRouteImport } from './routes/interviews.$interviewId'
 import { Route as InterviewsNewRouteImport } from './routes/interviews.new'
@@ -24,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CvReviewsRoute = CvReviewsRouteImport.update({
+  id: '/cv-reviews',
+  path: '/cv-reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const InterviewsRoute = InterviewsRouteImport.update({
   id: '/interviews',
   path: '/interviews',
@@ -33,6 +41,16 @@ const ProgressRoute = ProgressRouteImport.update({
   id: '/progress',
   path: '/progress',
   getParentRoute: () => rootRouteImport,
+} as any)
+const CvReviewsIndexRoute = CvReviewsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CvReviewsRoute,
+} as any)
+const CvReviewsReviewIdRoute = CvReviewsReviewIdRouteImport.update({
+  id: '/$reviewId',
+  path: '/$reviewId',
+  getParentRoute: () => CvReviewsRoute,
 } as any)
 const InterviewsIndexRoute = InterviewsIndexRouteImport.update({
   id: '/',
@@ -68,11 +86,14 @@ const SessionsSessionIdResultsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cv-reviews': typeof CvReviewsRouteWithChildren
   '/interviews': typeof InterviewsRouteWithChildren
   '/progress': typeof ProgressRoute
+  '/cv-reviews/$reviewId': typeof CvReviewsReviewIdRoute
   '/interviews/$interviewId': typeof InterviewsInterviewIdRoute
   '/interviews/new': typeof InterviewsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
+  '/cv-reviews/': typeof CvReviewsIndexRoute
   '/interviews/': typeof InterviewsIndexRoute
   '/sessions/$sessionId/results': typeof SessionsSessionIdResultsRoute
   '/sessions/$sessionId/': typeof SessionsSessionIdIndexRoute
@@ -80,8 +101,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/progress': typeof ProgressRoute
+  '/cv-reviews/$reviewId': typeof CvReviewsReviewIdRoute
   '/interviews/$interviewId': typeof InterviewsInterviewIdRoute
   '/interviews/new': typeof InterviewsNewRoute
+  '/cv-reviews': typeof CvReviewsIndexRoute
   '/interviews': typeof InterviewsIndexRoute
   '/sessions/$sessionId/results': typeof SessionsSessionIdResultsRoute
   '/sessions/$sessionId': typeof SessionsSessionIdIndexRoute
@@ -89,11 +112,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cv-reviews': typeof CvReviewsRouteWithChildren
   '/interviews': typeof InterviewsRouteWithChildren
   '/progress': typeof ProgressRoute
+  '/cv-reviews/$reviewId': typeof CvReviewsReviewIdRoute
   '/interviews/$interviewId': typeof InterviewsInterviewIdRoute
   '/interviews/new': typeof InterviewsNewRoute
   '/sessions/$sessionId': typeof SessionsSessionIdRouteWithChildren
+  '/cv-reviews/': typeof CvReviewsIndexRoute
   '/interviews/': typeof InterviewsIndexRoute
   '/sessions/$sessionId/results': typeof SessionsSessionIdResultsRoute
   '/sessions/$sessionId/': typeof SessionsSessionIdIndexRoute
@@ -102,11 +128,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/cv-reviews'
     | '/interviews'
     | '/progress'
+    | '/cv-reviews/$reviewId'
     | '/interviews/$interviewId'
     | '/interviews/new'
     | '/sessions/$sessionId'
+    | '/cv-reviews/'
     | '/interviews/'
     | '/sessions/$sessionId/results'
     | '/sessions/$sessionId/'
@@ -114,19 +143,24 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/progress'
+    | '/cv-reviews/$reviewId'
     | '/interviews/$interviewId'
     | '/interviews/new'
+    | '/cv-reviews'
     | '/interviews'
     | '/sessions/$sessionId/results'
     | '/sessions/$sessionId'
   id:
     | '__root__'
     | '/'
+    | '/cv-reviews'
     | '/interviews'
     | '/progress'
+    | '/cv-reviews/$reviewId'
     | '/interviews/$interviewId'
     | '/interviews/new'
     | '/sessions/$sessionId'
+    | '/cv-reviews/'
     | '/interviews/'
     | '/sessions/$sessionId/results'
     | '/sessions/$sessionId/'
@@ -134,6 +168,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CvReviewsRoute: typeof CvReviewsRouteWithChildren
   InterviewsRoute: typeof InterviewsRouteWithChildren
   ProgressRoute: typeof ProgressRoute
   SessionsSessionIdRoute: typeof SessionsSessionIdRouteWithChildren
@@ -146,6 +181,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cv-reviews': {
+      id: '/cv-reviews'
+      path: '/cv-reviews'
+      fullPath: '/cv-reviews'
+      preLoaderRoute: typeof CvReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/interviews': {
@@ -161,6 +203,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/progress'
       preLoaderRoute: typeof ProgressRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/cv-reviews/': {
+      id: '/cv-reviews/'
+      path: '/'
+      fullPath: '/cv-reviews/'
+      preLoaderRoute: typeof CvReviewsIndexRouteImport
+      parentRoute: typeof CvReviewsRoute
+    }
+    '/cv-reviews/$reviewId': {
+      id: '/cv-reviews/$reviewId'
+      path: '/$reviewId'
+      fullPath: '/cv-reviews/$reviewId'
+      preLoaderRoute: typeof CvReviewsReviewIdRouteImport
+      parentRoute: typeof CvReviewsRoute
     }
     '/interviews/': {
       id: '/interviews/'
@@ -207,6 +263,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface CvReviewsRouteChildren {
+  CvReviewsReviewIdRoute: typeof CvReviewsReviewIdRoute
+  CvReviewsIndexRoute: typeof CvReviewsIndexRoute
+}
+
+const CvReviewsRouteChildren: CvReviewsRouteChildren = {
+  CvReviewsReviewIdRoute: CvReviewsReviewIdRoute,
+  CvReviewsIndexRoute: CvReviewsIndexRoute,
+}
+
+const CvReviewsRouteWithChildren = CvReviewsRoute._addFileChildren(
+  CvReviewsRouteChildren,
+)
+
 interface InterviewsRouteChildren {
   InterviewsInterviewIdRoute: typeof InterviewsInterviewIdRoute
   InterviewsNewRoute: typeof InterviewsNewRoute
@@ -238,6 +308,7 @@ const SessionsSessionIdRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CvReviewsRoute: CvReviewsRouteWithChildren,
   InterviewsRoute: InterviewsRouteWithChildren,
   ProgressRoute: ProgressRoute,
   SessionsSessionIdRoute: SessionsSessionIdRouteWithChildren,

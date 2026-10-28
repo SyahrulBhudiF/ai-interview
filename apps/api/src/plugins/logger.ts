@@ -64,6 +64,7 @@ function resolveErrorDefinition(error: unknown) {
     Match.when("InterviewNotFoundError", () => NotFoundError.definition),
     Match.when("SessionNotFoundError", () => NotFoundError.definition),
     Match.when("EvaluationNotFoundError", () => NotFoundError.definition),
+    Match.when("CvReviewNotFoundError", () => NotFoundError.definition),
     Match.when("InterviewNotReadyError", () => ConflictError.definition),
     Match.when("InvalidSessionStateError", () => ConflictError.definition),
     Match.when("SessionNotCompletedError", () => ConflictError.definition),

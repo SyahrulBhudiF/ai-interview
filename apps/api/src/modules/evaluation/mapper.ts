@@ -6,6 +6,7 @@ import type {
   NewEvaluation,
   NewEvaluationScore,
 } from "@/database/schema";
+import { normalizeCvHighlights } from "@/libs/cv-highlights";
 
 /** Older rows stored plain strings; keep them readable as points. */
 function toPoints(value: ReadonlyArray<EvaluationPoint | string>): EvaluationPoint[] {
@@ -22,6 +23,7 @@ export function toEvaluationReport(
     summary: evaluation.summary,
     strengths: toPoints(evaluation.strengths),
     improvements: toPoints(evaluation.improvements),
+    cvHighlights: normalizeCvHighlights(evaluation.cvHighlights ?? []),
     recommendations: evaluation.recommendations,
     scores: scores.map((score) => ({
       category: score.category as EvaluationReport["scores"][number]["category"],
@@ -40,6 +42,7 @@ export function newEvaluationRow(sessionId: string, report: EvaluationReport): N
     summary: report.summary,
     strengths: [...report.strengths],
     improvements: [...report.improvements],
+    cvHighlights: [...report.cvHighlights],
     recommendations: [...report.recommendations],
   };
 }

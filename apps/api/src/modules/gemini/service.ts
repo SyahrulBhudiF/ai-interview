@@ -3,6 +3,7 @@ import {
   EvaluationReportSchema,
   InterviewPlanSchema,
   type CvExtraction,
+  type CreateCvReview,
   type EvaluationCategory,
   type EvaluationReport,
   type GeminiModel,
@@ -158,13 +159,64 @@ export function buildEvaluationPrompt(
     "Transcript:",
     transcript,
     "",
+  ];
+
+  if (interview.cvText) {
+    lines.push("Candidate CV:", interview.cvText, "");
+  }
+
+  lines.push(
     "Evaluate the candidate's performance. Produce an overall score (1-100), a concise summary, key strengths, areas to improve, and learning recommendations.",
     "For every strength and every area to improve, return:",
     "- point: a short label, at most eight words",
     "- reason: one or two sentences explaining why, citing what the candidate said",
     "Also give a rubric score (1-5) with feedback for each competency category, referencing specific answers from the transcript.",
-    `Respond in ${interview.language}.`,
+  );
+
+  if (interview.cvText) {
+    lines.push(
+      "",
+      "Highlight the CV: return 3-6 excerpts copied verbatim from the CV text above.",
+      'Set kind to "strong" when the interview confirmed or supported the excerpt, and "weak" when it exposed a gap or an unproven claim.',
+      "For each highlight, give a reason in one or two sentences.",
+    );
+  } else {
+    lines.push("", "No CV was provided: return an empty cvHighlights array.");
+  }
+
+  lines.push(`Respond in ${interview.language}.`);
+
+  return lines.join("\n");
+}
+
+/** Builds the prompt that asks Gemini to review a CV against a target role. */
+export function buildCvReviewPrompt(input: CreateCvReview): string {
+  const lines = [
+    "You are an expert technical recruiter reviewing a candidate's CV for a specific role.",
+    "",
+    `Role: ${input.jobPosition}`,
+    `Experience level: ${input.experienceLevel}`,
   ];
+
+  if (input.jobDescription) {
+    lines.push("", "Job description:", input.jobDescription);
+  }
+
+  lines.push("", "CV:", input.cvText, "");
+
+  lines.push(
+    "Review how well this CV fits the role. Produce an overall score (1-100), a concise summary, key strengths, areas to improve, and learning recommendations.",
+    "For every strength and every area to improve, return:",
+    "- point: a short label, at most eight words",
+    "- reason: one or two sentences explaining why, citing the CV",
+    "Score these competencies from 1-5 with feedback: technical_knowledge, relevance, depth, role_specific.",
+    "",
+    "Highlight the CV: return 3-6 excerpts copied verbatim from the CV text above. Do not paraphrase or change the punctuation inside a quote.",
+    'Set kind to "strong" when the excerpt is concrete evidence that matches the role, and "weak" when it is vague, unsupported, or missing impact.',
+    "For each highlight, give a reason in one or two sentences.",
+    "",
+    `Respond in ${input.language}.`,
+  );
 
   return lines.join("\n");
 }
@@ -255,6 +307,30 @@ const generateEvaluation = Effect.fn("GeminiService.generateEvaluation")(functio
         messages: [
           { role: "user", content: buildEvaluationPrompt(interview, questions, transcript) },
         ],
+        threadId: crypto.randomUUID(),
+        outputSchema: Schema.toStandardJSONSchemaV1(EvaluationReportSchema),
+        retry: { maxRetries: 1 },
+      }),
+    catch: (cause) => new GeminiGenerationError({ message: String(cause) }),
+  });
+});
+
+const generateCvReview = Effect.fn("GeminiService.generateCvReview")(function* (
+  input: CreateCvReview,
+): Effect.fn.Return<EvaluationReport, GeminiError> {
+  const apiKey = env.geminiApiKey;
+  if (Option.isNone(apiKey)) {
+    return yield* new GeminiApiKeyMissingError();
+  }
+
+  return yield* Effect.tryPromise({
+    try: () =>
+      chat({
+        adapter: createGeminiChat(
+          (input.model ?? "gemini-3.8-flash") as GeminiTextModel,
+          apiKey.value,
+        ),
+        messages: [{ role: "user", content: buildCvReviewPrompt(input) }],
         threadId: crypto.randomUUID(),
         outputSchema: Schema.toStandardJSONSchemaV1(EvaluationReportSchema),
         retry: { maxRetries: 1 },
@@ -356,6 +432,7 @@ export interface IGeminiService {
     questions: ReadonlyArray<string>,
     transcript: string,
   ): Effect.Effect<EvaluationReport, GeminiError>;
+  generateCvReview(input: CreateCvReview): Effect.Effect<EvaluationReport, GeminiError>;
   extractCv(pdfBase64: string, model: string): Effect.Effect<CvExtraction, GeminiError>;
   listModels(): Effect.Effect<ReadonlyArray<GeminiModel>, GeminiError>;
 }
@@ -369,6 +446,7 @@ export class GeminiService extends Context.Service<GeminiService, IGeminiService
       generateInterviewPlan,
       generateFollowUp,
       generateEvaluation,
+      generateCvReview,
       extractCv,
       listModels,
     }),

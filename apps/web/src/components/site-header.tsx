@@ -1,10 +1,11 @@
 import { Button } from "@ai-interview/ui/button";
 import { cn } from "@ai-interview/ui/utils";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Mic, Plus, TrendingUp } from "lucide-react";
+import { FileSearch, Mic, Plus, TrendingUp } from "lucide-react";
 
 const links = [
   { to: "/interviews", label: "Interviews", icon: Mic },
+  { to: "/cv-reviews", label: "CV review", icon: FileSearch },
   { to: "/progress", label: "Progress", icon: TrendingUp },
 ] as const;
 
@@ -29,7 +30,7 @@ function NavLinks({ pathname }: { pathname: string }) {
             )}
           >
             <Icon aria-hidden className="size-4 shrink-0" />
-            <span className="hidden min-[360px]:inline">{link.label}</span>
+            <span className="hidden md:inline">{link.label}</span>
           </Link>
         );
       })}

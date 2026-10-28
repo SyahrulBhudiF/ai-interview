@@ -12,25 +12,16 @@ import {
 } from "@ai-interview/ui/select";
 import { Textarea } from "@ai-interview/ui/textarea";
 
+import { CvInput } from "@/components/cv-input";
 import { FormField } from "@/components/form-field";
+import { useGeminiModels } from "@/hooks/use-gemini-models";
+import { firstErrorMessage } from "@/lib/form-error";
 
-import { useGeminiModels } from "../hooks/use-gemini-models";
 import { useInterviewForm } from "../hooks/use-interview-form";
-import { CvInput } from "./cv-input";
 
 const EXPERIENCE_LEVELS = ["intern", "junior", "mid", "senior", "lead"] as const;
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
 const PERSONAS = ["professional", "friendly", "socratic", "fast_paced"] as const;
-
-function firstErrorMessage(errors: readonly unknown[]): string | undefined {
-  const first = errors[0];
-  if (typeof first === "string") return first;
-  if (first && typeof first === "object" && "message" in first) {
-    const message = (first as { message?: unknown }).message;
-    if (typeof message === "string") return message;
-  }
-  return undefined;
-}
 
 export function InterviewForm({
   interview,

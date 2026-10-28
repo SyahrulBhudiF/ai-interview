@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 
-import { EvaluationCategorySchema, EvaluationPointSchema } from "./evaluation";
+import { CvHighlightSchema, EvaluationCategorySchema, EvaluationPointSchema } from "./evaluation";
 
 /** Gemini structured outputs. These schemas are the `outputSchema` for TanStack AI. */
 
@@ -39,6 +39,7 @@ export const EvaluationReportSchema = Schema.Struct({
   summary: Schema.String,
   strengths: Schema.Array(EvaluationPointSchema),
   improvements: Schema.Array(EvaluationPointSchema),
+  cvHighlights: Schema.Array(CvHighlightSchema),
   recommendations: Schema.Array(Schema.String),
   scores: Schema.Array(CompetencyScoreSchema),
 });

@@ -24,6 +24,13 @@ export const EvaluationPointSchema = Schema.Struct({
   reason: Schema.String,
 });
 
+/** A verbatim CV excerpt the interview showed as strong or weak, with the reason. */
+export const CvHighlightSchema = Schema.Struct({
+  quote: Schema.String,
+  kind: Schema.Literals(["strong", "weak"]),
+  reason: Schema.String,
+});
+
 export const EvaluationSchema = Schema.Struct({
   id: Schema.String,
   sessionId: Schema.String,
@@ -31,11 +38,13 @@ export const EvaluationSchema = Schema.Struct({
   summary: Schema.String,
   strengths: Schema.Array(EvaluationPointSchema),
   improvements: Schema.Array(EvaluationPointSchema),
+  cvHighlights: Schema.Array(CvHighlightSchema),
   recommendations: Schema.Array(Schema.String),
   createdAt: Schema.String,
 });
 
 export type EvaluationCategory = Schema.Schema.Type<typeof EvaluationCategorySchema>;
 export type EvaluationPoint = Schema.Schema.Type<typeof EvaluationPointSchema>;
+export type CvHighlight = Schema.Schema.Type<typeof CvHighlightSchema>;
 export type Evaluation = Schema.Schema.Type<typeof EvaluationSchema>;
 export type EvaluationScore = Schema.Schema.Type<typeof EvaluationScoreSchema>;

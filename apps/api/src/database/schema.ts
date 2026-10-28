@@ -1,4 +1,4 @@
-import type { EvaluationPoint } from "@ai-interview/shared";
+import type { CvHighlight, EvaluationPoint, EvaluationReport } from "@ai-interview/shared";
 import { boolean, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -88,6 +88,7 @@ export const evaluations = pgTable("evaluations", {
   summary: text("summary").notNull(),
   strengths: jsonb("strengths").$type<EvaluationPoint[]>().notNull().default([]),
   improvements: jsonb("improvements").$type<EvaluationPoint[]>().notNull().default([]),
+  cvHighlights: jsonb("cv_highlights").$type<CvHighlight[]>().notNull().default([]),
   recommendations: jsonb("recommendations").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -102,6 +103,18 @@ export const evaluationScores = pgTable("evaluation_scores", {
   feedback: text("feedback"),
   stageId: text("stage_id"),
   questionId: text("question_id"),
+});
+
+export const cvReviews = pgTable("cv_reviews", {
+  id: text("id").primaryKey(),
+  jobPosition: text("job_position").notNull(),
+  experienceLevel: text("experience_level").notNull(),
+  jobDescription: text("job_description"),
+  cvText: text("cv_text").notNull(),
+  language: text("language").notNull().default("en"),
+  model: text("model").notNull().default("gemini-3.8-flash"),
+  report: jsonb("report").$type<EvaluationReport>().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
@@ -120,3 +133,5 @@ export type Evaluation = typeof evaluations.$inferSelect;
 export type NewEvaluation = typeof evaluations.$inferInsert;
 export type EvaluationScore = typeof evaluationScores.$inferSelect;
 export type NewEvaluationScore = typeof evaluationScores.$inferInsert;
+export type CvReview = typeof cvReviews.$inferSelect;
+export type NewCvReview = typeof cvReviews.$inferInsert;

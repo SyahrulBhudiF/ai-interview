@@ -1,7 +1,26 @@
 # ai-interview
 
-A mock-interview app. Configure a role, let Gemini write the question plan, rehearse
-a session, and get the transcript scored against a rubric.
+A mock-interview app with a standalone CV reviewer. Configure a role, let Gemini
+write the question plan, rehearse a session, and get the transcript scored against
+a rubric. Or skip the interview and review a CV against the role you are applying
+for.
+
+## Features
+
+- **Interview builder.** Pick the role, level, difficulty, language, persona, and
+  model, and optionally attach a PDF CV. Gemini drafts stages with questions,
+  answer criteria, and rubrics; every part stays editable.
+- **Live rehearsal.** A text-first interview with dynamic follow-ups, strict mode,
+  and an experimental Gemini Live voice panel. Every answer is saved to the
+  transcript.
+- **Debrief.** Rubric scores per competency, a summary, strengths and fixes (each
+  with a reason), recommendations, and the CV marked line by line as strong or
+  weak evidence.
+- **CV review.** A standalone pass with no interview: choose the target role, add
+  the CV, and get the same report plus highlighted evidence. Reviews are saved,
+  reopenable, and deletable.
+- **Progress.** Score history and competency averages, with one-click practice
+  interviews focused on the weakest competency.
 
 ## How it works
 
@@ -20,6 +39,10 @@ a session, and get the transcript scored against a rubric.
 
 The live room is text-first. A Gemini Live voice channel sits in an experimental
 side panel; it is not written to the saved transcript.
+
+**CV review** reuses the same report shape without a session: pick the role and
+level, add the CV, and Gemini scores the fit, lists strengths and fixes, and marks
+verbatim CV lines as strong or weak. Saved reviews live under `/cv-reviews`.
 
 ## Stack
 
@@ -43,12 +66,12 @@ side panel; it is not written to the saved transcript.
 apps/
   api/
     src/modules/     interview, interview/plan, session, evaluation,
-                     gemini, cv, progress, practice, health
+                     cv, cv-review, gemini, progress, practice, health
     drizzle/         SQL migrations
   web/
     src/routes/      route definitions only
     src/features/    home, interviews, interview-new, interview-builder,
-                     interview-live, interview-results, progress
+                     interview-live, interview-results, cv-review, progress
 packages/
   components/        shadcn/ui (@ai-interview/ui)
   shared/            Effect Schema contracts (@ai-interview/shared)
@@ -86,6 +109,7 @@ All routes live under `/api` and return the `{ ok, data }` envelope.
 | Settings    | `PUT /interviews/:id/behavior`, `POST /interviews/:id/duplicate`     |
 | Plan        | `GET/PUT /interviews/:id/plan`, `POST /interviews/:id/generate-plan` |
 | CV          | `POST /cv/extract`                                                   |
+| CV review   | `GET/POST /cv-reviews`, `GET/DELETE /cv-reviews/:id`                 |
 | Sessions    | `GET/POST /interviews/:id/sessions`, `GET /sessions/:id`             |
 | Session run | `POST /sessions/:id/start`, `/answer`, `/end`, `/realtime-token`     |
 | Evaluation  | `POST /sessions/:id/evaluate`, `GET /sessions/:id/evaluation`        |

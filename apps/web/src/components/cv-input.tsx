@@ -4,15 +4,17 @@ import { Textarea } from "@ai-interview/ui/textarea";
 import { FileText, Upload } from "lucide-react";
 import { useRef, useState } from "react";
 
-import { useCvExtraction } from "../hooks/use-cv-extraction";
+import { useCvExtraction } from "@/hooks/use-cv-extraction";
 
 export function CvInput({
   value,
   model,
+  required = false,
   onChange,
 }: {
   value?: string;
   model?: string;
+  required?: boolean;
   onChange: (value: string | undefined) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -40,9 +42,9 @@ export function CvInput({
     <div className="space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <Label htmlFor="cv-upload">CV (optional)</Label>
+          <Label htmlFor="cv-upload">CV{required ? "" : " (optional)"}</Label>
           <p className="text-muted-foreground text-xs">
-            PDF, up to 10MB. Gemini reads it and keeps the text as interview context.
+            PDF, up to 10MB. Gemini reads it and keeps the text editable below.
           </p>
         </div>
         <div className="flex items-center gap-2">

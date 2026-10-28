@@ -2,79 +2,21 @@ import {
   ApiSuccessSchema,
   InterviewSchema,
   SessionDetailResponseSchema,
-  type EvaluationPoint,
 } from "@ai-interview/shared";
 import { Badge } from "@ai-interview/ui/badge";
 import { Button } from "@ai-interview/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@ai-interview/ui/card";
 import { Skeleton } from "@ai-interview/ui/skeleton";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@ai-interview/ui/tooltip";
 import { cn } from "@ai-interview/ui/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { Schema } from "effect";
 
 import { CvPanel } from "@/components/cv-panel";
+import { EvaluationReportView } from "@/components/evaluation-report";
 import { api } from "@/lib/eden";
 
 import { useEvaluation } from "./hooks/use-evaluation";
-
-function DebriefCard({
-  tone,
-  title,
-  description,
-  items,
-}: {
-  tone: "keep" | "improve";
-  title: string;
-  description: string;
-  items: ReadonlyArray<EvaluationPoint>;
-}) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span
-            aria-hidden
-            className={cn("size-2 rounded-full", tone === "keep" ? "bg-success" : "bg-warning")}
-          />
-          {title}
-        </CardTitle>
-        <CardDescription>{description}</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        {items.length === 0 ? (
-          <p className="text-muted-foreground text-sm">Nothing here.</p>
-        ) : (
-          items.map((item) => (
-            <Tooltip key={`${item.point}-${item.reason}`}>
-              <TooltipTrigger asChild>
-                <button
-                  type="button"
-                  aria-label={`${item.point}. Why: ${item.reason}`}
-                  className={cn(
-                    "focus-visible:ring-ring/50 w-full rounded-xl px-3 py-2 text-left transition-colors outline-none focus-visible:ring-[3px]",
-                    tone === "keep"
-                      ? "bg-success/10 hover:bg-success/20"
-                      : "bg-warning/10 hover:bg-warning/20",
-                  )}
-                >
-                  <span className="flex items-start justify-between gap-3">
-                    <span className="text-sm leading-snug font-medium">{item.point}</span>
-                    <span className="text-muted-foreground mt-0.5 shrink-0 text-[10px] font-semibold tracking-[0.12em] uppercase">
-                      Why
-                    </span>
-                  </span>
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>{item.reason}</TooltipContent>
-            </Tooltip>
-          ))
-        )}
-      </CardContent>
-    </Card>
-  );
-}
 
 export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
   const evaluation = useEvaluation(sessionId);
@@ -136,71 +78,19 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
         )}
       >
         <div className="space-y-6">
-          {cvText ? <CvPanel cvText={cvText} collapsible className="lg:hidden" /> : null}
+          {cvText ? (
+            <CvPanel
+              cvText={cvText}
+              highlights={report?.cvHighlights}
+              collapsible
+              className="lg:hidden"
+            />
+          ) : null}
 
           {evaluation.isPending ? (
             <Skeleton className="h-40 w-full" />
           ) : report ? (
-            <>
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Overall score</CardTitle>
-                    <span className="text-3xl font-semibold tabular-nums">
-                      {report.overallScore}
-                    </span>
-                  </div>
-                  <CardDescription>{report.summary}</CardDescription>
-                </CardHeader>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Rubric</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {report.scores.map((score) => (
-                    <div key={score.category} className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-sm font-medium">{score.category.replaceAll("_", " ")}</p>
-                        <p className="text-muted-foreground text-sm">{score.feedback}</p>
-                      </div>
-                      <span className="text-sm font-semibold tabular-nums">{score.score}/5</span>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <DebriefCard
-                  tone="keep"
-                  title="Keep"
-                  description="What worked in this session."
-                  items={report.strengths}
-                />
-                <DebriefCard
-                  tone="improve"
-                  title="Fix next"
-                  description="What held the answers back."
-                  items={report.improvements}
-                />
-              </div>
-
-              {report.recommendations.length > 0 ? (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Recommendations</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="list-disc space-y-1 pl-5 text-sm">
-                      {report.recommendations.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              ) : null}
-            </>
+            <EvaluationReportView report={report} />
           ) : (
             <Card>
               <CardHeader>
@@ -246,7 +136,11 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
         </div>
 
         {cvText ? (
-          <CvPanel cvText={cvText} className="hidden lg:sticky lg:top-24 lg:block" />
+          <CvPanel
+            cvText={cvText}
+            highlights={report?.cvHighlights}
+            className="hidden lg:sticky lg:top-24 lg:block"
+          />
         ) : null}
       </div>
     </main>

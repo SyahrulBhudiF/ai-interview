@@ -83,6 +83,7 @@ function practiceLayer() {
     },
     generateFollowUp: () => Effect.die("unused"),
     generateEvaluation: () => Effect.die("unused"),
+    generateCvReview: () => Effect.die("unused"),
     extractCv: () => Effect.die("unused"),
     listModels: () => Effect.die("unused"),
   });

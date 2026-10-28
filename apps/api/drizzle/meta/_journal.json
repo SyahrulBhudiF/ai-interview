@@ -50,6 +50,20 @@
       "when": 1793158175270,
       "tag": "0006_gray_george_stacy",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793161982323,
+      "tag": "0007_mean_roughhouse",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793176196351,
+      "tag": "0008_kind_machine_man",
+      "breakpoints": true
     }
   ]
 }
