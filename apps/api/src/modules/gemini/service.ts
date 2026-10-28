@@ -171,10 +171,18 @@ export function buildCvExtractionPrompt(): string {
   return [
     "You are reading a candidate's CV (PDF) so it can be used as context for a mock interview.",
     "",
-    "Return the readable text of the document, preserving its structure: name and headline, roles with companies and dates, skills, education, and anything else present.",
+    "Return the readable text of the document as plain text, one item per line:",
+    "- the name on its own line",
+    "- the contact details on their own line",
+    "- every section heading on its own line (Summary, Work Experience, Projects, Education, Skills, and so on)",
+    "- every role or project header on its own line, including the organization and the dates",
+    "- every role title and location on its own line",
+    '- every bullet on its own line, starting with "- "',
+    "- every TechStack line on its own line",
+    "",
+    "Put a newline between lines. Do not merge separate lines into one paragraph: the text is displayed as a document, so line breaks matter.",
     "Keep the original wording. Do not summarize, invent, or reorder sections.",
-    "If a section is a table or a two-column layout, write it as clear lines.",
-    "If the document is not a CV, still return its readable text.",
+    "If the document is not a CV, still return its readable text with the same line structure.",
   ].join("\n");
 }
 

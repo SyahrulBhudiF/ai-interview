@@ -162,7 +162,7 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
         <div
           className={cn(
             "grid gap-6",
-            interviewData?.cvText ? "lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start" : undefined,
+            interviewData?.cvText ? "lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start" : undefined,
           )}
         >
           <div className="space-y-6">
