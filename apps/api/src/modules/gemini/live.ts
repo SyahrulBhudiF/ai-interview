@@ -5,53 +5,12 @@ import { Context, Effect, Layer, Option } from "effect";
 
 import { env } from "@/config/env";
 
-import { UNTRUSTED_DATA_RULE } from "./constants";
 import { GeminiApiKeyMissingError, type GeminiError } from "./error";
-import { geminiRequest, personaSystemPrompt } from "./service";
-import { inlineLabel, wrapCandidateData } from "./utils";
+import { buildInterviewerInstructions } from "./prompt";
+import { geminiRequest } from "./service";
 
 /** Default low-latency Gemini Live voice model. */
 const MODEL = "gemini-3.8-live" as const;
-
-/** Builds the system prompt that turns Gemini Live into this interview's interviewer. */
-export function buildInterviewerInstructions(interview: Interview, question: string): string {
-  const lines = [
-    "You are conducting a live voice interview for a mock-interview platform.",
-    UNTRUSTED_DATA_RULE,
-    `Role: ${inlineLabel(interview.jobPosition)}`,
-    `Experience level: ${interview.experienceLevel}`,
-    `Difficulty: ${interview.difficulty}`,
-    "",
-    `Current question: ${inlineLabel(question)}`,
-    "Ask the question conversationally, then listen to the candidate's answer.",
-  ];
-
-  if (interview.cvText) {
-    lines.push(
-      "",
-      "Candidate CV (context for follow-ups):",
-      wrapCandidateData("candidate_cv", interview.cvText),
-    );
-  }
-
-  if (interview.allowFollowUps) {
-    lines.push("You may ask one or two short follow-ups to dig into shallow or vague answers.");
-  } else {
-    lines.push("Do not ask follow-ups; wrap up this question after the answer.");
-  }
-
-  if (interview.strictMode) {
-    lines.push("Be strict: challenge weak answers and give no hints.");
-  }
-
-  lines.push(
-    personaSystemPrompt(interview.persona),
-    `Speak in ${interview.language}.`,
-    "Keep responses conversational and concise for voice.",
-  );
-
-  return lines.join("\n");
-}
 
 const createRealtimeToken = Effect.fn("GeminiLiveService.createRealtimeToken")(function* (
   interview: Interview,

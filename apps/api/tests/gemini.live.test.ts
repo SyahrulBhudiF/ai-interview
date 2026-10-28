@@ -1,7 +1,7 @@
 import type { Interview } from "@ai-interview/shared";
 import { assert, describe, it } from "@effect/vitest";
 
-import { buildInterviewerInstructions } from "../src/modules/gemini/live";
+import { buildInterviewerInstructions } from "../src/modules/gemini/prompt";
 
 const interview: Interview = {
   id: "interview-1",

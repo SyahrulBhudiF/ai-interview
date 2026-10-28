@@ -55,4 +55,18 @@ export const GeminiModelSchema = Schema.Struct({
   description: Schema.String,
 });
 
+/** One entry of Gemini's `models.list` response. */
+export const GeminiModelEntrySchema = Schema.Struct({
+  name: Schema.String,
+  displayName: Schema.String,
+  description: Schema.String,
+  supportedGenerationMethods: Schema.optional(Schema.Array(Schema.String)),
+});
+
+/** The `models.list` response body, as returned by the Gemini API. */
+export const GeminiModelListResponseSchema = Schema.Struct({
+  models: Schema.optional(Schema.Array(GeminiModelEntrySchema)),
+});
+
 export type GeminiModel = Schema.Schema.Type<typeof GeminiModelSchema>;
+export type GeminiModelListResponse = Schema.Schema.Type<typeof GeminiModelListResponseSchema>;
