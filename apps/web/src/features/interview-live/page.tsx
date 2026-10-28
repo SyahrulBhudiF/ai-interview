@@ -20,11 +20,13 @@ import {
   CardTitle,
 } from "@ai-interview/ui/card";
 import { Skeleton } from "@ai-interview/ui/skeleton";
+import { cn } from "@ai-interview/ui/utils";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 
 import { AnswerComposer } from "./components/answer-composer";
+import { CvPanel } from "./components/cv-panel";
 import { TranscriptList } from "./components/transcript-list";
 import { VoiceMode } from "./components/voice-mode";
 import { useInterviewContext, useSessionDetail } from "./hooks/use-session";
@@ -157,52 +159,70 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
           </CardContent>
         </Card>
       ) : status === "in_progress" ? (
-        <>
-          <Card>
-            <CardContent className="space-y-3">
-              <div className="flex items-center justify-between gap-3">
-                <p className="text-sm font-medium">
-                  {totalQuestions > 0
-                    ? `Question ${questionNumber} of ${totalQuestions}`
-                    : "Interview in progress"}
-                </p>
-                {totalQuestions > 0 ? (
-                  <p className="text-muted-foreground text-xs tabular-nums">{progress}%</p>
-                ) : null}
-              </div>
-              {totalQuestions > 0 ? (
-                <div className="bg-muted h-2 overflow-hidden rounded-full" aria-hidden>
-                  <div
-                    className="bg-primary h-full rounded-full transition-[width]"
-                    style={{ width: `${progress}%` }}
-                  />
+        <div
+          className={cn(
+            "grid gap-6",
+            interviewData?.cvText ? "lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start" : undefined,
+          )}
+        >
+          <div className="space-y-6">
+            <Card>
+              <CardContent className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-sm font-medium">
+                    {totalQuestions > 0
+                      ? `Question ${questionNumber} of ${totalQuestions}`
+                      : "Interview in progress"}
+                  </p>
+                  {totalQuestions > 0 ? (
+                    <p className="text-muted-foreground text-xs tabular-nums">{progress}%</p>
+                  ) : null}
                 </div>
-              ) : null}
-            </CardContent>
-          </Card>
+                {totalQuestions > 0 ? (
+                  <div className="bg-muted h-2 overflow-hidden rounded-full" aria-hidden>
+                    <div
+                      className="bg-primary h-full rounded-full transition-[width]"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Transcript</CardTitle>
-              <CardDescription>
-                Answers are saved to the transcript and used for the debrief.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <TranscriptList transcript={transcript} pending={session.answer.isPending} />
-            </CardContent>
-            <CardFooter>
-              <AnswerComposer
-                value={answer}
-                onChange={setAnswer}
-                onSubmit={submitAnswer}
-                pending={session.answer.isPending}
-              />
-            </CardFooter>
-          </Card>
+            {interviewData?.cvText ? (
+              <CvPanel cvText={interviewData.cvText} collapsible className="lg:hidden" />
+            ) : null}
 
-          <VoiceMode sessionId={sessionId} />
-        </>
+            <Card>
+              <CardHeader>
+                <CardTitle>Transcript</CardTitle>
+                <CardDescription>
+                  Answers are saved to the transcript and used for the debrief.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <TranscriptList transcript={transcript} pending={session.answer.isPending} />
+              </CardContent>
+              <CardFooter>
+                <AnswerComposer
+                  value={answer}
+                  onChange={setAnswer}
+                  onSubmit={submitAnswer}
+                  pending={session.answer.isPending}
+                />
+              </CardFooter>
+            </Card>
+
+            <VoiceMode sessionId={sessionId} />
+          </div>
+
+          {interviewData?.cvText ? (
+            <CvPanel
+              cvText={interviewData.cvText}
+              className="hidden lg:sticky lg:top-24 lg:block"
+            />
+          ) : null}
+        </div>
       ) : (
         <>
           <Card>
