@@ -5,8 +5,6 @@ write the question plan, rehearse a session, and get the transcript scored again
 a rubric. Or skip the interview and review a CV against the role you are applying
 for.
 
-![CV review with highlighted evidence](assets/cv-review.png)
-
 ## Features
 
 - **Interview builder.** Pick the role, level, difficulty, language, persona, and
@@ -23,6 +21,28 @@ for.
   reopenable, and deletable.
 - **Progress.** Score history and competency averages, with one-click practice
   interviews focused on the weakest competency.
+
+## Screenshots
+
+**Interview builder** — stages, questions, criteria, and rubrics, all editable.
+
+![Interview builder](assets/interview-builder.png)
+
+**Live rehearsal** — answer in the room with the CV beside the transcript.
+
+![Live rehearsal](assets/interview-live.png)
+
+**Debrief** — rubric scores, strengths and fixes, and the CV marked with evidence.
+
+![Debrief](assets/debrief.png)
+
+**CV review** — the same report without running an interview.
+
+![CV review](assets/cv-review.png)
+
+**Progress** — score history and competency averages, with practice shortcuts.
+
+![Progress](assets/progress.png)
 
 ## How it works
 
