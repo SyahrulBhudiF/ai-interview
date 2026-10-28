@@ -14,4 +14,12 @@ export class GeminiGenerationError extends Schema.TaggedError<GeminiGenerationEr
   },
 ) {}
 
-export type GeminiError = GeminiApiKeyMissingError | GeminiGenerationError;
+/** Listing the available Gemini models failed (bad key, quota, or network). */
+export class GeminiModelListError extends Schema.TaggedError<GeminiModelListError>()(
+  "GeminiModelListError",
+  {
+    message: Schema.String,
+  },
+) {}
+
+export type GeminiError = GeminiApiKeyMissingError | GeminiGenerationError | GeminiModelListError;

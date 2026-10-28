@@ -2,14 +2,14 @@ import { InterviewPlanSchema, type Interview } from "@ai-interview/shared";
 import { assert, describe, it } from "@effect/vitest";
 import { Schema } from "effect";
 
+import { UNTRUSTED_DATA_RULE } from "@/modules/gemini/constants";
 import {
   buildCvReviewPrompt,
   buildEvaluationPrompt,
   buildPlanPrompt,
   personaSystemPrompt,
-  UNTRUSTED_DATA_RULE,
-  wrapCandidateData,
 } from "@/modules/gemini/service";
+import { wrapCandidateData } from "@/modules/gemini/utils";
 
 const interview: Interview = {
   id: "interview-1",

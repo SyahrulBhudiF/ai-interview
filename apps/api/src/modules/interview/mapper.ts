@@ -30,21 +30,22 @@ export function toInterview(row: DbInterview): Interview {
   };
 }
 
+/** The columns the interviews list reads; the free-text columns stay on the detail query. */
+export type InterviewSummaryRow = Pick<
+  DbInterview,
+  | "id"
+  | "title"
+  | "jobPosition"
+  | "experienceLevel"
+  | "difficulty"
+  | "status"
+  | "model"
+  | "createdAt"
+  | "updatedAt"
+>;
+
 /** Maps a database row to the list row, which omits the candidate's free text. */
-export function toInterviewSummary(
-  row: Pick<
-    DbInterview,
-    | "id"
-    | "title"
-    | "jobPosition"
-    | "experienceLevel"
-    | "difficulty"
-    | "status"
-    | "model"
-    | "createdAt"
-    | "updatedAt"
-  >,
-): InterviewSummary {
+export function toInterviewSummary(row: InterviewSummaryRow): InterviewSummary {
   return {
     id: row.id,
     title: row.title,

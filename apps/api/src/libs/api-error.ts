@@ -75,3 +75,13 @@ export const RateLimitedError = defineApiError({
   status: 429,
   message: "Too many requests",
 });
+
+/**
+ * The rate limiter's rejection. It carries the window it enforced so the
+ * `Retry-After` header matches the bucket that rejected the request.
+ */
+export class RateLimitExceededError extends RateLimitedError {
+  constructor(readonly retryAfterSeconds: number) {
+    super();
+  }
+}

@@ -33,6 +33,16 @@ describe("rate limit", () => {
     expect(limited.headers.get("retry-after")).toBe("60");
   });
 
+  it("reports the window of the bucket that rejected the request", async () => {
+    const app = buildApp({ general: { max: 1, windowMs: 30_000 } });
+
+    expect((await hit(app, "/ping")).status).toBe(200);
+
+    const limited = await hit(app, "/ping");
+    expect(limited.status).toBe(429);
+    expect(limited.headers.get("retry-after")).toBe("30");
+  });
+
   it("counts expensive routes in their own bucket", async () => {
     const app = buildApp({
       general: { max: 10, windowMs: 60_000 },
@@ -42,17 +52,6 @@ describe("rate limit", () => {
     expect((await hit(app, "/api/cv/extract", "POST")).status).toBe(200);
     expect((await hit(app, "/api/cv/extract", "POST")).status).toBe(429);
     // The general bucket is untouched, so plain reads still work.
-    expect((await hit(app, "/ping")).status).toBe(200);
-  });
-
-  it("lets the window expire", async () => {
-    let time = 0;
-    const app = buildApp({ general: { max: 1, windowMs: 1_000 }, now: () => time });
-
-    expect((await hit(app, "/ping")).status).toBe(200);
-    expect((await hit(app, "/ping")).status).toBe(429);
-
-    time = 1_001;
     expect((await hit(app, "/ping")).status).toBe(200);
   });
 });

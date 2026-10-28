@@ -11,9 +11,9 @@
     "start": "bun --env-file=../../.env dist/index.js",
     "check-types": "tsc --noEmit",
     "test": "vitest run --passWithNoTests --no-cache --no-fsModuleCache",
-    "db:generate": "bun --env-file=../../.env x drizzle-kit generate",
-    "db:migrate": "bun --env-file=../../.env x drizzle-kit migrate",
-    "db:studio": "bun --env-file=../../.env x drizzle-kit studio"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@ai-interview/shared": "workspace:*",
@@ -23,6 +23,7 @@
     "drizzle-orm": "^0.45.4",
     "effect": "^4.0.6",
     "elysia": "2.0.0-rc.0",
+    "elysia-rate-limit": "^5.1.2",
     "postgres": "^3.4.9"
   },
   "devDependencies": {

@@ -10,6 +10,7 @@ import {
   InternalError,
   NotFoundError,
   ParseError,
+  RateLimitExceededError,
   ValidationError,
 } from "@/libs/api-error";
 import { fail } from "@/libs/response";
@@ -71,6 +72,7 @@ function resolveErrorDefinition(error: unknown) {
     Match.when("InvalidCvFileError", () => ValidationError.definition),
     Match.when("GeminiApiKeyMissingError", () => GeminiNotConfiguredError.definition),
     Match.when("GeminiGenerationError", () => GeminiUpstreamError.definition),
+    Match.when("GeminiModelListError", () => GeminiUpstreamError.definition),
     Match.when("validation", () => ValidationError.definition),
     Match.when("not-found", () => NotFoundError.definition),
     Match.when("parse", () => ParseError.definition),
@@ -148,6 +150,10 @@ export const loggerPlugin = new Elysia({ name: "logger" })
 
     set.headers["x-request-id"] = requestId;
     set.status = definition.status;
+
+    if (error instanceof RateLimitExceededError) {
+      set.headers["retry-after"] = String(error.retryAfterSeconds);
+    }
 
     const path = new URL(request.url).pathname;
 

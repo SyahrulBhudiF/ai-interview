@@ -117,8 +117,9 @@ bun run dev                   # web + api in parallel
 
 Without devenv, run Postgres 16 with Podman instead: `podman-compose up -d` (see
 `compose.yaml`). It publishes 5433 by default so it can share a host with another
-Postgres; point `DATABASE_URL` at that port, and set `API_PORT` to a free port in
-`.env` — the web proxy follows `API_PORT`.
+Postgres; set `DATABASE_URL` to that port and `API_PORT` to a free port in `.env`,
+and export `DATABASE_URL` in your shell for the `db:*` scripts, which read the
+environment rather than `.env`. The web proxy follows `API_PORT`.
 
 The Gemini key stays server-side. The web never sees it, including when it asks
 for a realtime token.

@@ -5,14 +5,10 @@ import { Context, Effect, Layer, Option } from "effect";
 
 import { env } from "@/config/env";
 
+import { UNTRUSTED_DATA_RULE } from "./constants";
 import { GeminiApiKeyMissingError, type GeminiError } from "./error";
-import {
-  geminiRequest,
-  inlineLabel,
-  personaSystemPrompt,
-  UNTRUSTED_DATA_RULE,
-  wrapCandidateData,
-} from "./service";
+import { geminiRequest, personaSystemPrompt } from "./service";
+import { inlineLabel, wrapCandidateData } from "./utils";
 
 /** Default low-latency Gemini Live voice model. */
 const MODEL = "gemini-3.8-live" as const;
