@@ -11,9 +11,9 @@
     "start": "bun --env-file=../../.env dist/index.js",
     "check-types": "tsc --noEmit",
     "test": "vitest run --passWithNoTests --no-cache --no-fsModuleCache",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:generate": "bun --env-file=../../.env x drizzle-kit generate",
+    "db:migrate": "bun --env-file=../../.env x drizzle-kit migrate",
+    "db:studio": "bun --env-file=../../.env x drizzle-kit studio"
   },
   "dependencies": {
     "@ai-interview/shared": "workspace:*",

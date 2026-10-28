@@ -115,6 +115,11 @@ bun run dev                   # web + api in parallel
 - API: http://localhost:3001
 - API docs: http://localhost:3001/openapi
 
+Without devenv, run Postgres 16 with Podman instead: `podman-compose up -d` (see
+`compose.yaml`). It publishes 5433 by default so it can share a host with another
+Postgres; point `DATABASE_URL` at that port, and set `API_PORT` to a free port in
+`.env` — the web proxy follows `API_PORT`.
+
 The Gemini key stays server-side. The web never sees it, including when it asks
 for a realtime token.
 
