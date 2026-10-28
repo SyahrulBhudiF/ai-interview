@@ -1,6 +1,7 @@
 import { Layer, ManagedRuntime } from "effect";
 
 import { Database } from "@/database/client";
+import { CvService } from "@/modules/cv/service";
 import { EvaluationService } from "@/modules/evaluation/service";
 import { GeminiLiveService } from "@/modules/gemini/live";
 import { GeminiService } from "@/modules/gemini/service";
@@ -30,6 +31,7 @@ const dependentLayer = Layer.mergeAll(
   InterviewOrchestratorService.layer,
   EvaluationService.layer,
   PracticeService.layer,
+  CvService.layer,
 );
 
 /**

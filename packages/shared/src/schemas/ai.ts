@@ -22,6 +22,11 @@ export const InterviewPlanSchema = Schema.Struct({
   stages: Schema.Array(GeneratedStageSchema),
 });
 
+/** Output of the CV extractor: the PDF's readable text, kept as interview context. */
+export const CvExtractionSchema = Schema.Struct({
+  cvText: Schema.String,
+});
+
 export const CompetencyScoreSchema = Schema.Struct({
   category: EvaluationCategorySchema,
   score: Schema.Number,
@@ -39,6 +44,7 @@ export const EvaluationReportSchema = Schema.Struct({
 });
 
 export type InterviewPlan = Schema.Schema.Type<typeof InterviewPlanSchema>;
+export type CvExtraction = Schema.Schema.Type<typeof CvExtractionSchema>;
 export type EvaluationReport = Schema.Schema.Type<typeof EvaluationReportSchema>;
 
 /** A Gemini model surfaced in the picker, as returned by the models list API. */

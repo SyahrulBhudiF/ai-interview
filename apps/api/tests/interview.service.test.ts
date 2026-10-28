@@ -14,6 +14,7 @@ describe("toInterview", () => {
       experienceLevel: "senior",
       jobDescription: null,
       context: null,
+      cvText: null,
       language: "en",
       difficulty: "intermediate",
       status: "draft",
@@ -30,6 +31,7 @@ describe("toInterview", () => {
     assert.strictEqual(interview.updatedAt, "2026-01-02T00:00:00.000Z");
     assert.strictEqual(interview.experienceLevel, "senior");
     assert.strictEqual(interview.jobDescription, undefined);
+    assert.strictEqual(interview.cvText, undefined);
     assert.strictEqual(interview.allowFollowUps, true);
   });
 });

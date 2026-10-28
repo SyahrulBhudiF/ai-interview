@@ -6,7 +6,8 @@ a session, and get the transcript scored against a rubric.
 ## How it works
 
 1. **Build the brief.** Set the role, level, difficulty, language, persona, and
-   model. Toggle follow-ups, detailed feedback, and strict mode.
+   model. Optionally upload a PDF CV; Gemini extracts its text and keeps it as
+   context. Toggle follow-ups, detailed feedback, and strict mode.
 2. **Generate the plan.** Gemini returns stages with questions, answer criteria,
    and rubrics. Edit anything, then save.
 3. **Rehearse.** Starting a session asks the first question. Every answer is
@@ -42,7 +43,7 @@ side panel; it is not written to the saved transcript.
 apps/
   api/
     src/modules/     interview, interview/plan, session, evaluation,
-                     gemini, progress, practice, health
+                     gemini, cv, progress, practice, health
     drizzle/         SQL migrations
   web/
     src/routes/      route definitions only
@@ -84,6 +85,7 @@ All routes live under `/api` and return the `{ ok, data }` envelope.
 | Interviews  | `GET/POST /interviews`, `GET/PUT/DELETE /interviews/:id`             |
 | Settings    | `PUT /interviews/:id/behavior`, `POST /interviews/:id/duplicate`     |
 | Plan        | `GET/PUT /interviews/:id/plan`, `POST /interviews/:id/generate-plan` |
+| CV          | `POST /cv/extract`                                                   |
 | Sessions    | `GET/POST /interviews/:id/sessions`, `GET /sessions/:id`             |
 | Session run | `POST /sessions/:id/start`, `/answer`, `/end`, `/realtime-token`     |
 | Evaluation  | `POST /sessions/:id/evaluate`, `GET /sessions/:id/evaluation`        |

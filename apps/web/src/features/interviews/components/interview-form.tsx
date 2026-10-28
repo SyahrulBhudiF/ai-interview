@@ -16,6 +16,7 @@ import { FormField } from "@/components/form-field";
 
 import { useGeminiModels } from "../hooks/use-gemini-models";
 import { useInterviewForm } from "../hooks/use-interview-form";
+import { CvInput } from "./cv-input";
 
 const EXPERIENCE_LEVELS = ["intern", "junior", "mid", "senior", "lead"] as const;
 const DIFFICULTIES = ["beginner", "intermediate", "advanced"] as const;
@@ -242,6 +243,16 @@ export function InterviewForm({
                   placeholder="Anything the interviewer should know…"
                 />
               </FormField>
+            )}
+          />
+          <form.Field
+            name="cvText"
+            children={(field) => (
+              <CvInput
+                value={field.state.value}
+                model={form.state.values.model}
+                onChange={field.handleChange}
+              />
             )}
           />
           {!isEdit ? (

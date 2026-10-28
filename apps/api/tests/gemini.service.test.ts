@@ -60,6 +60,16 @@ describe("buildPlanPrompt", () => {
     assert.isTrue(prompt.includes("weakest competency: communication"));
     assert.isTrue(prompt.includes("Communication practice"));
   });
+
+  it("includes the candidate CV as context when present", () => {
+    const prompt = buildPlanPrompt({
+      ...interview,
+      cvText: "Jane Doe — Backend Engineer, 6 years with Postgres and Go.",
+    });
+
+    assert.isTrue(prompt.includes("Candidate CV"));
+    assert.isTrue(prompt.includes("Jane Doe — Backend Engineer"));
+  });
 });
 
 describe("buildEvaluationPrompt", () => {

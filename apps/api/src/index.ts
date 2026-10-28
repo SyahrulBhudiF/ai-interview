@@ -4,6 +4,7 @@ import { Elysia } from "elysia";
 
 import { env } from "@/config/env";
 import { ok } from "@/libs/response";
+import { cv } from "@/modules/cv";
 import { evaluation } from "@/modules/evaluation";
 import { gemini } from "@/modules/gemini";
 import { greet } from "@/modules/greet";
@@ -34,6 +35,7 @@ export const app = new Elysia()
   .use(loggerPlugin)
   .get("/", () => ok({ name: "ai-interview-api" }))
   .use(health)
+  .use(cv)
   .use(greet)
   .use(user)
   .use(interview)

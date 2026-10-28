@@ -23,6 +23,10 @@ export function buildInterviewerInstructions(interview: Interview, question: str
     "Ask the question conversationally, then listen to the candidate's answer.",
   ];
 
+  if (interview.cvText) {
+    lines.push("", "Candidate CV (context for follow-ups):", interview.cvText);
+  }
+
   if (interview.allowFollowUps) {
     lines.push("You may ask one or two short follow-ups to dig into shallow or vague answers.");
   } else {

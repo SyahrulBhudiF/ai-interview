@@ -14,6 +14,7 @@ export const interviews = pgTable("interviews", {
   experienceLevel: text("experience_level").notNull(),
   jobDescription: text("job_description"),
   context: text("context"),
+  cvText: text("cv_text"),
   language: text("language").notNull().default("en"),
   difficulty: text("difficulty").notNull().default("intermediate"),
   status: text("status").notNull().default("draft"),

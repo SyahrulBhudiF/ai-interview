@@ -67,6 +67,7 @@ function resolveErrorDefinition(error: unknown) {
     Match.when("InterviewNotReadyError", () => ConflictError.definition),
     Match.when("InvalidSessionStateError", () => ConflictError.definition),
     Match.when("SessionNotCompletedError", () => ConflictError.definition),
+    Match.when("InvalidCvFileError", () => ValidationError.definition),
     Match.when("GeminiApiKeyMissingError", () => GeminiNotConfiguredError.definition),
     Match.when("GeminiGenerationError", () => GeminiUpstreamError.definition),
     Match.when("validation", () => ValidationError.definition),

@@ -1,6 +1,8 @@
 import {
+  CvExtractionSchema,
   EvaluationReportSchema,
   InterviewPlanSchema,
+  type CvExtraction,
   type EvaluationCategory,
   type EvaluationReport,
   type GeminiModel,
@@ -52,6 +54,14 @@ export function buildPlanPrompt(
 
   if (interview.context) {
     lines.push("", "Context:", interview.context);
+  }
+
+  if (interview.cvText) {
+    lines.push(
+      "",
+      "Candidate CV (background context; tailor the questions to the candidate's actual experience):",
+      interview.cvText,
+    );
   }
 
   if (stages && stages.length > 0) {
@@ -156,6 +166,18 @@ export function buildEvaluationPrompt(
   return lines.join("\n");
 }
 
+/** Builds the prompt that asks Gemini to read a CV PDF as plain text. */
+export function buildCvExtractionPrompt(): string {
+  return [
+    "You are reading a candidate's CV (PDF) so it can be used as context for a mock interview.",
+    "",
+    "Return the readable text of the document, preserving its structure: name and headline, roles with companies and dates, skills, education, and anything else present.",
+    "Keep the original wording. Do not summarize, invent, or reorder sections.",
+    "If a section is a table or a two-column layout, write it as clear lines.",
+    "If the document is not a CV, still return its readable text.",
+  ].join("\n");
+}
+
 const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(function* (
   interview: Interview,
   stages?: ReadonlyArray<StageSpec>,
@@ -230,6 +252,43 @@ const generateEvaluation = Effect.fn("GeminiService.generateEvaluation")(functio
   });
 });
 
+const extractCv = Effect.fn("GeminiService.extractCv")(function* (
+  pdfBase64: string,
+  model: string,
+): Effect.fn.Return<CvExtraction, GeminiError> {
+  const apiKey = env.geminiApiKey;
+  if (Option.isNone(apiKey)) {
+    return yield* new GeminiApiKeyMissingError();
+  }
+
+  return yield* Effect.tryPromise({
+    try: () =>
+      chat({
+        adapter: createGeminiChat(model as GeminiTextModel, apiKey.value),
+        messages: [
+          {
+            role: "user",
+            content: [
+              { type: "text", content: buildCvExtractionPrompt() },
+              {
+                type: "document",
+                source: {
+                  type: "data",
+                  value: pdfBase64,
+                  mimeType: "application/pdf",
+                },
+              },
+            ],
+          },
+        ],
+        threadId: crypto.randomUUID(),
+        outputSchema: Schema.toStandardJSONSchemaV1(CvExtractionSchema),
+        retry: { maxRetries: 1 },
+      }),
+    catch: (cause) => new GeminiGenerationError({ message: String(cause) }),
+  });
+});
+
 const listModels = Effect.fn("GeminiService.listModels")(function* (): Effect.fn.Return<
   ReadonlyArray<GeminiModel>,
   GeminiError
@@ -286,6 +345,7 @@ export interface IGeminiService {
     questions: ReadonlyArray<string>,
     transcript: string,
   ): Effect.Effect<EvaluationReport, GeminiError>;
+  extractCv(pdfBase64: string, model: string): Effect.Effect<CvExtraction, GeminiError>;
   listModels(): Effect.Effect<ReadonlyArray<GeminiModel>, GeminiError>;
 }
 
@@ -294,6 +354,12 @@ export class GeminiService extends Context.Service<GeminiService, IGeminiService
 ) {
   static readonly layer = Layer.succeed(
     GeminiService,
-    GeminiService.of({ generateInterviewPlan, generateFollowUp, generateEvaluation, listModels }),
+    GeminiService.of({
+      generateInterviewPlan,
+      generateFollowUp,
+      generateEvaluation,
+      extractCv,
+      listModels,
+    }),
   );
 }
