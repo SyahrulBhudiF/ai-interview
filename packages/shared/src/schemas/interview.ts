@@ -104,7 +104,9 @@ export const CreateQuestionSchema = Schema.Struct({
 /** A stage the user defines before generation: a name and how many main questions it needs. */
 export const StageSpecSchema = Schema.Struct({
   name: boundedNonEmptyString(TEXT_LIMITS.stageName),
-  mainQuestionCount: Schema.Number,
+  mainQuestionCount: Schema.Int.check(
+    Schema.isBetween({ minimum: 1, maximum: TEXT_LIMITS.questionsPerStage }),
+  ),
 });
 
 /** Body for generate-plan: the stage structure Gemini should fill with questions. */

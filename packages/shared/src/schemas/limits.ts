@@ -15,7 +15,8 @@ export const TEXT_LIMITS = {
   answer: 10_000,
   entryId: 200,
   stageName: 200,
-  stages: 12,
+  questionsPerStage: 10,
+  stages: 8,
 } as const;
 
 /** A string of at most `max` characters. */
