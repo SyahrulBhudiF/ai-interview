@@ -40,6 +40,8 @@ export type TranscriptEntry = Schema.Schema.Type<typeof TranscriptEntrySchema>;
 /** POST /api/sessions/:id/answer */
 export const AnswerRequestSchema = Schema.Struct({
   text: Schema.NonEmptyString,
+  replyTo: Schema.NonEmptyString,
+  spokenQuestion: Schema.optional(Schema.NonEmptyString),
 });
 
 export const SessionStartResponseSchema = Schema.Struct({
@@ -50,6 +52,7 @@ export const SessionStartResponseSchema = Schema.Struct({
 export const SessionAnswerResponseSchema = Schema.Struct({
   session: SessionSchema,
   interviewerMessage: Schema.String,
+  interviewerEntryId: Schema.String,
   finished: Schema.Boolean,
 });
 

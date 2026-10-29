@@ -1,15 +1,26 @@
-import type { Interview, SessionAnswerResponse, SessionStartResponse } from "@ai-interview/shared";
+import type {
+  AnswerRequest,
+  Interview,
+  SessionAnswerResponse,
+  SessionStartResponse,
+} from "@ai-interview/shared";
 import { asc, eq, inArray } from "drizzle-orm";
 import { Context, Effect, Layer } from "effect";
 
 import { Database } from "@/database/client";
-import { interviews, interviewStages, questions } from "@/database/schema";
+import {
+  interviews,
+  interviewStages,
+  questions,
+  sessions,
+  transcriptEntries,
+} from "@/database/schema";
 import type { GeminiError } from "@/modules/gemini/error";
 import { GeminiService } from "@/modules/gemini/service";
 import { toInterview } from "@/modules/interview/mapper";
 
 import { InterviewNotReadyError, InvalidSessionStateError, SessionNotFoundError } from "../error";
-import { toStageNodes } from "../mapper";
+import { newTranscriptEntryRow, toStageNodes } from "../mapper";
 import {
   firstQuestion,
   followUpAllowed,
@@ -29,7 +40,7 @@ export interface IInterviewOrchestratorService {
   >;
   answer(
     sessionId: string,
-    text: string,
+    request: AnswerRequest,
   ): Effect.Effect<
     SessionAnswerResponse,
     SessionNotFoundError | InvalidSessionStateError | GeminiError
@@ -122,17 +133,34 @@ export class InterviewOrchestratorService extends Context.Service<
 
       const answer = Effect.fn("Orchestrator.answer")(function* (
         sessionId: string,
-        text: string,
+        request: AnswerRequest,
       ): Effect.fn.Return<
         SessionAnswerResponse,
         SessionNotFoundError | InvalidSessionStateError | GeminiError
       > {
         const session = yield* sessionService.getSession(sessionId);
+        const entries = yield* transcriptService.list(sessionId);
+
+        const answeredIndex = entries.findIndex(
+          (entry) => entry.id === `answer:${request.replyTo}`,
+        );
+
+        const previousResponse = entries[answeredIndex + 1];
+
+        if (answeredIndex >= 0 && previousResponse?.role === "ai") {
+          return {
+            session,
+            interviewerMessage: previousResponse.text,
+            interviewerEntryId: previousResponse.id,
+            finished: session.status === "completed",
+          };
+        }
 
         if (
           session.status !== "in_progress" ||
           !session.currentStageId ||
-          !session.currentQuestionId
+          !session.currentQuestionId ||
+          entries.at(-1)?.id !== request.replyTo
         ) {
           return yield* new InvalidSessionStateError({
             id: sessionId,
@@ -160,37 +188,89 @@ export class InterviewOrchestratorService extends Context.Service<
           });
         }
 
-        yield* transcriptService.append(sessionId, "candidate", text, current.id);
-
-        const entries = yield* transcriptService.list(sessionId);
         const used = followUpsUsed(entries, current.id);
 
-        if (followUpAllowed(interview.allowFollowUps, stage, used)) {
-          const followUp = yield* geminiService.generateFollowUp(interview, current.text, text);
-          yield* transcriptService.append(sessionId, "ai", followUp, current.id);
-
-          return { session, interviewerMessage: followUp, finished: false };
-        }
+        const followUp = followUpAllowed(interview.allowFollowUps, stage, used)
+          ? yield* geminiService.generateFollowUp(interview, current.text, request.text)
+          : undefined;
 
         const next = nextQuestion(plan, session.currentStageId, session.currentQuestionId);
+        const finished = !followUp && !next;
 
-        if (next) {
-          const positioned = yield* sessionService.setCurrentQuestion(
-            sessionId,
-            next.stageId,
-            next.id,
-          );
+        const interviewerMessage =
+          followUp ??
+          next?.text ??
+          "Thank you for your answers. Your interview is complete. You can open your debrief now.";
 
-          yield* transcriptService.append(sessionId, "ai", next.text, next.id);
+        const questionId = followUp ? current.id : next?.id;
 
-          return { session: positioned, interviewerMessage: next.text, finished: false };
-        }
+        yield* Effect.promise(() =>
+          db.transaction(async (tx) => {
+            const inserted = await tx
+              .insert(transcriptEntries)
+              .values({
+                ...newTranscriptEntryRow(
+                  sessionId,
+                  "candidate",
+                  request.text,
+                  entries.length,
+                  current.id,
+                ),
+                id: `answer:${request.replyTo}`,
+              })
+              .onConflictDoNothing()
+              .returning();
 
-        const completed = yield* sessionService.completeSession(sessionId);
-        const closing = "That concludes the interview. Thank you!";
-        yield* transcriptService.append(sessionId, "ai", closing);
+            if (inserted.length === 0) return;
 
-        return { session: completed, interviewerMessage: closing, finished: true };
+            if (request.spokenQuestion) {
+              await tx
+                .update(transcriptEntries)
+                .set({ text: request.spokenQuestion })
+                .where(eq(transcriptEntries.id, request.replyTo));
+            }
+
+            await tx
+              .insert(transcriptEntries)
+              .values(
+                newTranscriptEntryRow(
+                  sessionId,
+                  "ai",
+                  interviewerMessage,
+                  entries.length + 1,
+                  questionId,
+                ),
+              );
+            await tx
+              .update(sessions)
+              .set(
+                finished
+                  ? { status: "completed", endedAt: new Date() }
+                  : {
+                      currentStageId: followUp ? stage.id : next?.stageId,
+                      currentQuestionId: questionId,
+                    },
+              )
+              .where(eq(sessions.id, sessionId));
+          }),
+        );
+
+        const savedEntries = yield* transcriptService.list(sessionId);
+
+        const savedAnswerIndex = savedEntries.findIndex(
+          (entry) => entry.id === `answer:${request.replyTo}`,
+        );
+
+        const savedResponse = savedEntries[savedAnswerIndex + 1];
+        if (!savedResponse)
+          return yield* Effect.die("Expected the saved answer to have an interviewer response");
+        const updated = yield* sessionService.getSession(sessionId);
+        return {
+          session: updated,
+          interviewerMessage: savedResponse.text,
+          interviewerEntryId: savedResponse.id,
+          finished: updated.status === "completed",
+        };
       });
 
       const getLiveContext = Effect.fn("Orchestrator.getLiveContext")(function* (
@@ -232,7 +312,8 @@ export class InterviewOrchestratorService extends Context.Service<
           });
         }
 
-        return { interview, question: current.text };
+        const entries = yield* transcriptService.list(sessionId);
+        return { interview, question: entries.at(-1)?.text ?? current.text };
       });
 
       return InterviewOrchestratorService.of({ start, answer, getLiveContext });

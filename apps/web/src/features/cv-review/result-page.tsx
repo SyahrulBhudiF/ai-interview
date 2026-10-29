@@ -28,7 +28,7 @@ export function CvReviewResultPage({ reviewId }: { reviewId: string }) {
 
   if (review.isPending) {
     return (
-      <main className="mx-auto flex max-w-3xl flex-col gap-6 px-6 py-10">
+      <main className="page-shell max-w-3xl gap-6">
         <Skeleton className="h-24 w-2/3" />
         <Skeleton className="h-64 w-full" />
       </main>
@@ -37,7 +37,7 @@ export function CvReviewResultPage({ reviewId }: { reviewId: string }) {
 
   if (review.error || !review.data) {
     return (
-      <main className="mx-auto flex max-w-3xl flex-col gap-4 px-6 py-10">
+      <main className="page-shell max-w-3xl gap-4">
         <Link to="/cv-reviews" className="text-muted-foreground hover:text-foreground text-sm">
           ← CV review
         </Link>
@@ -54,17 +54,15 @@ export function CvReviewResultPage({ reviewId }: { reviewId: string }) {
   const data = review.data;
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-6 px-6 py-10">
+    <main className="page-shell max-w-5xl gap-6">
       <div className="space-y-3">
         <Link to="/cv-reviews" className="text-muted-foreground hover:text-foreground text-sm">
           ← CV review
         </Link>
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div className="space-y-1">
-            <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">
-              CV review
-            </p>
-            <h1 className="font-serif text-4xl tracking-tight">{data.jobPosition}</h1>
+            <p className="eyebrow">CV review</p>
+            <h1 className="page-heading">{data.jobPosition}</h1>
             <p className="text-muted-foreground text-sm">
               {data.experienceLevel} · {dateFormat.format(new Date(data.createdAt))}
             </p>

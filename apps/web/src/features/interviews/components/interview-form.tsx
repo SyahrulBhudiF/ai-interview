@@ -46,11 +46,11 @@ export function InterviewForm({
     <Card className={bare ? "border-0 py-0 shadow-none" : undefined}>
       {bare ? null : (
         <CardHeader>
-          <CardTitle>{isEdit ? "Interview settings" : "Interview setup"}</CardTitle>
+          <CardTitle>{isEdit ? "Interview settings" : "The interview brief"}</CardTitle>
           <CardDescription>
             {isEdit
-              ? "Update the role and configuration. Behavior toggles live in their own card."
-              : "Choose the role, constraints, and interviewer behavior."}
+              ? "Change the role, context, or Gemini model for this interview."
+              : "The more specific the role, the more useful the questions."}
           </CardDescription>
         </CardHeader>
       )}
@@ -68,7 +68,7 @@ export function InterviewForm({
               name="title"
               children={(field) => (
                 <FormField
-                  label="Title"
+                  label="Interview name"
                   htmlFor="title"
                   error={firstErrorMessage(field.state.meta.errors)}
                 >
@@ -76,7 +76,7 @@ export function InterviewForm({
                     id="title"
                     value={field.state.value}
                     onChange={(e) => field.handleChange(e.target.value)}
-                    placeholder="Senior Backend Engineer"
+                    placeholder="Backend interview · system design"
                   />
                 </FormField>
               )}
@@ -85,7 +85,7 @@ export function InterviewForm({
               name="jobPosition"
               children={(field) => (
                 <FormField
-                  label="Job position"
+                  label="Target role"
                   htmlFor="jobPosition"
                   error={firstErrorMessage(field.state.meta.errors)}
                 >
@@ -218,7 +218,7 @@ export function InterviewForm({
                   id="jobDescription"
                   value={field.state.value ?? ""}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Responsibilities, stack, and expectations…"
+                  placeholder="Paste the job posting, including responsibilities and required skills."
                 />
               </FormField>
             )}
@@ -226,12 +226,12 @@ export function InterviewForm({
           <form.Field
             name="context"
             children={(field) => (
-              <FormField label="Context" htmlFor="context">
+              <FormField label="Anything to focus on?" htmlFor="context">
                 <Textarea
                   id="context"
                   value={field.state.value ?? ""}
                   onChange={(e) => field.handleChange(e.target.value)}
-                  placeholder="Anything the interviewer should know…"
+                  placeholder="For example: I want to explain architecture trade-offs more clearly."
                 />
               </FormField>
             )}
@@ -248,7 +248,7 @@ export function InterviewForm({
           />
           {!isEdit ? (
             <div className="space-y-3">
-              <p className="text-sm font-medium">Interview behavior</p>
+              <p className="text-sm font-medium">How should the interviewer respond?</p>
               <form.Field
                 name="allowFollowUps"
                 children={(field) => (
@@ -260,9 +260,9 @@ export function InterviewForm({
                       onCheckedChange={(checked) => field.handleChange(checked === true)}
                     />
                     <span className="space-y-0.5">
-                      <span className="block font-medium">Allow dynamic follow-up questions</span>
+                      <span className="block font-medium">Ask follow-up questions</span>
                       <span className="text-muted-foreground block">
-                        The interviewer may ask follow-ups beyond the main questions.
+                        Ask a follow-up before moving to the next question.
                       </span>
                     </span>
                   </label>
@@ -282,9 +282,9 @@ export function InterviewForm({
                       onCheckedChange={(checked) => field.handleChange(checked === true)}
                     />
                     <span className="space-y-0.5">
-                      <span className="block font-medium">Generate detailed feedback</span>
+                      <span className="block font-medium">Detailed debrief</span>
                       <span className="text-muted-foreground block">
-                        Produce a full evaluation report after the interview.
+                        Include rubric scores and feedback on your answers.
                       </span>
                     </span>
                   </label>
@@ -301,9 +301,9 @@ export function InterviewForm({
                       onCheckedChange={(checked) => field.handleChange(checked === true)}
                     />
                     <span className="space-y-0.5">
-                      <span className="block font-medium">Strict interviewer mode</span>
+                      <span className="block font-medium">Push back on weak answers</span>
                       <span className="text-muted-foreground block">
-                        Direct, no-hints interviewing that challenges weak answers.
+                        Keep questions direct and don't offer hints.
                       </span>
                     </span>
                   </label>
@@ -320,7 +320,7 @@ export function InterviewForm({
             )}
           />
           {isEdit && isSuccess && !isSubmitting ? (
-            <p className="text-sm font-medium text-green-600">Saved.</p>
+            <p className="text-success text-sm font-medium">Changes saved.</p>
           ) : null}
           {error ? <p className="text-destructive text-sm">{error.message}</p> : null}
         </form>
