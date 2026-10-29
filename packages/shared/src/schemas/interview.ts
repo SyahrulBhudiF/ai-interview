@@ -1,5 +1,7 @@
 import { Schema } from "effect";
 
+import { boundedNonEmptyString, boundedString, TEXT_LIMITS } from "./limits";
+
 export const ExperienceLevelSchema = Schema.Literals(["intern", "junior", "mid", "senior", "lead"]);
 export const DifficultySchema = Schema.Literals(["beginner", "intermediate", "advanced"]);
 export const InterviewStatusSchema = Schema.Literals(["draft", "ready"]);
@@ -30,6 +32,22 @@ export const InterviewSchema = Schema.Struct({
   updatedAt: Schema.String,
 });
 
+/**
+ * A row in the interviews list. The list never carries the candidate's CV, the
+ * job description, or the free-form context — those stay on the detail endpoint.
+ */
+export const InterviewSummarySchema = Schema.Struct({
+  id: Schema.String,
+  title: Schema.String,
+  jobPosition: Schema.String,
+  experienceLevel: ExperienceLevelSchema,
+  difficulty: DifficultySchema,
+  status: InterviewStatusSchema,
+  model: Schema.String,
+  createdAt: Schema.String,
+  updatedAt: Schema.String,
+});
+
 export const InterviewStageSchema = Schema.Struct({
   id: Schema.String,
   interviewId: Schema.String,
@@ -54,15 +72,15 @@ export const QuestionSchema = Schema.Struct({
 });
 
 export const CreateInterviewSchema = Schema.Struct({
-  title: Schema.NonEmptyString,
-  jobPosition: Schema.NonEmptyString,
+  title: boundedNonEmptyString(TEXT_LIMITS.title),
+  jobPosition: boundedNonEmptyString(TEXT_LIMITS.jobPosition),
   experienceLevel: ExperienceLevelSchema,
-  jobDescription: Schema.optional(Schema.String),
-  context: Schema.optional(Schema.String),
-  cvText: Schema.optional(Schema.String),
-  language: Schema.NonEmptyString,
+  jobDescription: Schema.optional(boundedString(TEXT_LIMITS.jobDescription)),
+  context: Schema.optional(boundedString(TEXT_LIMITS.context)),
+  cvText: Schema.optional(boundedString(TEXT_LIMITS.cvText)),
+  language: boundedNonEmptyString(TEXT_LIMITS.language),
   difficulty: DifficultySchema,
-  model: Schema.optional(Schema.String),
+  model: Schema.optional(boundedNonEmptyString(TEXT_LIMITS.model)),
   persona: Schema.optional(PersonaSchema),
   allowFollowUps: Schema.optional(Schema.Boolean),
   generateDetailedFeedback: Schema.optional(Schema.Boolean),
@@ -85,13 +103,15 @@ export const CreateQuestionSchema = Schema.Struct({
 
 /** A stage the user defines before generation: a name and how many main questions it needs. */
 export const StageSpecSchema = Schema.Struct({
-  name: Schema.String,
-  mainQuestionCount: Schema.Number,
+  name: boundedNonEmptyString(TEXT_LIMITS.stageName),
+  mainQuestionCount: Schema.Int.check(
+    Schema.isBetween({ minimum: 1, maximum: TEXT_LIMITS.questionsPerStage }),
+  ),
 });
 
 /** Body for generate-plan: the stage structure Gemini should fill with questions. */
 export const GeneratePlanRequestSchema = Schema.Struct({
-  stages: Schema.Array(StageSpecSchema),
+  stages: Schema.Array(StageSpecSchema).check(Schema.isMaxLength(TEXT_LIMITS.stages)),
 });
 
 /** Interview behavior settings — editable independently from the plan. */
@@ -103,21 +123,22 @@ export const InterviewBehaviorSchema = Schema.Struct({
 
 /** Body for replacing an interview's editable configuration. */
 export const UpdateInterviewSchema = Schema.Struct({
-  title: Schema.NonEmptyString,
-  jobPosition: Schema.NonEmptyString,
+  title: boundedNonEmptyString(TEXT_LIMITS.title),
+  jobPosition: boundedNonEmptyString(TEXT_LIMITS.jobPosition),
   experienceLevel: ExperienceLevelSchema,
-  jobDescription: Schema.optional(Schema.String),
-  context: Schema.optional(Schema.String),
-  cvText: Schema.optional(Schema.String),
-  language: Schema.NonEmptyString,
+  jobDescription: Schema.optional(boundedString(TEXT_LIMITS.jobDescription)),
+  context: Schema.optional(boundedString(TEXT_LIMITS.context)),
+  cvText: Schema.optional(boundedString(TEXT_LIMITS.cvText)),
+  language: boundedNonEmptyString(TEXT_LIMITS.language),
   difficulty: DifficultySchema,
-  model: Schema.String,
+  model: boundedNonEmptyString(TEXT_LIMITS.model),
   persona: PersonaSchema,
 });
 
 export const DeletedInterviewSchema = Schema.Struct({ id: Schema.String });
 
 export type Interview = Schema.Schema.Type<typeof InterviewSchema>;
+export type InterviewSummary = Schema.Schema.Type<typeof InterviewSummarySchema>;
 export type Persona = Schema.Schema.Type<typeof PersonaSchema>;
 export type InterviewStage = Schema.Schema.Type<typeof InterviewStageSchema>;
 export type Question = Schema.Schema.Type<typeof QuestionSchema>;

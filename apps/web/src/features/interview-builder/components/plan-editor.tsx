@@ -1,4 +1,4 @@
-import type { InterviewPlan } from "@ai-interview/shared";
+import { TEXT_LIMITS, type InterviewPlan } from "@ai-interview/shared";
 import { Button } from "@ai-interview/ui/button";
 import { Card, CardContent, CardHeader } from "@ai-interview/ui/card";
 import { Input } from "@ai-interview/ui/input";
@@ -47,7 +47,7 @@ export function PlanEditor({
     onChange({ stages: plan.stages.filter((_, i) => i !== index) });
 
   const setQuestionCount = (stageIndex: number, count: number) => {
-    const clamped = Math.max(1, count);
+    const clamped = Math.min(TEXT_LIMITS.questionsPerStage, Math.max(1, count));
     onChange({
       stages: plan.stages.map((stage, i) => {
         if (i !== stageIndex) return stage;
@@ -124,6 +124,7 @@ export function PlanEditor({
                     variant="outline"
                     size="icon"
                     aria-label="More questions"
+                    disabled={stage.questions.length >= TEXT_LIMITS.questionsPerStage}
                     onClick={() => setQuestionCount(stageIndex, stage.questions.length + 1)}
                   >
                     <Plus className="size-4" />
@@ -219,7 +220,12 @@ export function PlanEditor({
           </CardContent>
         </Card>
       ))}
-      <Button type="button" variant="outline" onClick={addStage}>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={addStage}
+        disabled={plan.stages.length >= TEXT_LIMITS.stages}
+      >
         Add stage
       </Button>
     </div>

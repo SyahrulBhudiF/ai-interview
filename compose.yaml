@@ -1,0 +1,36 @@
+# Local services for ai-interview. The apps themselves run on the host with Bun.
+#
+#   podman-compose up -d
+#   podman-compose down          # keep the data volume
+#   podman-compose down -v       # wipe it
+#
+# Host port 5433 is the default so this stack can coexist with other projects
+# already listening on 5432. Point DATABASE_URL at the same port.
+name: ai-interview
+
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    container_name: ai-interview-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ai_interview}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ai_interview}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_interview}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-ai_interview} -d ${POSTGRES_DB:-ai_interview}",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  postgres-data:

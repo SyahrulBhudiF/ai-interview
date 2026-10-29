@@ -15,6 +15,7 @@ import { practice } from "@/modules/practice";
 import { progress } from "@/modules/progress";
 import { session } from "@/modules/session";
 import { Log, loggerPlugin } from "@/plugins/logger";
+import { rateLimitPlugin } from "@/plugins/rate-limit";
 
 export const app = new Elysia()
   .use(
@@ -32,6 +33,7 @@ export const app = new Elysia()
     }),
   )
   .use(loggerPlugin)
+  .use(rateLimitPlugin)
   .get("/", () => ok({ name: "ai-interview-api" }))
   .use(health)
   .use(cv)
@@ -45,8 +47,11 @@ export const app = new Elysia()
   .use(gemini);
 
 if (import.meta.main) {
-  // Long Gemini calls (plan generation, evaluation) can exceed Bun's 10s idle timeout.
-  app.listen({ port: env.port, idleTimeout: 120 });
+  app.listen({
+    port: env.port,
+    idleTimeout: env.idleTimeoutSeconds,
+    maxRequestBodySize: env.maxRequestBodyBytes,
+  });
   Log.info("API ready at {url}", { url: `http://localhost:${env.port}` });
 }
 

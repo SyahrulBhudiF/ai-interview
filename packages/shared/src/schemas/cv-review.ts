@@ -2,6 +2,7 @@ import { Schema } from "effect";
 
 import { EvaluationReportSchema } from "./ai";
 import { ExperienceLevelSchema } from "./interview";
+import { boundedNonEmptyString, boundedString, TEXT_LIMITS } from "./limits";
 
 /** A standalone CV review: a role target plus the reviewed CV and its report. */
 export const CvReviewSchema = Schema.Struct({
@@ -27,12 +28,12 @@ export const CvReviewSummarySchema = Schema.Struct({
 
 /** Body for POST /cv-reviews. */
 export const CreateCvReviewSchema = Schema.Struct({
-  jobPosition: Schema.NonEmptyString,
+  jobPosition: boundedNonEmptyString(TEXT_LIMITS.jobPosition),
   experienceLevel: ExperienceLevelSchema,
-  jobDescription: Schema.optional(Schema.String),
-  cvText: Schema.NonEmptyString,
-  language: Schema.NonEmptyString,
-  model: Schema.optional(Schema.String),
+  jobDescription: Schema.optional(boundedString(TEXT_LIMITS.jobDescription)),
+  cvText: boundedNonEmptyString(TEXT_LIMITS.cvText),
+  language: boundedNonEmptyString(TEXT_LIMITS.language),
+  model: Schema.optional(boundedNonEmptyString(TEXT_LIMITS.model)),
 });
 
 export const DeletedCvReviewSchema = Schema.Struct({ id: Schema.String });

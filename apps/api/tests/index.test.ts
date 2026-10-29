@@ -1,3 +1,4 @@
+import { TEXT_LIMITS } from "@ai-interview/shared";
 import { describe, expect, it } from "vitest";
 
 import { app } from "@/index";
@@ -35,6 +36,32 @@ describe("api app", () => {
     });
     expect(body.error.issues.length).toBeGreaterThan(0);
     expect(body.requestId).toBe(response.headers.get("x-request-id"));
+  });
+
+  it("rejects plans above the stage and question caps", async () => {
+    const generatePlan = (stages: unknown) =>
+      request("/api/interviews/interview-1/generate-plan", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stages }),
+      });
+
+    const tooManyStages = await generatePlan(
+      Array.from({ length: TEXT_LIMITS.stages + 1 }, (_, index) => ({
+        name: `Stage ${index + 1}`,
+        mainQuestionCount: 1,
+      })),
+    );
+
+    const tooManyQuestions = await generatePlan([
+      { name: "Stage", mainQuestionCount: TEXT_LIMITS.questionsPerStage + 1 },
+    ]);
+
+    const fractionalQuestions = await generatePlan([{ name: "Stage", mainQuestionCount: 1.5 }]);
+
+    expect(tooManyStages.status).toBe(422);
+    expect(tooManyQuestions.status).toBe(422);
+    expect(fractionalQuestions.status).toBe(422);
   });
 
   it("returns the error envelope for a missing route", async () => {

@@ -1,5 +1,7 @@
 import { Schema } from "effect";
 
+import { boundedNonEmptyString, TEXT_LIMITS } from "./limits";
+
 export const SessionStatusSchema = Schema.Literals([
   "created",
   "ready",
@@ -39,9 +41,9 @@ export type TranscriptEntry = Schema.Schema.Type<typeof TranscriptEntrySchema>;
 
 /** POST /api/sessions/:id/answer */
 export const AnswerRequestSchema = Schema.Struct({
-  text: Schema.NonEmptyString,
-  replyTo: Schema.NonEmptyString,
-  spokenQuestion: Schema.optional(Schema.NonEmptyString),
+  text: boundedNonEmptyString(TEXT_LIMITS.answer),
+  replyTo: boundedNonEmptyString(TEXT_LIMITS.entryId),
+  spokenQuestion: Schema.optional(boundedNonEmptyString(TEXT_LIMITS.answer)),
 });
 
 export const SessionStartResponseSchema = Schema.Struct({

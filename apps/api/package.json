@@ -24,6 +24,7 @@
     "drizzle-orm": "^0.45.4",
     "effect": "^4.0.6",
     "elysia": "2.0.0-rc.0",
+    "elysia-rate-limit": "^5.1.2",
     "postgres": "^3.4.9"
   },
   "devDependencies": {
