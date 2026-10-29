@@ -1,7 +1,7 @@
 import { Schema } from "effect";
 
 import { CvHighlightSchema, EvaluationCategorySchema, EvaluationPointSchema } from "./evaluation";
-import { TEXT_LIMITS } from "./limits";
+import { boundedNonEmptyString, FILE_LIMITS, TEXT_LIMITS } from "./limits";
 
 /** Gemini structured outputs. These schemas are the `outputSchema` for TanStack AI. */
 
@@ -44,6 +44,12 @@ export const InterviewPlanInputSchema = Schema.Struct({
 /** Output of the CV extractor: the PDF's readable text, kept as interview context. */
 export const CvExtractionSchema = Schema.Struct({
   cvText: Schema.String,
+});
+
+/** Body for POST /cv/extract — a multipart PDF upload plus an optional model. */
+export const ExtractCvRequestSchema = Schema.Struct({
+  file: Schema.File.check(Schema.isMinSize(1), Schema.isMaxSize(FILE_LIMITS.cvBytes)),
+  model: Schema.optional(boundedNonEmptyString(TEXT_LIMITS.model)),
 });
 
 export const CompetencyScoreSchema = Schema.Struct({

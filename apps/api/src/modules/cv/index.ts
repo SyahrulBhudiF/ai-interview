@@ -1,20 +1,18 @@
-import { ApiSuccessSchema, CvExtractionSchema } from "@ai-interview/shared";
+import { ApiSuccessSchema, CvExtractionSchema, ExtractCvRequestSchema } from "@ai-interview/shared";
 import { Schema } from "effect";
-import { Elysia, t } from "elysia";
+import { Elysia } from "elysia";
 
 import { ok } from "@/libs/response";
 import { runtime } from "@/runtime";
 
+import { InvalidCvFileError } from "./error";
 import { CvService } from "./service";
+import { isPdf } from "./validation";
 
 export const cv = new Elysia({ prefix: "/api", tags: ["CV"] }).post(
   "/cv/extract",
   {
-    body: t.Object({
-      // The MIME header is a hint; the service checks the %PDF- signature.
-      file: t.File({ maxSize: "10m" }),
-      model: t.Optional(t.String()),
-    }),
+    body: Schema.toStandardSchemaV1(ExtractCvRequestSchema),
     response: { 200: Schema.toStandardSchemaV1(ApiSuccessSchema(CvExtractionSchema)) },
     detail: {
       summary: "Extract CV text",
@@ -23,6 +21,9 @@ export const cv = new Elysia({ prefix: "/api", tags: ["CV"] }).post(
   },
   async ({ body }) => {
     const data = new Uint8Array(await body.file.arrayBuffer());
+
+    // The MIME header is only a hint; the bytes must carry the PDF signature.
+    if (!isPdf(data)) throw new InvalidCvFileError();
 
     return ok(
       await runtime.runPromise(

@@ -1,8 +1,4 @@
-import type { CvHighlight } from "@ai-interview/shared";
-
-/** A bare skill name ("Go") has no context to highlight. */
-const MIN_QUOTE_LENGTH = 10;
-const MAX_HIGHLIGHTS = 6;
+import { CV_HIGHLIGHT_LIMITS, type CvHighlight } from "@ai-interview/shared";
 
 /**
  * Gemini only promises 3-6 verbatim quotes. Enforce it here so a chatty model
@@ -16,12 +12,12 @@ export function normalizeCvHighlights(highlights: ReadonlyArray<CvHighlight>): C
     const quote = highlight.quote.trim();
     const key = quote.toLowerCase().replace(/\s+/g, " ");
 
-    if (quote.length < MIN_QUOTE_LENGTH || seen.has(key)) continue;
+    if (quote.length < CV_HIGHLIGHT_LIMITS.minQuoteLength || seen.has(key)) continue;
 
     seen.add(key);
     result.push({ ...highlight, quote });
 
-    if (result.length === MAX_HIGHLIGHTS) break;
+    if (result.length === CV_HIGHLIGHT_LIMITS.maxHighlights) break;
   }
 
   return result;

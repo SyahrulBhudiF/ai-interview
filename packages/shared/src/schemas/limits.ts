@@ -19,6 +19,17 @@ export const TEXT_LIMITS = {
   stages: 8,
 } as const;
 
+/** Upload limits for file inputs. */
+export const FILE_LIMITS = {
+  cvBytes: 10 * 1024 * 1024,
+} as const;
+
+/** Limits for the CV evidence highlights returned by Gemini. */
+export const CV_HIGHLIGHT_LIMITS = {
+  minQuoteLength: 10,
+  maxHighlights: 6,
+} as const;
+
 /** A string of at most `max` characters. */
 export function boundedString(max: number) {
   return Schema.String.check(Schema.isMaxLength(max));

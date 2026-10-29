@@ -38,6 +38,20 @@ describe("api app", () => {
     expect(body.requestId).toBe(response.headers.get("x-request-id"));
   });
 
+  it("rejects a non-PDF CV upload at the boundary", async () => {
+    const form = new FormData();
+    form.append("file", new File(["not a pdf"], "cv.txt", { type: "text/plain" }));
+
+    const response = await request("/api/cv/extract", { method: "POST", body: form });
+    const body = await response.json();
+
+    expect(response.status).toBe(422);
+    expect(body).toMatchObject({
+      ok: false,
+      error: { code: "VALIDATION", message: "Invalid request" },
+    });
+  });
+
   it("rejects plans above the stage and question caps", async () => {
     const generatePlan = (stages: unknown) =>
       request("/api/interviews/interview-1/generate-plan", {
