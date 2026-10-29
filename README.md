@@ -1,8 +1,8 @@
 # ai-interview
 
 A mock-interview app with a standalone CV reviewer. Configure a role, let Gemini
-write the question plan, rehearse a session, and get the transcript scored against
-a rubric. Or skip the interview and review a CV against the role you are applying
+write the question plan, answer out loud, and get the transcript scored against a
+rubric. Or skip the interview and review a CV against the role you are applying
 for.
 
 ## Features
@@ -10,9 +10,10 @@ for.
 - **Interview builder.** Pick the role, level, difficulty, language, persona, and
   model, and optionally attach a PDF CV. Gemini drafts stages with questions,
   answer criteria, and rubrics; every part stays editable.
-- **Live rehearsal.** A text-first interview with dynamic follow-ups, strict mode,
-  and an experimental Gemini Live voice panel. Every answer is saved to the
-  transcript.
+- **Voice interview.** Gemini Live asks questions aloud, and you answer through
+  your microphone. Mute or interrupt when needed, or switch to text without
+  losing your spoken draft. Saved answers feed the same transcript and debrief,
+  with dynamic follow-ups and strict mode.
 - **Debrief.** Rubric scores per competency, a summary, strengths and fixes (each
   with a reason), recommendations, and the CV marked line by line as strong or
   weak evidence.
@@ -22,25 +23,36 @@ for.
 - **Progress.** Score history and competency averages, with one-click practice
   interviews focused on the weakest competency.
 
+## Voice interview demo
+
+[Watch the 42-second recording with audio](assets/voice-interview-demo.mp4).
+
+The recording shows the interviewer asking a question, microphone mute and
+unmute, live transcription, and the completed interview. The candidate voice and
+CV are synthetic; the interviewer uses real Gemini Live responses.
+
 ## Screenshots
 
-**Interview builder** — stages, questions, criteria, and rubrics, all editable.
+The screenshots use fictional demo data and the current purple theme.
+
+**Interview builder.** Stages, questions, criteria, and rubrics, all editable.
 
 ![Interview builder](assets/interview-builder.png)
 
-**Live rehearsal** — answer in the room with the CV beside the transcript.
+**Voice interview.** Answer through your microphone with your CV beside the call.
+Select the image to open the demo recording.
 
-![Live rehearsal](assets/interview-live.png)
+[![Voice interview](assets/interview-live.png)](assets/voice-interview-demo.mp4)
 
-**Debrief** — rubric scores, strengths and fixes, and the CV marked with evidence.
+**Debrief.** Rubric scores, strengths and fixes, and the CV marked with evidence.
 
 ![Debrief](assets/debrief.png)
 
-**CV review** — the same report without running an interview.
+**CV review.** The same report without running an interview.
 
 ![CV review](assets/cv-review.png)
 
-**Progress** — score history and competency averages, with practice shortcuts.
+**Progress.** Score history and competency averages, with practice shortcuts.
 
 ![Progress](assets/progress.png)
 
@@ -51,16 +63,20 @@ for.
    context. Toggle follow-ups, detailed feedback, and strict mode.
 2. **Generate the plan.** Gemini returns stages with questions, answer criteria,
    and rubrics. Edit anything, then save.
-3. **Rehearse.** Starting a session asks the first question. Every answer is
-   recorded; the orchestrator adds a follow-up when the stage allows one, then
-   moves to the next question and closes the session when the plan runs out.
+3. **Answer out loud.** Start a voice interview and allow microphone access.
+   Gemini reads the question, listens, and submits your spoken answer. The server
+   saves its transcript before returning a follow-up or the next planned
+   question. The interview closes when the plan runs out. Text is a fallback if
+   you cannot use the microphone.
 4. **Read the debrief.** Evaluating a completed session scores each rubric
    category and writes a summary, strengths, improvements, and recommendations.
 5. **Track progress.** Scores and competency averages feed the Progress page,
    which can create a practice interview for the weakest competency.
 
-The live room is text-first. A Gemini Live voice channel sits in an experimental
-side panel; it is not written to the saved transcript.
+Audio is processed by Gemini. The app saves the text transcript, not an audio
+recording. The demo video above was captured separately. Voice requires
+microphone permission and a secure browser context, either HTTPS or localhost.
+The microphone animation respects `prefers-reduced-motion`.
 
 **CV review** reuses the same report shape without a session: pick the role and
 level, add the CV, and Gemini scores the fit, lists strengths and fixes, and marks
@@ -75,7 +91,7 @@ verbatim CV lines as strong or weak. Saved reviews live under `/cv-reviews`.
 | API         | Elysia 2 (`2.0.0-rc.0`) + Effect v4              |
 | API client  | Eden Treaty (`@elysia/eden`)                     |
 | Contracts   | Effect Schema in `packages/shared`               |
-| UI          | shadcn/ui (new-york) in `packages/components`    |
+| UI          | shadcn/ui (new-york) + Motion for React          |
 | ORM         | Drizzle + PostgreSQL 16                          |
 | AI          | TanStack AI with Gemini (text, structured, live) |
 | API docs    | OpenAPI + Scalar at `/openapi`                   |
