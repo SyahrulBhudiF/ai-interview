@@ -8,6 +8,7 @@ import type {
   Session as DbSession,
   TranscriptEntry as DbTranscriptEntry,
 } from "@/database/schema";
+import { decryptText, encryptText } from "@/libs/encryption";
 
 import type { StageNode } from "./progression";
 
@@ -30,7 +31,7 @@ export function toTranscriptEntry(row: DbTranscriptEntry): TranscriptEntry {
     id: row.id,
     sessionId: row.sessionId,
     role: row.role as TranscriptEntry["role"],
-    text: row.text,
+    text: decryptText(row.text),
     questionId: row.questionId ?? undefined,
     order: row.order,
     createdAt: row.createdAt.toISOString(),
@@ -72,7 +73,7 @@ export function newTranscriptEntryRow(
     id: crypto.randomUUID(),
     sessionId,
     role,
-    text,
+    text: encryptText(text),
     questionId: questionId ?? null,
     order,
   };

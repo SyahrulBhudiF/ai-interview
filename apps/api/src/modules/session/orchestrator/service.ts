@@ -15,6 +15,7 @@ import {
   sessions,
   transcriptEntries,
 } from "@/database/schema";
+import { encryptText } from "@/libs/encryption";
 import type { GeminiError } from "@/modules/gemini/error";
 import { GeminiService } from "@/modules/gemini/service";
 import { toInterview } from "@/modules/interview/mapper";
@@ -226,7 +227,7 @@ export class InterviewOrchestratorService extends Context.Service<
             if (request.spokenQuestion) {
               await tx
                 .update(transcriptEntries)
-                .set({ text: request.spokenQuestion })
+                .set({ text: encryptText(request.spokenQuestion) })
                 .where(eq(transcriptEntries.id, request.replyTo));
             }
 

@@ -6,6 +6,7 @@ import type {
 } from "@ai-interview/shared";
 
 import type { Interview as DbInterview, NewInterview } from "@/database/schema";
+import { decryptOptional, encryptOptional } from "@/libs/encryption";
 
 /** Maps a database row ($inferSelect) to the shared wire type. */
 export function toInterview(row: DbInterview): Interview {
@@ -14,9 +15,9 @@ export function toInterview(row: DbInterview): Interview {
     title: row.title,
     jobPosition: row.jobPosition,
     experienceLevel: row.experienceLevel as Interview["experienceLevel"],
-    jobDescription: row.jobDescription ?? undefined,
-    context: row.context ?? undefined,
-    cvText: row.cvText ?? undefined,
+    jobDescription: decryptOptional(row.jobDescription),
+    context: decryptOptional(row.context),
+    cvText: decryptOptional(row.cvText),
     language: row.language,
     difficulty: row.difficulty as Interview["difficulty"],
     status: row.status as Interview["status"],
@@ -66,9 +67,9 @@ export function newInterviewRow(input: CreateInterview): NewInterview {
     title: input.title,
     jobPosition: input.jobPosition,
     experienceLevel: input.experienceLevel,
-    jobDescription: input.jobDescription ?? null,
-    context: input.context ?? null,
-    cvText: input.cvText ?? null,
+    jobDescription: encryptOptional(input.jobDescription),
+    context: encryptOptional(input.context),
+    cvText: encryptOptional(input.cvText),
     language: input.language,
     difficulty: input.difficulty,
     model: input.model ?? "gemini-3.8-flash",
@@ -86,9 +87,9 @@ export function duplicateInterviewRow(source: DbInterview): NewInterview {
     title: `${source.title} (copy)`,
     jobPosition: source.jobPosition,
     experienceLevel: source.experienceLevel,
-    jobDescription: source.jobDescription,
-    context: source.context,
-    cvText: source.cvText,
+    jobDescription: encryptOptional(source.jobDescription ?? undefined),
+    context: encryptOptional(source.context ?? undefined),
+    cvText: encryptOptional(source.cvText ?? undefined),
     language: source.language,
     difficulty: source.difficulty,
     model: source.model,
@@ -106,9 +107,9 @@ export function interviewUpdate(input: UpdateInterview): Partial<NewInterview> {
     title: input.title,
     jobPosition: input.jobPosition,
     experienceLevel: input.experienceLevel,
-    jobDescription: input.jobDescription ?? null,
-    context: input.context ?? null,
-    cvText: input.cvText ?? null,
+    jobDescription: encryptOptional(input.jobDescription),
+    context: encryptOptional(input.context),
+    cvText: encryptOptional(input.cvText),
     language: input.language,
     difficulty: input.difficulty,
     model: input.model,

@@ -1,4 +1,4 @@
-import { Config, ConfigProvider, Effect } from "effect";
+import { Config, ConfigProvider, Effect, Option } from "effect";
 
 export type LogLevel = "debug" | "info" | "warning" | "error" | "fatal";
 
@@ -19,6 +19,7 @@ const config = Config.all({
     Config.withDefault("info"),
   ),
   geminiApiKey: Config.option(Config.String("GEMINI_API_KEY")),
+  dataEncryptionKey: Config.option(Config.String("DATA_ENCRYPTION_KEY")),
   geminiTimeoutMs: Config.Number("GEMINI_TIMEOUT_MS").pipe(Config.withDefault(90_000)),
   geminiModelsTimeoutMs: Config.Number("GEMINI_MODELS_TIMEOUT_MS").pipe(Config.withDefault(15_000)),
 });
@@ -26,3 +27,15 @@ const config = Config.all({
 export const env = Effect.runSync(
   Effect.provide(config, ConfigProvider.fromEnv().pipe(ConfigProvider.layer)),
 );
+
+if (env.nodeEnv === "production") {
+  const key = Option.isSome(env.dataEncryptionKey) ? env.dataEncryptionKey.value.trim() : "";
+
+  if (!key) {
+    throw new Error("DATA_ENCRYPTION_KEY is required when NODE_ENV=production");
+  }
+
+  if (Buffer.from(key, "base64").length !== 32) {
+    throw new Error("DATA_ENCRYPTION_KEY must be a base64-encoded 32-byte key");
+  }
+}

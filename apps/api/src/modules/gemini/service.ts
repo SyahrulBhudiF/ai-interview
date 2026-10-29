@@ -2,6 +2,7 @@ import {
   CvExtractionSchema,
   EvaluationReportSchema,
   GeminiModelListResponseSchema,
+  InterviewPlanInputSchema,
   InterviewPlanSchema,
   type CvExtraction,
   type CreateCvReview,
@@ -64,15 +65,23 @@ const generateInterviewPlan = Effect.fn("GeminiService.generateInterviewPlan")(f
     return yield* new GeminiApiKeyMissingError();
   }
 
-  return yield* geminiRequest(() =>
+  const plan = yield* geminiRequest(() =>
     chat({
       adapter: createGeminiChat(interview.model as GeminiTextModel, apiKey.value),
       messages: [{ role: "user", content: buildPlanPrompt(interview, stages, focus) }],
       threadId: crypto.randomUUID(),
+      // Gemini rejects array `maxItems` in a response schema, so validate the
+      // bounded shape after the call instead.
       outputSchema: Schema.toStandardJSONSchemaV1(InterviewPlanSchema),
       retry: { maxRetries: 1 },
     }),
   );
+
+  return yield* Effect.try({
+    try: () => Schema.decodeUnknownSync(InterviewPlanInputSchema)(plan),
+    catch: (cause) =>
+      new GeminiGenerationError({ message: `Gemini returned an invalid plan: ${String(cause)}` }),
+  });
 });
 
 const generateFollowUp = Effect.fn("GeminiService.generateFollowUp")(function* (
@@ -178,10 +187,21 @@ const extractCv = Effect.fn("GeminiService.extractCv")(function* (
   );
 });
 
+/** The model list changes rarely, and every page load asks for it. */
+const MODELS_CACHE_TTL_MS = 5 * 60_000;
+
+let modelsCache:
+  | { readonly models: ReadonlyArray<GeminiModel>; readonly expiresAt: number }
+  | undefined;
+
 const listModels = Effect.fn("GeminiService.listModels")(function* (): Effect.fn.Return<
   ReadonlyArray<GeminiModel>,
   GeminiError
 > {
+  if (modelsCache !== undefined && modelsCache.expiresAt > Date.now()) {
+    return modelsCache.models;
+  }
+
   const apiKey = env.geminiApiKey;
   if (Option.isNone(apiKey)) {
     return yield* new GeminiApiKeyMissingError();
@@ -207,13 +227,17 @@ const listModels = Effect.fn("GeminiService.listModels")(function* (): Effect.fn
     Effect.mapError(() => new GeminiModelListError({ message: "Unexpected models list response" })),
   );
 
-  return (parsed.models ?? [])
+  const models = (parsed.models ?? [])
     .filter((model) => model.supportedGenerationMethods?.includes("generateContent"))
     .map((model) => ({
       name: model.name.replace(/^models\//, ""),
       displayName: model.displayName,
       description: model.description,
     }));
+
+  modelsCache = { models, expiresAt: Date.now() + MODELS_CACHE_TTL_MS };
+
+  return models;
 });
 
 export interface IGeminiService {

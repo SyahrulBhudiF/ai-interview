@@ -1,0 +1,75 @@
+# Production-ish stack: Postgres, API, and the web SSR server.
+#
+#   cp .env.production.example .env.production
+#   # fill POSTGRES_PASSWORD, GEMINI_API_KEY, DATA_ENCRYPTION_KEY
+#   podman compose --env-file .env.production up -d --build
+#
+# The web server proxies /api to the API, so the browser only needs port 3000.
+name: ai-interview
+
+services:
+  postgres:
+    image: docker.io/library/postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ai_interview}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-ai_interview}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-ai_interview} -d ${POSTGRES_DB:-ai_interview}",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  migrate:
+    build:
+      context: .
+      target: api
+    command: ["bun", "run", "db:migrate"]
+    working_dir: /app/apps/api
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ai_interview}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ai_interview}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      target: api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      API_PORT: 3001
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ai_interview}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-ai_interview}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      DATA_ENCRYPTION_KEY: ${DATA_ENCRYPTION_KEY:?set DATA_ENCRYPTION_KEY}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    build:
+      context: .
+      target: web
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      API_URL: http://api:3001
+    depends_on:
+      - api
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+
+volumes:
+  postgres-data:

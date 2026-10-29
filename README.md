@@ -140,6 +140,33 @@ environment rather than `.env`. The web proxy follows `API_PORT`.
 The Gemini key stays server-side. The web never sees it, including when it asks
 for a realtime token.
 
+## Deploy
+
+`compose.prod.yaml` runs Postgres, the API, and the web SSR server. The web
+container proxies `/api` to the API, so only port 3000 needs to be published.
+
+```bash
+cp .env.production.example .env.production
+# fill POSTGRES_PASSWORD, GEMINI_API_KEY, and DATA_ENCRYPTION_KEY
+openssl rand -base64 32          # value for DATA_ENCRYPTION_KEY
+
+podman compose --env-file .env.production -f compose.prod.yaml up -d --build
+```
+
+- The `migrate` service runs the Drizzle migrations before the API starts.
+- Rate limits are in memory: 600 requests/minute per IP across the API and 20
+  requests/minute per IP on the routes that call Gemini. Each API process keeps
+  its own counters, so a multi-replica deployment needs a shared store (for
+  example Redis) or limiting at the proxy.
+- `GET /api/models` caches Gemini's model list for five minutes per API process,
+  so page loads do not spend a Gemini call each time.
+- `DATA_ENCRYPTION_KEY` encrypts CV text, job descriptions, context, and
+  transcripts at rest. Keep the same key across deploys: losing it makes existing
+  encrypted rows unreadable. Rows written before the key was added stay readable
+  as plaintext. Evaluation reports, including CV excerpts in highlights, are
+  still stored as JSON and are not encrypted yet.
+- `GEMINI_API_KEY` is optional at boot; AI routes answer `503` until it is set.
+
 ## API
 
 All routes live under `/api` and return the `{ ok, data }` envelope.

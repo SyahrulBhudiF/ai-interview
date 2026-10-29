@@ -25,7 +25,7 @@ export const UNTRUSTED_DATA_RULE =
  * that tries to close the block early and escape into the instructions.
  */
 export function wrapCandidateData(label: string, text: string): string {
-  const safe = text.replaceAll("</candidate_data>", "[/candidate_data]");
+  const safe = text.replace(/<\s*\/?\s*candidate_data\b[^>]*>/gi, "[/candidate_data]");
   return `<candidate_data source="${label}">\n${safe}\n</candidate_data>`;
 }
 

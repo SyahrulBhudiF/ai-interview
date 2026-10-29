@@ -7,6 +7,7 @@ import type {
 
 import type { CvReview as DbCvReview, NewCvReview } from "@/database/schema";
 import { normalizeCvHighlights } from "@/libs/cv-highlights";
+import { decryptOptional, decryptText, encryptOptional, encryptText } from "@/libs/encryption";
 
 /** Maps a database row ($inferSelect) to the shared wire type. */
 export function toCvReview(row: DbCvReview): CvReview {
@@ -14,8 +15,8 @@ export function toCvReview(row: DbCvReview): CvReview {
     id: row.id,
     jobPosition: row.jobPosition,
     experienceLevel: row.experienceLevel as CvReview["experienceLevel"],
-    jobDescription: row.jobDescription ?? undefined,
-    cvText: row.cvText,
+    jobDescription: decryptOptional(row.jobDescription),
+    cvText: decryptText(row.cvText),
     language: row.language,
     model: row.model,
     report: {
@@ -43,8 +44,8 @@ export function newCvReviewRow(input: CreateCvReview, report: EvaluationReport):
     id: crypto.randomUUID(),
     jobPosition: input.jobPosition.trim(),
     experienceLevel: input.experienceLevel,
-    jobDescription: input.jobDescription?.trim() || null,
-    cvText: input.cvText.trim(),
+    jobDescription: encryptOptional(input.jobDescription?.trim() || undefined),
+    cvText: encryptText(input.cvText.trim()),
     language: input.language.trim(),
     model: input.model ?? "gemini-3.8-flash",
     report,

@@ -64,6 +64,36 @@ describe("api app", () => {
     expect(fractionalQuestions.status).toBe(422);
   });
 
+  it("rejects saved plans above the stage and question caps", async () => {
+    const savePlan = (stages: unknown) =>
+      request("/api/interviews/interview-1/plan", {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ stages }),
+      });
+
+    const tooManyStages = await savePlan(
+      Array.from({ length: TEXT_LIMITS.stages + 1 }, (_, index) => ({
+        name: `Stage ${index + 1}`,
+        competencies: [],
+        questions: [],
+      })),
+    );
+
+    const tooManyQuestions = await savePlan([
+      {
+        name: "Stage",
+        competencies: [],
+        questions: Array.from({ length: TEXT_LIMITS.questionsPerStage + 1 }, (_, index) => ({
+          text: `Question ${index + 1}`,
+        })),
+      },
+    ]);
+
+    expect(tooManyStages.status).toBe(422);
+    expect(tooManyQuestions.status).toBe(422);
+  });
+
   it("returns the error envelope for a missing route", async () => {
     const response = await request("/api/missing");
     const body = await response.json();

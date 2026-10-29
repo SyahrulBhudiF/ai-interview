@@ -23,7 +23,7 @@ const EXPENSIVE_ROUTES: ReadonlyArray<{ method: string; pattern: RegExp }> = [
   { method: "POST", pattern: /^\/api\/practice$/ },
   {
     method: "POST",
-    pattern: /^\/api\/sessions\/[^/]+\/(start|answer|end|evaluate|realtime-token)$/,
+    pattern: /^\/api\/sessions\/[^/]+\/(answer|evaluate|realtime-token)$/,
   },
 ];
 
@@ -37,11 +37,13 @@ function isExpensiveRequest(request: Request): boolean {
 
 /**
  * Per-client rate limiting, on `elysia-rate-limit` for the counting, the
- * `RateLimit-*` headers, and the LRU store.
+ * `RateLimit-*` headers, and the in-memory LRU store.
  *
- * Two buckets share the plugin: one for every route and one for the routes that
- * call Gemini, so a single client cannot run up the API key's quota. Each bucket
- * skips the requests that belong to the other one.
+ * Two buckets share the plugin: a loose limit for every route and a tight one
+ * for the routes that call Gemini, so a single client cannot run up the API
+ * key's quota. Each bucket has its own store, so the counters stay separate.
+ * Counters live in the process; a multi-replica deployment needs a shared store
+ * (Redis) or limiting at the proxy.
  */
 export function createRateLimit(options: RateLimitOptions = {}) {
   const general = options.general ?? { max: 600, windowMs: 60_000 };

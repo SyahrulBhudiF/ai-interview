@@ -1,0 +1,16 @@
+.git
+.amp
+.github
+node_modules
+**/node_modules
+dist
+**/dist
+.turbo
+.tanstack
+.direnv
+.devenv
+.env
+.env.*
+!.env.example
+*.log
+assets

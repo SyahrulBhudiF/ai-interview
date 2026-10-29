@@ -1,4 +1,8 @@
-import { ApiSuccessSchema, InterviewPlanSchema } from "@ai-interview/shared";
+import {
+  ApiSuccessSchema,
+  InterviewPlanInputSchema,
+  InterviewPlanSchema,
+} from "@ai-interview/shared";
 import { Schema } from "effect";
 import { Elysia } from "elysia";
 
@@ -25,7 +29,7 @@ export const plan = new Elysia({ prefix: "/api", tags: ["Interview plan"] })
   .put(
     "/interviews/:id/plan",
     {
-      body: Schema.toStandardSchemaV1(InterviewPlanSchema),
+      body: Schema.toStandardSchemaV1(InterviewPlanInputSchema),
       response: { 200: Schema.toStandardSchemaV1(ApiSuccessSchema(InterviewPlanSchema)) },
       detail: {
         summary: "Save an interview plan",
