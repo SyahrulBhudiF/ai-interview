@@ -63,7 +63,7 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
   };
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10">
+    <main className="page-shell max-w-6xl">
       <div className="space-y-3">
         <Link to="/interviews" className="text-muted-foreground hover:text-foreground text-sm">
           ← Interviews
@@ -75,9 +75,9 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
             <header className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-2">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h1 className="font-serif text-4xl tracking-tight">{interview.data.title}</h1>
+                  <h1 className="page-heading">{interview.data.title}</h1>
                   <Badge variant={interview.data.status === "ready" ? "default" : "secondary"}>
-                    {interview.data.status}
+                    {interview.data.status === "ready" ? "Ready to practise" : "Draft"}
                   </Badge>
                 </div>
                 <p className="text-muted-foreground text-sm">
@@ -137,10 +137,10 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] lg:items-start">
         <Card>
           <CardHeader>
-            <CardTitle>Interview stages</CardTitle>
+            <CardTitle>The question plan</CardTitle>
             <CardDescription>
-              Define your stages and how many main questions each needs, then generate the questions
-              with Gemini — or generate a whole plan from scratch.
+              Let Gemini draft a plan, or add your own stages first. Edit the questions and scoring
+              criteria, then save the plan to start practising.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -168,8 +168,8 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
               <>
                 {!hasStages ? (
                   <p className="text-muted-foreground text-sm">
-                    No stages yet. Add a stage and set its question count, then generate — or let
-                    Gemini design the whole plan.
+                    No questions yet. Generate a plan for this role, or add a stage below to choose
+                    how the interview is structured.
                   </p>
                 ) : null}
                 <PlanEditor plan={plan} onChange={setDraft} />
@@ -181,8 +181,8 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
         <div className="space-y-6 lg:sticky lg:top-24">
           <Card>
             <CardHeader>
-              <CardTitle>Interview behavior</CardTitle>
-              <CardDescription>How the interviewer runs the session.</CardDescription>
+              <CardTitle>Your interviewer</CardTitle>
+              <CardDescription>Choose how much they push your answers.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {interview.isPending ? (
@@ -193,24 +193,24 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
                     id="allow-follow-ups"
                     checked={behavior.allowFollowUps}
                     disabled={interview.updateBehavior.isPending}
-                    label="Allow dynamic follow-up questions"
-                    description="The interviewer may ask follow-ups beyond the main questions."
+                    label="Ask follow-up questions"
+                    description="Ask a follow-up before moving to the next question."
                     onToggle={(checked) => toggleBehavior({ allowFollowUps: checked })}
                   />
                   <BehaviorToggle
                     id="generate-detailed-feedback"
                     checked={behavior.generateDetailedFeedback}
                     disabled={interview.updateBehavior.isPending}
-                    label="Generate detailed feedback"
-                    description="Produce a full evaluation report after the interview."
+                    label="Detailed debrief"
+                    description="Include rubric scores and feedback on your answers."
                     onToggle={(checked) => toggleBehavior({ generateDetailedFeedback: checked })}
                   />
                   <BehaviorToggle
                     id="strict-mode"
                     checked={behavior.strictMode}
                     disabled={interview.updateBehavior.isPending}
-                    label="Strict interviewer mode"
-                    description="Direct, no-hints interviewing that challenges weak answers."
+                    label="Push back on weak answers"
+                    description="Keep questions direct and don't offer hints."
                     onToggle={(checked) => toggleBehavior({ strictMode: checked })}
                   />
                 </>
@@ -220,16 +220,16 @@ export function InterviewBuilderPage({ interviewId }: { interviewId: string }) {
 
           <Card>
             <CardHeader>
-              <CardTitle>History</CardTitle>
-              <CardDescription>
-                Past sessions for this interview, with their scores.
-              </CardDescription>
+              <CardTitle>Previous attempts</CardTitle>
+              <CardDescription>Return to a saved session or read its debrief.</CardDescription>
             </CardHeader>
             <CardContent>
               {sessions.isPending ? (
                 <Skeleton className="h-16 w-full" />
               ) : !sessions.data || sessions.data.length === 0 ? (
-                <p className="text-muted-foreground text-sm">No sessions yet.</p>
+                <p className="text-muted-foreground text-sm">
+                  Your first session will appear here after you start the interview.
+                </p>
               ) : (
                 <div className="space-y-2">
                   {sessions.data.map(({ session, overallScore }) => (

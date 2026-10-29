@@ -28,7 +28,7 @@ export function CvReviewForm() {
       <CardHeader>
         <CardTitle>Target role</CardTitle>
         <CardDescription>
-          The review scores your CV against this role, not against a generic template.
+          Add the job posting for feedback on the requirements that matter to this application.
         </CardDescription>
       </CardHeader>
       <CardContent>

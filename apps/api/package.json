@@ -18,6 +18,7 @@
   "dependencies": {
     "@ai-interview/shared": "workspace:*",
     "@elysia/openapi": "2.0.0-rc.0",
+    "@google/genai": "2.31.0",
     "@tanstack/ai": "^1.0.0",
     "@tanstack/ai-gemini": "^1.0.0",
     "drizzle-orm": "^0.45.4",

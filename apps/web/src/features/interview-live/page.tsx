@@ -30,10 +30,12 @@ import { CvPanel } from "@/components/cv-panel";
 import { AnswerComposer } from "./components/answer-composer";
 import { TranscriptList } from "./components/transcript-list";
 import { VoiceMode } from "./components/voice-mode";
+import { useRealtimeInterview } from "./hooks/use-realtime";
 import { useInterviewContext, useSessionDetail } from "./hooks/use-session";
 
 export function InterviewLivePage({ sessionId }: { sessionId: string }) {
   const session = useSessionDetail(sessionId);
+  const voice = useRealtimeInterview(sessionId);
   const detail = session.data;
   const current = detail?.session;
   const { interview, plan } = useInterviewContext(current?.interviewId);
@@ -59,30 +61,49 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
   const progress = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
 
   const [answer, setAnswer] = useState("");
+  const [useText, setUseText] = useState(false);
+  const currentPrompt = transcript.at(-1);
 
   const submitAnswer = () => {
     const text = answer.trim();
-    if (!text || session.answer.isPending) return;
-    session.answer.mutate(text, { onSuccess: () => setAnswer("") });
+    if (!text || !currentPrompt || session.answer.isPending) return;
+    session.answer.mutate({ text, replyTo: currentPrompt.id }, { onSuccess: () => setAnswer("") });
+  };
+
+  const startVoiceInterview = async () => {
+    const result = await session.start.mutateAsync();
+    if (result.session.status !== "in_progress") return;
+    const refreshed = await session.refetch();
+    const prompt = refreshed.data?.transcript.at(-1);
+    if (prompt) await voice.connect(prompt.id);
+  };
+
+  const switchToText = async () => {
+    setAnswer(voice.takeDraft() || answer);
+    await voice.disconnect();
+    setUseText(true);
+  };
+
+  const endInterview = async () => {
+    const result = voice.candidateText ? await voice.retrySave() : undefined;
+    if (voice.candidateText && !result) return;
+    await voice.disconnect();
+    if (!result?.finished) session.end.mutate();
   };
 
   const status = current?.status;
   const interviewData = interview.data;
 
   return (
-    <main className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-10">
+    <main className="page-shell max-w-6xl gap-6">
       <div className="space-y-3">
         <Link to="/interviews" className="text-muted-foreground hover:text-foreground text-sm">
           ← Interviews
         </Link>
         <header className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-2">
-            <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">
-              Session
-            </p>
-            <h1 className="font-serif text-4xl tracking-tight">
-              {interviewData?.title ?? "Live interview"}
-            </h1>
+            <p className="eyebrow">One question at a time</p>
+            <h1 className="page-heading">{interviewData?.title ?? "Live interview"}</h1>
             <p className="text-muted-foreground text-sm">
               {interviewData
                 ? `${interviewData.jobPosition} · ${interviewData.experienceLevel} · ${interviewData.difficulty}`
@@ -96,7 +117,10 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
             {status === "in_progress" ? (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <Button variant="outline" disabled={session.end.isPending}>
+                  <Button
+                    variant="outline"
+                    disabled={session.end.isPending || voice.saving || session.answer.isPending}
+                  >
                     {session.end.isPending ? "Ending…" : "End interview"}
                   </Button>
                 </AlertDialogTrigger>
@@ -104,15 +128,15 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
                   <AlertDialogHeader>
                     <AlertDialogTitle>End this interview?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      The session stops here and the transcript is kept. You can evaluate it from
-                      the results page.
+                      Your current spoken answer will be saved before the interview ends. Unsent
+                      typed text is not included. You can then open your debrief.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Keep going</AlertDialogCancel>
                     <AlertDialogAction
                       className={buttonVariants({ variant: "destructive" })}
-                      onClick={() => session.end.mutate()}
+                      onClick={() => void endInterview()}
                     >
                       End interview
                     </AlertDialogAction>
@@ -148,14 +172,18 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
       ) : status === "created" ? (
         <Card>
           <CardHeader>
-            <CardTitle>Ready when you are</CardTitle>
+            <CardTitle>Step into your interview</CardTitle>
             <CardDescription>
-              Start the session and the interviewer asks the first question.
+              Find a quiet spot and put on your headphones. Your interviewer will ask questions
+              aloud. Answer through your microphone, just as you would in an interview.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => session.start.mutate()} disabled={session.start.isPending}>
-              {session.start.isPending ? "Starting…" : "Start interview"}
+            <Button
+              onClick={() => void startVoiceInterview().catch(() => {})}
+              disabled={session.start.isPending}
+            >
+              {session.start.isPending ? "Opening the room…" : "Start voice interview"}
             </Button>
           </CardContent>
         </Card>
@@ -194,27 +222,59 @@ export function InterviewLivePage({ sessionId }: { sessionId: string }) {
               <CvPanel cvText={interviewData.cvText} collapsible className="lg:hidden" />
             ) : null}
 
+            {!useText ? (
+              <VoiceMode
+                realtime={voice}
+                question={currentPrompt?.text ?? "Preparing your question…"}
+                onConnect={() => {
+                  if (currentPrompt) void voice.connect(currentPrompt.id);
+                }}
+              />
+            ) : null}
+
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-muted-foreground text-xs">
+                {useText
+                  ? "Text answers are saved in the same transcript."
+                  : "Microphone trouble? You can continue by typing."}
+              </p>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  if (useText) setUseText(false);
+                  else void switchToText();
+                }}
+                disabled={voice.saving || session.answer.isPending}
+              >
+                {useText ? "Return to voice" : "Use text instead"}
+              </Button>
+            </div>
+
             <Card>
               <CardHeader>
-                <CardTitle>Transcript</CardTitle>
+                <CardTitle>Saved transcript</CardTitle>
                 <CardDescription>
-                  Answers are saved to the transcript and used for the debrief.
+                  Your spoken and typed answers feed the same interview debrief.
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <TranscriptList transcript={transcript} pending={session.answer.isPending} />
-              </CardContent>
-              <CardFooter>
-                <AnswerComposer
-                  value={answer}
-                  onChange={setAnswer}
-                  onSubmit={submitAnswer}
-                  pending={session.answer.isPending}
+                <TranscriptList
+                  transcript={transcript}
+                  pending={session.answer.isPending || voice.saving}
                 />
-              </CardFooter>
+              </CardContent>
+              {useText ? (
+                <CardFooter>
+                  <AnswerComposer
+                    value={answer}
+                    onChange={setAnswer}
+                    onSubmit={submitAnswer}
+                    pending={session.answer.isPending}
+                  />
+                </CardFooter>
+              ) : null}
             </Card>
-
-            <VoiceMode sessionId={sessionId} />
           </div>
 
           {interviewData?.cvText ? (

@@ -36,11 +36,11 @@ export function InterviewsList({
 
   if (!interviews || interviews.length === 0) {
     return (
-      <div className="bg-muted/40 flex flex-col items-start gap-3 rounded-2xl px-8 py-12">
-        <p className="font-medium">No interviews yet</p>
+      <div className="bg-secondary/50 flex flex-col items-start gap-3 rounded-3xl px-8 py-12">
+        <p className="text-xl font-semibold tracking-tight">Start with the job you want.</p>
         <p className="text-muted-foreground max-w-md text-sm">
-          Create an interview to define the role, generate a plan, and rehearse with the AI
-          interviewer.
+          Add a job title and a little context. Gemini drafts the questions, and you decide which
+          ones to keep.
         </p>
         <Link
           to="/interviews/new"
@@ -60,12 +60,14 @@ export function InterviewsList({
           to="/interviews/$interviewId"
           params={{ interviewId: interview.id }}
         >
-          <Card className="flex h-full flex-col justify-between transition-shadow hover:shadow-md">
+          <Card className="flex h-full flex-col justify-between transition-[transform,box-shadow] duration-200 hover:shadow-md motion-safe:hover:-translate-y-1">
             <CardHeader className="space-y-2">
               <div className="flex items-start justify-between gap-3">
-                <CardTitle className="text-base leading-snug">{interview.title}</CardTitle>
+                <CardTitle className="min-w-0 text-lg leading-snug break-words">
+                  {interview.title}
+                </CardTitle>
                 <Badge variant={interview.status === "ready" ? "default" : "secondary"}>
-                  {interview.status}
+                  {interview.status === "ready" ? "Ready" : "Draft"}
                 </Badge>
               </div>
               <p className="text-muted-foreground text-sm">
@@ -80,7 +82,7 @@ export function InterviewsList({
                   day: "numeric",
                 })}
               </span>
-              <span className="font-medium">Open →</span>
+              <span className="text-primary font-medium">Open interview →</span>
             </CardContent>
           </Card>
         </Link>

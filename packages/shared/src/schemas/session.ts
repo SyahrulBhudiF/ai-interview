@@ -42,6 +42,8 @@ export type TranscriptEntry = Schema.Schema.Type<typeof TranscriptEntrySchema>;
 /** POST /api/sessions/:id/answer */
 export const AnswerRequestSchema = Schema.Struct({
   text: boundedNonEmptyString(TEXT_LIMITS.answer),
+  replyTo: boundedNonEmptyString(TEXT_LIMITS.entryId),
+  spokenQuestion: Schema.optional(boundedNonEmptyString(TEXT_LIMITS.answer)),
 });
 
 export const SessionStartResponseSchema = Schema.Struct({
@@ -52,6 +54,7 @@ export const SessionStartResponseSchema = Schema.Struct({
 export const SessionAnswerResponseSchema = Schema.Struct({
   session: SessionSchema,
   interviewerMessage: Schema.String,
+  interviewerEntryId: Schema.String,
   finished: Schema.Boolean,
 });
 

@@ -6,6 +6,7 @@ import {
   SessionDetailResponseSchema,
   SessionSchema,
   SessionStartResponseSchema,
+  type AnswerRequest,
 } from "@ai-interview/shared";
 import { toast } from "@ai-interview/ui/sonner";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -48,8 +49,8 @@ export function useSessionDetail(sessionId: string) {
   });
 
   const answer = useMutation({
-    mutationFn: async (text: string) => {
-      const { data, error } = await api.sessions({ id: sessionId }).answer.post({ text });
+    mutationFn: async (request: AnswerRequest) => {
+      const { data, error } = await api.sessions({ id: sessionId }).answer.post(request);
       if (error || !data) throw new Error(getApiErrorMessage(error, "Failed to send the answer."));
       return Schema.decodeUnknownSync(ApiSuccessSchema(SessionAnswerResponseSchema))(data).data;
     },

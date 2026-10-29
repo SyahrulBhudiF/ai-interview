@@ -81,7 +81,7 @@ export const session = new Elysia({ prefix: "/api", tags: ["Session"] })
     async ({ params, body }) =>
       ok(
         await runtime.runPromise(
-          InterviewOrchestratorService.use((service) => service.answer(params.id, body.text)),
+          InterviewOrchestratorService.use((service) => service.answer(params.id, body)),
         ),
       ),
   )

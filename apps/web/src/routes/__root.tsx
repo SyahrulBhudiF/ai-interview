@@ -3,7 +3,7 @@ import type { QueryClient } from "@tanstack/react-query";
 import { createRootRouteWithContext, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
-import { SiteHeader } from "@/components/site-header";
+import { AppShell } from "@/components/app-shell";
 
 import appCss from "@/styles/globals.css?url";
 
@@ -15,6 +15,11 @@ export const Route = createRootRouteWithContext<{
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "AI Interview" },
+      {
+        name: "description",
+        content:
+          "Practice role-specific interview questions with Gemini, review your answers, and find what to work on next.",
+      },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
@@ -28,8 +33,9 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body className="bg-background text-foreground font-sans antialiased">
-        <SiteHeader />
-        <Outlet />
+        <AppShell>
+          <Outlet />
+        </AppShell>
         <Toaster position="bottom-right" richColors closeButton />
         <TanStackRouterDevtools position="bottom-left" />
         <Scripts />

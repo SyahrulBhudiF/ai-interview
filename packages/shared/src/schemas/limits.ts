@@ -13,6 +13,7 @@ export const TEXT_LIMITS = {
   context: 20_000,
   cvText: 100_000,
   answer: 10_000,
+  entryId: 200,
   stageName: 200,
   stages: 12,
 } as const;

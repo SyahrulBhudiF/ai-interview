@@ -13,12 +13,13 @@ export function ProgressPage() {
   const practice = usePracticeInterview();
 
   return (
-    <main className="mx-auto flex max-w-5xl flex-col gap-8 px-6 py-10">
-      <header className="space-y-2">
-        <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">Progress</p>
-        <h1 className="font-serif text-4xl tracking-tight">Your progress</h1>
-        <p className="text-muted-foreground max-w-xl text-sm">
-          Compare scores across interviews and see which competencies need practice.
+    <main className="page-shell max-w-5xl">
+      <header className="space-y-3">
+        <p className="eyebrow">Every attempt counts</p>
+        <h1 className="page-heading">Your practice, over time.</h1>
+        <p className="text-muted-foreground max-w-xl leading-relaxed">
+          Scores from your saved debriefs. Find a skill that needs another attempt and build a
+          practice interview around it.
         </p>
       </header>
 

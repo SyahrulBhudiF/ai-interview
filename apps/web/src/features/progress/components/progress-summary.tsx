@@ -1,5 +1,4 @@
 import type { ProgressSummary } from "@ai-interview/shared";
-import { Card, CardContent } from "@ai-interview/ui/card";
 
 export function ProgressSummaryCards({ summary }: { summary: ProgressSummary }) {
   const items = [
@@ -7,19 +6,19 @@ export function ProgressSummaryCards({ summary }: { summary: ProgressSummary }) 
     { label: "Sessions", value: summary.sessions },
     { label: "Completed", value: summary.completedSessions },
     { label: "Evaluated", value: summary.evaluatedSessions },
-    { label: "Average score", value: summary.averageScore ?? "—" },
+    { label: "Average / 100", value: summary.averageScore ?? "—" },
   ];
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+    <dl className="bg-secondary/60 grid grid-cols-2 gap-x-6 gap-y-7 rounded-3xl p-6 sm:grid-cols-3 sm:p-8 lg:grid-cols-5">
       {items.map((item) => (
-        <Card key={item.label}>
-          <CardContent>
-            <p className="text-muted-foreground text-sm">{item.label}</p>
-            <p className="text-2xl font-semibold tabular-nums">{item.value}</p>
-          </CardContent>
-        </Card>
+        <div key={item.label}>
+          <dt className="text-muted-foreground text-sm">{item.label}</dt>
+          <dd className="text-primary mt-2 text-4xl font-semibold tracking-tight tabular-nums">
+            {item.value}
+          </dd>
+        </div>
       ))}
-    </div>
+    </dl>
   );
 }

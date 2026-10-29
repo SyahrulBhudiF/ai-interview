@@ -48,9 +48,7 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
   const cvText = interviewQuery.data?.cvText;
 
   return (
-    <main
-      className={cn("mx-auto flex flex-col gap-6 px-6 py-10", cvText ? "max-w-5xl" : "max-w-3xl")}
-    >
+    <main className={cn("page-shell gap-6", cvText ? "max-w-6xl" : "max-w-3xl")}>
       <div className="space-y-3">
         <Link
           to="/sessions/$sessionId"
@@ -59,8 +57,11 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
         >
           ← Session
         </Link>
-        <header className="flex items-center justify-between gap-4">
-          <h1 className="font-serif text-4xl tracking-tight">Interview results</h1>
+        <header className="flex flex-wrap items-center justify-between gap-4">
+          <div className="space-y-2">
+            <p className="eyebrow">After the conversation</p>
+            <h1 className="page-heading">Your interview debrief</h1>
+          </div>
           {sessionQuery.data ? (
             <Badge
               variant={sessionQuery.data.session.status === "completed" ? "default" : "secondary"}
@@ -94,9 +95,10 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
           ) : (
             <Card>
               <CardHeader>
-                <CardTitle>Not evaluated yet</CardTitle>
+                <CardTitle>What did your answers show?</CardTitle>
                 <CardDescription>
-                  Generate a rubric-based report from this session's transcript.
+                  Ask Gemini to score this transcript against the interview rubric and explain which
+                  answers need another pass.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -105,7 +107,7 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
                   onClick={() => evaluation.evaluate.mutate()}
                   disabled={evaluation.evaluate.isPending}
                 >
-                  {evaluation.evaluate.isPending ? "Evaluating…" : "Evaluate interview"}
+                  {evaluation.evaluate.isPending ? "Reading your answers…" : "Generate debrief"}
                 </Button>
               </CardContent>
             </Card>
@@ -126,8 +128,10 @@ export function InterviewResultsPage({ sessionId }: { sessionId: string }) {
                         : "bg-accent/40 rounded-2xl p-4"
                     }
                   >
-                    <p className="text-muted-foreground text-xs uppercase">{entry.role}</p>
-                    <p className="text-sm">{entry.text}</p>
+                    <p className="text-primary mb-2 text-xs font-medium">
+                      {entry.role === "ai" ? "Interviewer" : "You"}
+                    </p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">{entry.text}</p>
                   </div>
                 ))}
               </CardContent>

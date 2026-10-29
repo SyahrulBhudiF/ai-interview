@@ -1,4 +1,5 @@
 import type { Interview } from "@ai-interview/shared";
+import { Behavior, Modality } from "@google/genai";
 import { realtimeToken, type RealtimeToken } from "@tanstack/ai";
 import { geminiRealtimeToken } from "@tanstack/ai-gemini";
 import { Context, Effect, Layer, Option } from "effect";
@@ -27,6 +28,29 @@ const createRealtimeToken = Effect.fn("GeminiLiveService.createRealtimeToken")(f
         liveConnectConstraints: {
           model: MODEL,
           config: {
+            responseModalities: [Modality.AUDIO],
+            inputAudioTranscription: {},
+            outputAudioTranscription: {},
+            realtimeInputConfig: {
+              automaticActivityDetection: { silenceDurationMs: 1500 },
+            },
+            tools: [
+              {
+                functionDeclarations: [
+                  {
+                    name: "submit_answer",
+                    behavior: Behavior.BLOCKING,
+                    description:
+                      "Save the candidate's completed spoken answer and get the next question. Call once per answer, never for a request to repeat or clarify.",
+                    parametersJsonSchema: {
+                      type: "object",
+                      properties: {},
+                      additionalProperties: false,
+                    },
+                  },
+                ],
+              },
+            ],
             systemInstruction: {
               parts: [{ text: buildInterviewerInstructions(interview, question) }],
             },

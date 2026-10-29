@@ -67,11 +67,16 @@ function DebriefCard({
 export function EvaluationReportView({ report }: { report: EvaluationReport }) {
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-secondary/60 shadow-none">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="mb-3 flex items-center justify-between gap-4">
             <CardTitle>Overall score</CardTitle>
-            <span className="text-3xl font-semibold tabular-nums">{report.overallScore}</span>
+            <p className="text-primary shrink-0 text-5xl font-semibold tracking-tight tabular-nums">
+              {report.overallScore}
+              <span className="text-muted-foreground ml-1 text-base font-normal tracking-normal">
+                /100
+              </span>
+            </p>
           </div>
           <CardDescription>{report.summary}</CardDescription>
         </CardHeader>
@@ -79,16 +84,22 @@ export function EvaluationReportView({ report }: { report: EvaluationReport }) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Rubric</CardTitle>
+          <CardTitle>How the score breaks down</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {report.scores.map((score) => (
             <div key={score.category} className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm font-medium">{score.category.replaceAll("_", " ")}</p>
-                <p className="text-muted-foreground text-sm">{score.feedback}</p>
+                <p className="text-sm font-medium capitalize">
+                  {score.category.replaceAll("_", " ")}
+                </p>
+                <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
+                  {score.feedback}
+                </p>
               </div>
-              <span className="text-sm font-semibold tabular-nums">{score.score}/5</span>
+              <span className="text-primary shrink-0 text-sm font-semibold tabular-nums">
+                {score.score}/5
+              </span>
             </div>
           ))}
         </CardContent>

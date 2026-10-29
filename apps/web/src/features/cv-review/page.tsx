@@ -10,20 +10,20 @@ export function CvReviewPage() {
   const reviews = useCvReviews();
 
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-8 px-6 py-10">
-      <header className="space-y-2">
-        <p className="text-primary text-xs font-semibold tracking-[0.18em] uppercase">Review</p>
-        <h1 className="font-serif text-4xl tracking-tight">CV review</h1>
-        <p className="text-muted-foreground max-w-xl">
-          Pick the role you are applying for and add your CV. You get a score, the lines that help
-          or hurt the application, and what to fix next.
+    <main className="page-shell max-w-3xl">
+      <header className="space-y-3">
+        <p className="eyebrow">Before you send the application</p>
+        <h1 className="page-heading">How does your CV read?</h1>
+        <p className="text-muted-foreground max-w-xl leading-relaxed">
+          Add your CV and the role you're after. Gemini marks the lines that support your
+          application, the claims that need evidence, and what to rewrite.
         </p>
       </header>
 
       <CvReviewForm />
 
       <section className="space-y-3">
-        <h2 className="font-serif text-2xl tracking-tight">Recent reviews</h2>
+        <h2 className="text-2xl">Previous reviews</h2>
 
         {reviews.isPending ? (
           <div className="space-y-2">
@@ -38,7 +38,7 @@ export function CvReviewPage() {
         ) : reviews.data.length === 0 ? (
           <div className="bg-muted/40 rounded-2xl px-6 py-8">
             <p className="text-muted-foreground text-sm">
-              No reviews yet. Your first one will appear here.
+              Your saved reports will appear here, so you can return to the feedback while editing.
             </p>
           </div>
         ) : (

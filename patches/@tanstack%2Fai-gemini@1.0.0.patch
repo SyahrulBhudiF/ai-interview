@@ -1,0 +1,45 @@
+diff --git a/dist/esm/realtime/client.js b/dist/esm/realtime/client.js
+index 467ce595c1ba032eccbc55f6fb26fdaa15637734..dcbf85388b6e3701e608e41d260fea46bd898475 100644
+--- a/dist/esm/realtime/client.js
++++ b/dist/esm/realtime/client.js
+@@ -302,13 +302,13 @@ var GeminiLiveClient = class {
+ 		else if (mimeType.startsWith("image/") || mimeType.startsWith("video/")) this.sendMessage({ realtimeInput: { video: blob } });
+ 	}
+ 	sendAudioMessage(base64PCM) {
+-		this.sendRealtimeInputMessage(base64PCM, "audio/pcm");
++		this.sendRealtimeInputMessage(base64PCM, "audio/pcm;rate=16000");
+ 	}
+ 	sendImageMessage(base64, mimeType = "image/jpeg") {
+ 		this.sendRealtimeInputMessage(base64, mimeType);
+ 	}
+ 	sendTextMessage(text) {
+-		const message = { realtimeInput: { text } };
++		const message = { clientContent: { turns: [{ role: "user", parts: [{ text }] }], turnComplete: true } };
+ 		this.sendMessage(message);
+ 	}
+ 	sendToolResponse(functionResponses) {
+diff --git a/src/realtime/client.ts b/src/realtime/client.ts
+index 49ae407fb486d3a8cfb01de3dda9e901f98af1e1..2b213a07dc17256dbfd56a9d897c9c4af7be0ac2 100644
+--- a/src/realtime/client.ts
++++ b/src/realtime/client.ts
+@@ -520,7 +520,7 @@ export class GeminiLiveClient {
+   }
+ 
+   sendAudioMessage(base64PCM: string) {
+-    this.sendRealtimeInputMessage(base64PCM, 'audio/pcm')
++    this.sendRealtimeInputMessage(base64PCM, 'audio/pcm;rate=16000')
+   }
+ 
+   sendImageMessage(base64: string, mimeType = 'image/jpeg') {
+@@ -529,8 +529,9 @@ export class GeminiLiveClient {
+ 
+   sendTextMessage(text: string) {
+     const message: LiveClientMessage = {
+-      realtimeInput: {
+-        text,
++      clientContent: {
++        turns: [{ role: 'user', parts: [{ text }] }],
++        turnComplete: true,
+       },
+     }
+     this.sendMessage(message)
